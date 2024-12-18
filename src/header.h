@@ -1,28 +1,16 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   header.h                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/25 12:34:19 by vmoroz            #+#    #+#             */
-/*   Updated: 2024/12/18 07:09:54 by marksylaiev      ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef HEADER_H
 # define HEADER_H
 
-/* For libft */
-# include "../libs/libft/libft.h"
+/* For printf and FILE type (must be included first) */
+# include <stdio.h>
 
 /* For readline, rl_clear_history, rl_on_new_line, rl_replace_line,
-	rl_redisplay, add_history */
-# include <readline/history.h>
+   rl_redisplay, add_history */
 # include <readline/readline.h>
+# include <readline/history.h>
 
-/* For printf */
-# include <stdio.h>
+/* For libft */
+# include "../libs/libft/libft.h"
 
 /* For malloc, free */
 # include <stdlib.h>
@@ -38,9 +26,6 @@
 
 /* For signal, sigaction, sigemptyset, sigaddset, kill */
 # include <signal.h>
-
-/* For exit */
-# include <stdlib.h>
 
 /* For getcwd, chdir */
 # include <unistd.h>

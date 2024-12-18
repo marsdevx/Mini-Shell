@@ -1,6 +1,6 @@
 # Vars
 CC = cc # cc / clang
-CFLAGS = -Wall -Werror -Wextra
+CFLAGS = -Wall -Werror -Wextra -I$(SRCDIR) -I$(LIBFTDIR) -I/opt/homebrew/opt/readline/include
 NAME = minishell
 SRCDIR = src
 OBJDIR = obj
@@ -14,7 +14,7 @@ SRCS = $(addprefix $(SRCDIR)/, $(SRC))
 
 # Rules of files
 $(NAME): $(OBJS) $(LIBFTDIR)/libft.a
-	$(CC) $(CFLAGS) $(OBJS) -L$(LIBFTDIR) -lft -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJS) -L$(LIBFTDIR) -lft -L/opt/homebrew/opt/readline/lib -lreadline -o $(NAME)
 
 # Create necessary directories for object files
 $(OBJDIR):
@@ -22,7 +22,7 @@ $(OBJDIR):
 
 # Compile source files to object files
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -I$(SRCDIR) -I$(LIBFTDIR) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Rules to build the libraries
 $(LIBFTDIR)/libft.a:
