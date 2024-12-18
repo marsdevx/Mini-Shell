@@ -3,6 +3,13 @@
 minishell > hello
 minishell > hello
 
+## V1 --work
+readline(PROMPT) -> save str after minishell> in var, and write minishell> while program started
+ft_strncmp(input, EXIT_CMD, sizeof(EXIT_CMD)) == 0 -> compare input with existing commands, if cont print error
+
+
+
+
 
 
 # Allowed funcs:

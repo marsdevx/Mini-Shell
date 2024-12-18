@@ -15,6 +15,15 @@
 
 #define PROMPT "minishell> "
 #define EXIT_CMD "exit"
+#define PWD_CMD "pwd"
+
+typedef struct s_command {
+  char *name;
+  void (*func)(void);
+} t_command;
+
+// Commands
+void execute_command(char *input);
 
 /* For libft */
 # include "../libs/libft/libft.h"

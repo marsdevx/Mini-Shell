@@ -7,7 +7,8 @@ OBJDIR = obj
 LIBFTDIR = libs/libft
 
 SRC_CORE = core/main.c
-SRC = $(SRC_CORE)
+SRC_CMD = commands/commands.c
+SRC = $(SRC_CORE) $(SRC_CMD)
 
 OBJS = $(addprefix $(OBJDIR)/, $(SRC:.c=.o))
 SRCS = $(addprefix $(SRCDIR)/, $(SRC))
@@ -18,7 +19,7 @@ $(NAME): $(OBJS) $(LIBFTDIR)/libft.a
 
 # Create necessary directories for object files
 $(OBJDIR):
-	mkdir -p $(OBJDIR)/core
+	mkdir -p $(OBJDIR)/core $(OBJDIR)/commands
 
 # Compile source files to object files
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
