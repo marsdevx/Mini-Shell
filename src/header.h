@@ -16,6 +16,7 @@
 #define PROMPT "minishell> "
 #define EXIT_CMD "exit"
 #define PWD_CMD "pwd"
+#define ENV_CMD "env"
 
 typedef struct s_command {
   char *name;
@@ -23,7 +24,7 @@ typedef struct s_command {
 } t_command;
 
 // Commands
-void execute_command(char *input);
+void execute_command(char *input, char **envp);
 void cmd_cd(char *arg);
 
 /* For libft */

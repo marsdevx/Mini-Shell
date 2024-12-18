@@ -5,15 +5,18 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/18 20:27:51 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/18 22:42:36 by marksylaiev      ###   ########.fr       */
+/*   Created: 2024/12/19 00:30:00 by marksylaiev       #+#    #+#             */
+/*   Updated: 2024/12/18 23:12:09 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../header.h"
 
-int main(void) {
+int main(int argc, char **argv, char **envp) {
   char *input;
+
+  (void)argc;  // Unused parameter
+  (void)argv;  // Unused parameter
 
   while (1) {
     input = readline(PROMPT);
@@ -24,7 +27,7 @@ int main(void) {
 
     if (*input) {
       add_history(input);
-      execute_command(input);
+      execute_command(input, envp);  // Pass envp to execute_command
     }
 
     free(input);

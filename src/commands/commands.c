@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 20:27:51 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/18 22:55:56 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/18 23:11:30 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,15 @@ void cmd_exit(void) {
   exit(0);
 }
 
+// env command: print environment variables
+void cmd_env(char **envp) {
+  for (int i = 0; envp[i] != NULL; i++) {
+    printf("%s\n", envp[i]);
+  }
+}
+
 // Execute the appropriate command
-void execute_command(char *input) {
+void execute_command(char *input, char **envp) {
   char *args = strdup(input); // Duplicate input to tokenize
   char *command = strtok(args, " ");
   char *arg = strtok(NULL, " "); // Get the argument for the command
@@ -37,6 +44,7 @@ void execute_command(char *input) {
   t_command commands[] = {
     {PWD_CMD, (void (*)(void))cmd_pwd},
     {EXIT_CMD, (void (*)(void))cmd_exit},
+    {ENV_CMD, (void (*)(void))cmd_env},
     {"cd", (void (*)(void))cmd_cd},
     {NULL, NULL}
   };
@@ -46,9 +54,11 @@ void execute_command(char *input) {
     if (strcmp(command, commands[i].name) == 0) {
       if (strcmp(command, "cd") == 0)
         cmd_cd(arg);
+      else if (strcmp(command, "env") == 0)
+        cmd_env(envp);
       else
         commands[i].func();
-      
+
       free(args);
       return;
     }
