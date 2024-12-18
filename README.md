@@ -8,6 +8,8 @@ readline(PROMPT) -> save str after minishell> in var, and write minishell> while
 ft_strncmp(input, EXIT_CMD, sizeof(EXIT_CMD)) == 0 -> compare input with existing commands, if cont print error
 
 
+# Version 2
+echo, echo -n, cd, pwd, exprot, unset, env, exit (without any characters or shortcuts)
 
 
 
