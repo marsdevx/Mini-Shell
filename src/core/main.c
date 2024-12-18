@@ -6,13 +6,14 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 20:27:51 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/18 20:38:35 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/18 20:45:24 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../header.h"
 
-int main() {
-	ft_printf("Work");
-	return 0;
+int	main(void)
+{
+	printf("Work");
+	return (0);
 }
