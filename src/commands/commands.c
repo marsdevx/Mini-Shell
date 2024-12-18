@@ -6,26 +6,23 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/18 23:49:30 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/18 23:58:17 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../header.h"
 
+#include "../header.h"
+
 void cmd_echo(char *args) {
-  int my_newline = 1;  // Default: print newline at the end
-
-  // Check if the first argument is "-n"
+  int my_newline = 1;
   if (args && strncmp(args, "-n", 2) == 0 && (args[2] == ' ' || args[2] == '\0')) {
-    my_newline = 0;  // Disable newline
+    my_newline = 0;
     args = args + 2;
-    while (*args == ' ') args++;  // Skip spaces after "-n"
+    while (*args == ' ') args++;
   }
-
-  // Print the remaining arguments
   if (args)
     printf("%s", args);
-
   if (my_newline)
     printf("\n");
 }
@@ -38,30 +35,25 @@ void cmd_pwd(void) {
     perror("minishell: pwd");
 }
 
-// exit command: exit the shell
 void cmd_exit(void) {
   printf("exit\n");
   exit(0);
 }
 
-// env command: print environment variables
 void cmd_env(char **envp) {
   for (int i = 0; envp[i] != NULL; i++) {
     printf("%s\n", envp[i]);
   }
 }
 
-// unset command: unset environment variables
 void cmd_unset(char *arg, char **envp) {
   if (!arg) {
     fprintf(stderr, "minishell: unset: missing argument\n");
     return;
   }
-
   int i = 0;
   while (envp[i] != NULL) {
     if (strncmp(envp[i], arg, strlen(arg)) == 0 && envp[i][strlen(arg)] == '=') {
-      // Shift the remaining entries to remove the variable
       int j = i;
       while (envp[j] != NULL) {
         envp[j] = envp[j + 1];
@@ -71,32 +63,23 @@ void cmd_unset(char *arg, char **envp) {
     }
     i++;
   }
-
   fprintf(stderr, "minishell: unset: %s not found\n", arg);
 }
 
-// export command: print sorted environment variables
 void cmd_export(char **envp) {
   int i, j;
   char *temp;
-
-  // Count the number of environment variables
   int count = 0;
   while (envp[count] != NULL)
     count++;
-
-  // Create a copy of the environment array for sorting
   char **sorted_env = malloc((count + 1) * sizeof(char *));
   if (!sorted_env) {
     perror("minishell: export");
     return;
   }
-
   for (i = 0; i < count; i++)
     sorted_env[i] = envp[i];
   sorted_env[count] = NULL;
-
-  // Simple bubble sort to sort the environment variables
   for (i = 0; i < count - 1; i++) {
     for (j = 0; j < count - i - 1; j++) {
       if (strcmp(sorted_env[j], sorted_env[j + 1]) > 0) {
@@ -106,21 +89,16 @@ void cmd_export(char **envp) {
       }
     }
   }
-
-  // Print the sorted environment variables
   for (i = 0; sorted_env[i] != NULL; i++) {
     printf("declare -x %s\n", sorted_env[i]);
   }
-
   free(sorted_env);
 }
 
 void execute_command(char *input, char **envp) {
-  char *args = strdup(input);  // Duplicate input to tokenize
+  char *args = strdup(input);
   char *command = strtok(args, " ");
-  char *arg = strtok(NULL, "");  // Get the entire remaining string as argument
-
-  // Command struct array
+  char *arg = strtok(NULL, "");
   t_command commands[] = {
     {PWD_CMD, (void (*)(void))cmd_pwd},
     {EXIT_CMD, (void (*)(void))cmd_exit},
@@ -131,8 +109,6 @@ void execute_command(char *input, char **envp) {
     {"echo", (void (*)(void))cmd_echo},
     {NULL, NULL}
   };
-
-  // Iterate through commands and execute the matching one
   for (int i = 0; commands[i].name != NULL; i++) {
     if (strcmp(command, commands[i].name) == 0) {
       if (strcmp(command, "cd") == 0)
@@ -147,13 +123,10 @@ void execute_command(char *input, char **envp) {
         cmd_echo(arg);
       else
         commands[i].func();
-
       free(args);
       return;
     }
   }
-
-  // If no command matches
   printf("minishell: %s: command not found\n", command);
   free(args);
 }
