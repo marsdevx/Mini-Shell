@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/18 20:27:51 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/18 23:11:30 by marksylaiev      ###   ########.fr       */
+/*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
+/*   Updated: 2024/12/18 23:24:32 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,30 @@ void cmd_env(char **envp) {
   }
 }
 
+// unset command: unset environment variables
+void cmd_unset(char *arg, char **envp) {
+  if (!arg) {
+    fprintf(stderr, "minishell: unset: missing argument\n");
+    return;
+  }
+
+  int i = 0;
+  while (envp[i] != NULL) {
+    if (strncmp(envp[i], arg, strlen(arg)) == 0 && envp[i][strlen(arg)] == '=') {
+      // Shift the remaining entries to remove the variable
+      int j = i;
+      while (envp[j] != NULL) {
+        envp[j] = envp[j + 1];
+        j++;
+      }
+      return;
+    }
+    i++;
+  }
+
+  fprintf(stderr, "minishell: unset: %s not found\n", arg);
+}
+
 // Execute the appropriate command
 void execute_command(char *input, char **envp) {
   char *args = strdup(input); // Duplicate input to tokenize
@@ -46,6 +70,7 @@ void execute_command(char *input, char **envp) {
     {EXIT_CMD, (void (*)(void))cmd_exit},
     {ENV_CMD, (void (*)(void))cmd_env},
     {"cd", (void (*)(void))cmd_cd},
+    {"unset", (void (*)(void))cmd_unset},
     {NULL, NULL}
   };
 
@@ -56,6 +81,8 @@ void execute_command(char *input, char **envp) {
         cmd_cd(arg);
       else if (strcmp(command, "env") == 0)
         cmd_env(envp);
+      else if (strcmp(command, "unset") == 0)
+        cmd_unset(arg, envp);
       else
         commands[i].func();
 
