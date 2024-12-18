@@ -18,6 +18,7 @@
 #define PWD_CMD "pwd"
 #define ENV_CMD "env"
 #define UNSET_CMD "unset"
+#define EXPORT_CMD "export"
 
 typedef struct s_command {
   char *name;
