@@ -28,7 +28,9 @@ typedef struct s_command {
 
 // Commands
 void execute_command(char *input, char **envp);
-void cmd_cd(char *arg);
+void cmd_pwd(void);
+void cmd_exit(void);
+void cmd_env(char **envp);
 
 /* For libft */
 # include "../libs/libft/libft.h"

@@ -7,7 +7,7 @@ OBJDIR = obj
 LIBFTDIR = libs/libft
 
 SRC_CORE = core/main.c
-SRC_CMD = commands/commands.c commands/cd_command.c 
+SRC_CMD = commands/commands.c commands/commands_utils.c 
 SRC = $(SRC_CORE) $(SRC_CMD)
 
 OBJS = $(addprefix $(OBJDIR)/, $(SRC:.c=.o))
