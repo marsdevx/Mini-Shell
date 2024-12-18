@@ -32,3 +32,10 @@ ft_bzero.c      ft_isalpha.c    ft_isprint.c    ft_memcmp.c     ft_memset.c     
 # Change for linux
 1)  clear_history, on_new_line, - rl_clear_history, rl_on_new_line,
 2) makefile - 
+
+
+
+minishell> echo Hello
+Hello
+minishell> echo -n Hello
+Hellominishell> 

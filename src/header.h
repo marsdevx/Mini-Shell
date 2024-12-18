@@ -19,6 +19,7 @@
 #define ENV_CMD "env"
 #define UNSET_CMD "unset"
 #define EXPORT_CMD "export"
+#define ECHO_CMD "echo"
 
 typedef struct s_command {
   char *name;

@@ -6,11 +6,29 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/18 23:33:03 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/18 23:49:30 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../header.h"
+
+void cmd_echo(char *args) {
+  int my_newline = 1;  // Default: print newline at the end
+
+  // Check if the first argument is "-n"
+  if (args && strncmp(args, "-n", 2) == 0 && (args[2] == ' ' || args[2] == '\0')) {
+    my_newline = 0;  // Disable newline
+    args = args + 2;
+    while (*args == ' ') args++;  // Skip spaces after "-n"
+  }
+
+  // Print the remaining arguments
+  if (args)
+    printf("%s", args);
+
+  if (my_newline)
+    printf("\n");
+}
 
 void cmd_pwd(void) {
   char cwd[1024];
@@ -97,11 +115,10 @@ void cmd_export(char **envp) {
   free(sorted_env);
 }
 
-// Execute the appropriate command
 void execute_command(char *input, char **envp) {
-  char *args = strdup(input); // Duplicate input to tokenize
+  char *args = strdup(input);  // Duplicate input to tokenize
   char *command = strtok(args, " ");
-  char *arg = strtok(NULL, " "); // Get the argument for the command
+  char *arg = strtok(NULL, "");  // Get the entire remaining string as argument
 
   // Command struct array
   t_command commands[] = {
@@ -111,6 +128,7 @@ void execute_command(char *input, char **envp) {
     {"cd", (void (*)(void))cmd_cd},
     {"unset", (void (*)(void))cmd_unset},
     {"export", (void (*)(void))cmd_export},
+    {"echo", (void (*)(void))cmd_echo},
     {NULL, NULL}
   };
 
@@ -125,6 +143,8 @@ void execute_command(char *input, char **envp) {
         cmd_env(envp);
       else if (strcmp(command, "export") == 0)
         cmd_export(envp);
+      else if (strcmp(command, "echo") == 0)
+        cmd_echo(arg);
       else
         commands[i].func();
 
