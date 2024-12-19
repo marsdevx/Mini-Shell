@@ -52,33 +52,74 @@ unset VAR
 
 
 
-## echo command
-Unclosed Quotes: If quotes are unclosed, cd should return an error and not execute.
-echo "Hello, World
+
+# All funcs explanathion
+-------------------------------------
+## Echo
+minishell> echo home (same: echo "home") (same: echo 'home')
+minishell> home
+
+minishell> echo -n home (same: echo -n "home") (same: echo -n 'home')
+homeminishell> 
+
+minishell> echo $HOME    (same: echo "$HOME")
+/Users/marksylaiev
+minishell>
+
+minishell> echo $NONEXIST    (same: echo "$NONEXIST")
+
+minishell>
+
+minishell> echo '$HOME'
+$HOME
+minishell>
+
+minishell> echo "home    (same: echo 'home)
 error: unclosed quotes
+minishell>
 
-Single Quotes: variable must not be expanded
-echo 'Hello $USER'
-echo '$RANDOM'
-$RANDOM
-Hello $USER
+minishell> echo Hello\World
+Hello\World
+minishell> 
 
-Double Quotes: variable must be expanded
-echo $USER
-mark
+minishell> echo Hello;World
+Hello;World
+minishell> 
+
+------
+# Full program example:
+./minishell
+minishell> echo home
+home
+minishell> echo "home"
+home
+minishell> echo 'home'
+home
+minishell> echo -n home
+homeminishell> echo -n "home"
+homeminishell> echo -n 'home'
+homeminishell> echo $HOME
+/Users/marksylaiev
+minishell> echo "$HOME"
+/Users/marksylaiev
+minishell> echo $NONEXIST
+
+minishell> echo "$NONEXIST"
+
+minishell> echo '$HOME'
+$HOME
+minishell> echo 'home
+minishell: error: unclosed quotes
+minishell> echo "home
+minishell: error: unclosed quotes
+minishell> echo Hello\World
+Hello\World
+minishell> echo Hello;World
+Hello;World
+minishell> 
+-------------------------------------
 
 
-echo $RANDOM
-
-echo "Hello $USER"
-Hello mark
-
-
-Ignoring Special Characters: (\, ;) (not ignoring $)
-	echo Hello\World
-	Hello\World
-	echo Hello; World
-	Hello; World
 
 
 

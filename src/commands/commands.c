@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 03:14:23 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 03:34:34 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,12 +80,13 @@ void cmd_echo(char *args, char **envp) {
   int in_single_quote = 0;
   int in_double_quote = 0;
   char *result = malloc(1024);
+
   if (!result) {
     perror("minishell: malloc");
     return;
   }
 
-	(void)envp;
+  (void)envp;
   int i = 0, j = 0;
 
   if (args && strncmp(args, "-n", 2) == 0 && (args[2] == ' ' || args[2] == '\0')) {
@@ -130,6 +131,13 @@ void cmd_echo(char *args, char **envp) {
     } else {
       result[j++] = args[i++];
     }
+  }
+
+  // Check if there are unclosed quotes
+  if (in_single_quote || in_double_quote) {
+    fprintf(stderr, "minishell: error: unclosed quotes\n");
+    free(result);
+    return;
   }
 
   result[j] = '\0';
