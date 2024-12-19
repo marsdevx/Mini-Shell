@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 07:29:20 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 08:49:58 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,75 +83,48 @@ void cmd_cd(char *arg) {
 
 void cmd_echo(char *args, char **envp) {
   int my_newline = 1;
-  int in_single_quote = 0;
-  int in_double_quote = 0;
-  char *result = malloc(1024);
+  int i = 0;
 
-  if (!result) {
-    perror("minishell: malloc");
+  if (!args) {
+    printf("\n");
     return;
   }
 
-  (void)envp;
-  int i = 0, j = 0;
-
-  if (args && strncmp(args, "-n", 2) == 0 && (args[2] == ' ' || args[2] == '\0')) {
+  // Check for the "-n" option
+  if (strncmp(args, "-n", 2) == 0 && (args[2] == ' ' || args[2] == '\0')) {
     my_newline = 0;
     args += 2;
     while (*args == ' ') args++;
   }
 
-  while (args && args[i]) {
+  int in_single_quote = 0;
+  int in_double_quote = 0;
+
+  while (args[i]) {
+    // Handle single quotes
     if (args[i] == '\'' && !in_double_quote) {
       in_single_quote = !in_single_quote;
       i++;
-    } else if (args[i] == '"' && !in_single_quote) {
+    }
+    // Handle double quotes
+    else if (args[i] == '"' && !in_single_quote) {
       in_double_quote = !in_double_quote;
       i++;
-    } else if (args[i] == '$' && !in_single_quote) {
+    }
+    // Print characters as they are
+    else {
+      putchar(args[i]);
       i++;
-      int var_start = i;
-      while (isalnum(args[i]) || args[i] == '_')
-        i++;
-      char *var_name = strndup(&args[var_start], i - var_start);
-      if (!var_name) {
-        perror("minishell: strndup");
-        free(result);
-        return;
-      }
-
-      char *var_value = NULL;
-      for (int k = 0; g_envp[k] != NULL; k++) {
-        if (strncmp(g_envp[k], var_name, strlen(var_name)) == 0 && g_envp[k][strlen(var_name)] == '=') {
-          var_value = &g_envp[k][strlen(var_name) + 1];
-          break;
-        }
-      }
-
-      if (var_value) {
-        while (*var_value)
-          result[j++] = *var_value++;
-      }
-
-      free(var_name);
-    } else {
-      result[j++] = args[i++];
     }
   }
 
-  if (in_single_quote || in_double_quote) {
-    fprintf(stderr, "minishell: error: unclosed quotes\n");
-    free(result);
-    return;
+  if (my_newline) {
+    putchar('\n');
   }
 
-  result[j] = '\0';
-  printf("%s", result);
-  if (my_newline)
-    printf("\n");
-
-  free(result);
+  (void)envp;  // Suppress unused parameter warning
 }
+
 
 void cmd_unset(char *arg) {
   if (!arg) {
@@ -366,23 +339,46 @@ void handle_redirection(char **cmd_parts) {
   }
 }
 
+// Function to split input while preserving quoted strings
+void split_input(char *input, char *cmd_parts[], int *count) {
+  int i = 0, j = 0;
+  int in_single_quote = 0, in_double_quote = 0;
+  char buffer[1024] = {0};
+
+  while (input[i]) {
+    if (input[i] == '\'' && !in_double_quote) {
+      in_single_quote = !in_single_quote;
+    } else if (input[i] == '"' && !in_single_quote) {
+      in_double_quote = !in_double_quote;
+    } else if (input[i] == ' ' && !in_single_quote && !in_double_quote) {
+      if (j > 0) {
+        buffer[j] = '\0';
+        cmd_parts[(*count)++] = strdup(buffer);
+        j = 0;
+      }
+    } else {
+      buffer[j++] = input[i];
+    }
+    i++;
+  }
+
+  if (j > 0) {
+    buffer[j] = '\0';
+    cmd_parts[(*count)++] = strdup(buffer);
+  }
+  cmd_parts[*count] = NULL;
+}
+
 void execute_command(char *input, char **envp) {
-  char *args = strdup(input);
-  if (!args) {
-    perror("minishell: strdup");
+  char *cmd_parts[256] = {0};
+  int count = 0;
+
+  // Split input while handling quoted strings
+  split_input(input, cmd_parts, &count);
+
+  if (count == 0) {
     return;
   }
-
-  // Split input into command and arguments
-  char *cmd_parts[256] = {0};
-  int index = 0;
-  char *token = strtok(args, " ");
-
-  while (token) {
-    cmd_parts[index++] = token;
-    token = strtok(NULL, " ");
-  }
-  cmd_parts[index] = NULL;
 
   // Backup file descriptors for restoring later
   int stdout_backup = dup(STDOUT_FILENO);
@@ -392,26 +388,24 @@ void execute_command(char *input, char **envp) {
   handle_redirection(cmd_parts);
 
   // Execute built-in commands
-  if (cmd_parts[0]) {
-    if (strcmp(cmd_parts[0], "pwd") == 0) {
-      cmd_pwd();
-    } else if (strcmp(cmd_parts[0], "exit") == 0) {
-      cmd_exit();
-    } else if (strcmp(cmd_parts[0], "env") == 0) {
-      cmd_env(envp);
-    } else if (strcmp(cmd_parts[0], "cd") == 0) {
-      cmd_cd(cmd_parts[1]);
-    } else if (strcmp(cmd_parts[0], "unset") == 0) {
-      cmd_unset(cmd_parts[1]);
-    } else if (strcmp(cmd_parts[0], "export") == 0) {
-      cmd_export(&cmd_parts[1]);
-    } else if (strcmp(cmd_parts[0], "echo") == 0) {
-      cmd_echo(cmd_parts[1], envp);
-    } else {
-      // Execute external command using execve
-      if (execve(cmd_parts[0], cmd_parts, envp) == -1) {
-        perror("minishell: execve");
-      }
+  if (strcmp(cmd_parts[0], "pwd") == 0) {
+    cmd_pwd();
+  } else if (strcmp(cmd_parts[0], "exit") == 0) {
+    cmd_exit();
+  } else if (strcmp(cmd_parts[0], "env") == 0) {
+    cmd_env(envp);
+  } else if (strcmp(cmd_parts[0], "cd") == 0) {
+    cmd_cd(cmd_parts[1]);
+  } else if (strcmp(cmd_parts[0], "unset") == 0) {
+    cmd_unset(cmd_parts[1]);
+  } else if (strcmp(cmd_parts[0], "export") == 0) {
+    cmd_export(&cmd_parts[1]);
+  } else if (strcmp(cmd_parts[0], "echo") == 0) {
+    cmd_echo(cmd_parts[1], envp);
+  } else {
+    // Execute external command using execve
+    if (execve(cmd_parts[0], cmd_parts, envp) == -1) {
+      perror("minishell: execve");
     }
   }
 
@@ -421,5 +415,8 @@ void execute_command(char *input, char **envp) {
   close(stdout_backup);
   close(stdin_backup);
 
-  free(args);
+  // Free allocated memory for command parts
+  for (int i = 0; cmd_parts[i]; i++) {
+    free(cmd_parts[i]);
+  }
 }
