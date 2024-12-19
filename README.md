@@ -38,7 +38,16 @@ Unclosed Quotes: Should return an error and not set the variable.
 
 ## unset command 
 Single or Double Quotes: Quotes can be used around the variable name, and they should be handled correctly.
+unset 'VAR'
+unset "VAR"
+These should both work and unset VAR.
+
 Unclosed Quotes: Should return an error and not execute.
+unset 'VAR
+unset "VAR
+syntax error: unclosed quotes
+
+
 
 ## echo command
 Unclosed Quotes: If quotes are unclosed, cd should return an error and not execute.

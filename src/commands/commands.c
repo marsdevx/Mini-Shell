@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 02:37:38 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 02:52:38 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void cmd_cd(char *arg) {
   free(path);
 }
 
-void cmd_echo(char *args) {
+void cmd_echo(char *args, char **envp) {
   int my_newline = 1;
   int in_single_quote = 0;
   int in_double_quote = 0;
@@ -69,6 +69,7 @@ void cmd_echo(char *args) {
     return;
   }
 
+	(void)envp;
   int i = 0, j = 0;
 
   if (args && strncmp(args, "-n", 2) == 0 && (args[2] == ' ' || args[2] == '\0')) {
@@ -84,7 +85,7 @@ void cmd_echo(char *args) {
     } else if (args[i] == '"' && !in_single_quote) {
       in_double_quote = !in_double_quote;
       i++;
-    } else if (args[i] == '$' && in_double_quote && !in_single_quote) {
+    } else if (args[i] == '$' && !in_single_quote) {
       i++;
       int var_start = i;
       while (ft_isalnum(args[i]) || args[i] == '_')
@@ -101,18 +102,11 @@ void cmd_echo(char *args) {
         while (*var_value)
           result[j++] = *var_value++;
       }
+
       free(var_name);
-    } else if (args[i] == '\\' || args[i] == ';') {
-      result[j++] = args[i++];
     } else {
       result[j++] = args[i++];
     }
-  }
-
-  if (in_single_quote || in_double_quote) {
-    fprintf(stderr, "minishell: error: unclosed quotes\n");
-    free(result);
-    return;
   }
 
   result[j] = '\0';
@@ -128,6 +122,19 @@ void cmd_unset(char *arg, char **envp) {
     fprintf(stderr, "minishell: unset: missing argument\n");
     return;
   }
+
+  int len = strlen(arg);
+  if ((arg[0] == '\'' && arg[len - 1] != '\'') || (arg[0] == '"' && arg[len - 1] != '"')) {
+    fprintf(stderr, "minishell: syntax error: unclosed quotes\n");
+    return;
+  }
+
+  // Remove surrounding quotes if they exist
+  if ((arg[0] == '\'' && arg[len - 1] == '\'') || (arg[0] == '"' && arg[len - 1] == '"')) {
+    arg[len - 1] = '\0';
+    arg++;
+  }
+
   int i = 0;
   while (envp[i] != NULL) {
     if (strncmp(envp[i], arg, strlen(arg)) == 0 && envp[i][strlen(arg)] == '=') {
@@ -140,6 +147,7 @@ void cmd_unset(char *arg, char **envp) {
     }
     i++;
   }
+
   fprintf(stderr, "minishell: unset: %s not found\n", arg);
 }
 
@@ -197,7 +205,7 @@ void execute_command(char *input, char **envp) {
       else if (strcmp(command, "export") == 0)
         cmd_export(envp);
 			else if (strcmp(command, "echo") == 0)
-				cmd_echo(arg);
+				cmd_echo(arg, envp);
       else
         commands[i].func();
       free(args);
