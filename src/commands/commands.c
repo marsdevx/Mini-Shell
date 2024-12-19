@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 07:09:47 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 07:29:20 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -298,38 +298,128 @@ void cmd_export(char **args) {
   }
 }
 
+#include "../header.h"
+
+void handle_redirection(char **cmd_parts) {
+  int i = 0;
+
+  while (cmd_parts[i]) {
+    // Input redirection: <
+    if (strcmp(cmd_parts[i], "<") == 0) {
+      int fd = open(cmd_parts[i + 1], O_RDONLY);
+      if (fd < 0) {
+        perror("minishell: open");
+        return;
+      }
+      dup2(fd, STDIN_FILENO);
+      close(fd);
+      cmd_parts[i] = NULL;
+    }
+    // Output redirection: >
+    else if (strcmp(cmd_parts[i], ">") == 0) {
+      int fd = open(cmd_parts[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      if (fd < 0) {
+        perror("minishell: open");
+        return;
+      }
+      dup2(fd, STDOUT_FILENO);
+      close(fd);
+      cmd_parts[i] = NULL;
+    }
+    // Append redirection: >>
+    else if (strcmp(cmd_parts[i], ">>") == 0) {
+      int fd = open(cmd_parts[i + 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+      if (fd < 0) {
+        perror("minishell: open");
+        return;
+      }
+      dup2(fd, STDOUT_FILENO);
+      close(fd);
+      cmd_parts[i] = NULL;
+    }
+    // Here-Document: <<
+    else if (strcmp(cmd_parts[i], "<<") == 0) {
+      char *delimiter = cmd_parts[i + 1];
+      int pipe_fd[2];
+      if (pipe(pipe_fd) == -1) {
+        perror("minishell: pipe");
+        return;
+      }
+
+      char *line;
+      while (1) {
+        line = readline("> ");
+        if (!line || strcmp(line, delimiter) == 0) {
+          free(line);
+          break;
+        }
+        write(pipe_fd[1], line, strlen(line));
+        write(pipe_fd[1], "\n", 1);
+        free(line);
+      }
+      close(pipe_fd[1]);
+      dup2(pipe_fd[0], STDIN_FILENO);
+      close(pipe_fd[0]);
+      cmd_parts[i] = NULL;
+    }
+    i++;
+  }
+}
+
 void execute_command(char *input, char **envp) {
   char *args = strdup(input);
-  char *command = strtok(args, " ");
-  char *arg = strtok(NULL, "");
-  t_command commands[] = {
-    {PWD_CMD, (void (*)(void))cmd_pwd},
-    {EXIT_CMD, (void (*)(void))cmd_exit},
-    {ENV_CMD, (void (*)(void))cmd_env},
-    {"cd", (void (*)(void))cmd_cd},
-    {"unset", (void (*)(void))cmd_unset},
-    {"export", (void (*)(void))cmd_export},
-    {"echo", (void (*)(void))cmd_echo},
-    {NULL, NULL}
-  };
-  for (int i = 0; commands[i].name != NULL; i++) {
-    if (strcmp(command, commands[i].name) == 0) {
-      if (strcmp(command, "cd") == 0)
-        cmd_cd(arg);
-      else if (strcmp(command, "unset") == 0)
-        cmd_unset(arg);
-      else if (strcmp(command, "env") == 0)
-        cmd_env(envp);
-      else if (strcmp(command, "export") == 0)
-        cmd_export(arg ? (char *[]){arg, NULL} : NULL);
-      else if (strcmp(command, "echo") == 0)
-        cmd_echo(arg, envp);
-      else
-        commands[i].func();
-      free(args);
-      return;
+  if (!args) {
+    perror("minishell: strdup");
+    return;
+  }
+
+  // Split input into command and arguments
+  char *cmd_parts[256] = {0};
+  int index = 0;
+  char *token = strtok(args, " ");
+
+  while (token) {
+    cmd_parts[index++] = token;
+    token = strtok(NULL, " ");
+  }
+  cmd_parts[index] = NULL;
+
+  // Backup file descriptors for restoring later
+  int stdout_backup = dup(STDOUT_FILENO);
+  int stdin_backup = dup(STDIN_FILENO);
+
+  // Handle redirection before executing the command
+  handle_redirection(cmd_parts);
+
+  // Execute built-in commands
+  if (cmd_parts[0]) {
+    if (strcmp(cmd_parts[0], "pwd") == 0) {
+      cmd_pwd();
+    } else if (strcmp(cmd_parts[0], "exit") == 0) {
+      cmd_exit();
+    } else if (strcmp(cmd_parts[0], "env") == 0) {
+      cmd_env(envp);
+    } else if (strcmp(cmd_parts[0], "cd") == 0) {
+      cmd_cd(cmd_parts[1]);
+    } else if (strcmp(cmd_parts[0], "unset") == 0) {
+      cmd_unset(cmd_parts[1]);
+    } else if (strcmp(cmd_parts[0], "export") == 0) {
+      cmd_export(&cmd_parts[1]);
+    } else if (strcmp(cmd_parts[0], "echo") == 0) {
+      cmd_echo(cmd_parts[1], envp);
+    } else {
+      // Execute external command using execve
+      if (execve(cmd_parts[0], cmd_parts, envp) == -1) {
+        perror("minishell: execve");
+      }
     }
   }
-  printf("minishell: %s: command not found\n", command);
+
+  // Restore original file descriptors
+  dup2(stdout_backup, STDOUT_FILENO);
+  dup2(stdin_backup, STDIN_FILENO);
+  close(stdout_backup);
+  close(stdin_backup);
+
   free(args);
 }
