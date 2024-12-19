@@ -6,49 +6,29 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 07:06:09 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 07:09:47 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../header.h"
 
-void init_envp(char **envp) {
-  int i = 0;
-  while (envp[i])
-    i++;
-
-  g_envp = malloc((i + 1) * sizeof(char *));
-  if (!g_envp) {
-    perror("minishell: malloc");
-    exit(EXIT_FAILURE);
-  }
-
-  for (int j = 0; j < i; j++)
-    g_envp[j] = strdup(envp[j]);
-  g_envp[i] = NULL;
+void cmd_pwd(void) {
+  char cwd[1024];
+  if (getcwd(cwd, sizeof(cwd)) != NULL)
+    printf("%s\n", cwd);
+  else
+    perror("minishell: pwd");
 }
 
-char *expand_home(char *path) {
-  char *home = getenv("HOME");
+void cmd_exit(void) {
+  printf("exit\n");
+  exit(0);
+}
 
-  if (!home) {
-    fprintf(stderr, "minishell: cd: HOME not set\n");
-    return NULL;
+void cmd_env(char **envp) {
+  for (int i = 0; envp[i] != NULL; i++) {
+    printf("%s\n", envp[i]);
   }
-
-  if (strcmp(path, "~") == 0) {
-    return strdup(home);
-  } else if (strncmp(path, "~/", 2) == 0) {
-    char *expanded_path = malloc(strlen(home) + strlen(path));
-    if (!expanded_path) {
-      perror("minishell: malloc");
-      return NULL;
-    }
-    sprintf(expanded_path, "%s%s", home, path + 1);
-    return expanded_path;
-  }
-
-  return strdup(path);
 }
 
 void cmd_cd(char *arg) {
@@ -211,6 +191,111 @@ void cmd_unset(char *arg) {
   }
 
   fprintf(stderr, "minishell: error: var not exist\n");
+}
+
+void cmd_export(char **args) {
+  if (!args || !args[0]) {
+    int count = 0;
+    while (g_envp[count] != NULL)
+      count++;
+
+    char **sorted_env = malloc((count + 1) * sizeof(char *));
+    if (!sorted_env) {
+      perror("minishell: export");
+      return;
+    }
+
+    for (int i = 0; i < count; i++)
+      sorted_env[i] = g_envp[i];
+    sorted_env[count] = NULL;
+
+    for (int i = 0; i < count - 1; i++) {
+      for (int j = 0; j < count - i - 1; j++) {
+        if (strcmp(sorted_env[j], sorted_env[j + 1]) > 0) {
+          char *temp = sorted_env[j];
+          sorted_env[j] = sorted_env[j + 1];
+          sorted_env[j + 1] = temp;
+        }
+      }
+    }
+
+    for (int i = 0; sorted_env[i] != NULL; i++)
+      printf("declare -x %s\n", sorted_env[i]);
+
+    free(sorted_env);
+    return;
+  }
+
+  for (int i = 0; args[i]; i++) {
+    char *arg = args[i];
+
+    int in_single_quote = 0;
+    int in_double_quote = 0;
+    for (int j = 0; arg[j]; j++) {
+      if (arg[j] == '\'' && !in_double_quote)
+        in_single_quote = !in_single_quote;
+      else if (arg[j] == '"' && !in_single_quote)
+        in_double_quote = !in_double_quote;
+    }
+
+    if (in_single_quote || in_double_quote) {
+      fprintf(stderr, "minishell: export: error: unclosed quotes\n");
+      continue;
+    }
+
+    char *equal_sign = strchr(arg, '=');
+    if (!equal_sign) {
+      fprintf(stderr, "minishell: export: invalid format\n");
+      continue;
+    }
+
+    *equal_sign = '\0';
+    char *var_name = arg;
+    char *var_value = equal_sign + 1;
+
+    int value_len = strlen(var_value);
+    char *processed_value = NULL;
+
+    if ((var_value[0] == '\'' && var_value[value_len - 1] == '\'') ||
+        (var_value[0] == '"' && var_value[value_len - 1] == '"')) {
+      var_value[value_len - 1] = '\0';
+      processed_value = strdup(var_value + 1);
+    } else {
+      processed_value = strdup(var_value);
+    }
+
+    if (!processed_value) {
+      perror("minishell: strdup");
+      return;
+    }
+
+    if (var_value[0] == '"') {
+      char *expanded_value = expand_dollar(processed_value, g_envp);
+      free(processed_value);
+      processed_value = expanded_value;
+    }
+
+    char *new_entry = malloc(strlen(var_name) + strlen(processed_value) + 2);
+    if (!new_entry) {
+      perror("minishell: malloc");
+      free(processed_value);
+      return;
+    }
+    sprintf(new_entry, "%s=%s", var_name, processed_value);
+    free(processed_value);
+
+    int j = 0;
+    for (; g_envp[j] != NULL; j++) {
+      if (strncmp(g_envp[j], var_name, strlen(var_name)) == 0 && g_envp[j][strlen(var_name)] == '=') {
+        free(g_envp[j]);
+        g_envp[j] = new_entry;
+        return;
+      }
+    }
+
+    g_envp[j] = new_entry;
+    g_envp[j + 1] = NULL;
+  }
 }
 
 void execute_command(char *input, char **envp) {

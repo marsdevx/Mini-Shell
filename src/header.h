@@ -17,17 +17,12 @@ typedef struct s_command {
   void (*func)(void);
 } t_command;
 
-// Init
-void init_envp(char **envp);
-
 // Commands
-void execute_command(char *input, char **envp);
-void cmd_export(char **args);
-void cmd_pwd(void);
-void cmd_exit(void);
-void cmd_env(char **envp);
+char *expand_home(char *path);
 
 // Utils
+void init_envp(char **envp);
+void execute_command(char *input, char **envp);
 char *expand_dollar(char *input, char **envp);
 
 /* For libft */
