@@ -42,9 +42,18 @@ Unclosed Quotes: Should return an error and not execute.
 
 ## echo command
 Unclosed Quotes: If quotes are unclosed, cd should return an error and not execute.
+echo "Hello, World
+error: unclosed quotes
+
 Single Quotes: variable must not be expanded
+echo 'Hello $USER'
+Hello $USER
+
 Double Quotes: variable must be expanded
-Ignoring Special Characters: 
+echo "Hello $USER"
+Hello mark
+
+Ignoring Special Characters: (\, ;) (not ignoring $)
 	echo Hello\World
 	Hello\World
 	echo Hello; World

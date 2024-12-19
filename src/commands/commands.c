@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 02:30:29 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 02:37:38 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,17 @@ void cmd_cd(char *arg) {
   free(path);
 }
 
-void cmd_echo(char *args, char **envp) {
+void cmd_echo(char *args) {
   int my_newline = 1;
+  int in_single_quote = 0;
+  int in_double_quote = 0;
+  char *result = malloc(1024);
+  if (!result) {
+    perror("minishell: malloc");
+    return;
+  }
+
+  int i = 0, j = 0;
 
   if (args && strncmp(args, "-n", 2) == 0 && (args[2] == ' ' || args[2] == '\0')) {
     my_newline = 0;
@@ -68,18 +77,50 @@ void cmd_echo(char *args, char **envp) {
     while (*args == ' ') args++;
   }
 
-  if (args) {
-    char *expanded = expand_dollar(args, envp);
-    if (expanded) {
-      printf("%s", expanded);
-      free(expanded);
+  while (args && args[i]) {
+    if (args[i] == '\'' && !in_double_quote) {
+      in_single_quote = !in_single_quote;
+      i++;
+    } else if (args[i] == '"' && !in_single_quote) {
+      in_double_quote = !in_double_quote;
+      i++;
+    } else if (args[i] == '$' && in_double_quote && !in_single_quote) {
+      i++;
+      int var_start = i;
+      while (ft_isalnum(args[i]) || args[i] == '_')
+        i++;
+      char *var_name = strndup(&args[var_start], i - var_start);
+      if (!var_name) {
+        perror("minishell: strndup");
+        free(result);
+        return;
+      }
+
+      char *var_value = getenv(var_name);
+      if (var_value) {
+        while (*var_value)
+          result[j++] = *var_value++;
+      }
+      free(var_name);
+    } else if (args[i] == '\\' || args[i] == ';') {
+      result[j++] = args[i++];
     } else {
-      printf("%s", args);
+      result[j++] = args[i++];
     }
   }
 
+  if (in_single_quote || in_double_quote) {
+    fprintf(stderr, "minishell: error: unclosed quotes\n");
+    free(result);
+    return;
+  }
+
+  result[j] = '\0';
+  printf("%s", result);
   if (my_newline)
     printf("\n");
+
+  free(result);
 }
 
 void cmd_unset(char *arg, char **envp) {
@@ -156,7 +197,7 @@ void execute_command(char *input, char **envp) {
       else if (strcmp(command, "export") == 0)
         cmd_export(envp);
 			else if (strcmp(command, "echo") == 0)
-				cmd_echo(arg, envp);
+				cmd_echo(arg);
       else
         commands[i].func();
       free(args);
