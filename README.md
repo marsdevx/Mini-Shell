@@ -47,6 +47,9 @@ unset 'VAR
 unset "VAR
 syntax error: unclosed quotes
 
+Simple usage
+unset VAR
+
 
 
 ## echo command
@@ -56,11 +59,20 @@ error: unclosed quotes
 
 Single Quotes: variable must not be expanded
 echo 'Hello $USER'
+echo '$RANDOM'
+$RANDOM
 Hello $USER
 
 Double Quotes: variable must be expanded
+echo $USER
+mark
+
+
+echo $RANDOM
+
 echo "Hello $USER"
 Hello mark
+
 
 Ignoring Special Characters: (\, ;) (not ignoring $)
 	echo Hello\World

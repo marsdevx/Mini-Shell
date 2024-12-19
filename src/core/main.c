@@ -1,38 +1,28 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/19 00:30:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 00:12:39 by marksylaiev      ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../header.h"
 
+char **g_envp = NULL;  // Define the global variable
+
 int main(int argc, char **argv, char **envp) {
-  char *input;
+  init_envp(envp);  // Initialize the global environment copy
 
-  (void)argc;  // Unused parameter
-  (void)argv;  // Unused parameter
+  (void)argv;
+  (void)argc;
 
+  char *line;
   while (1) {
-    input = readline(PROMPT);
-    if (!input) {
-      printf("\n");
+    line = readline("minishell> ");
+    if (!line)
       break;
-    }
 
-    if (*input) {
-      add_history(input);
-      execute_command(input, envp);  // Pass envp to execute_command
-    }
-
-    free(input);
+    add_history(line);
+    execute_command(line, g_envp);
+    free(line);
   }
 
-  clear_history();
+  // Free g_envp before exiting
+  for (int i = 0; g_envp[i]; i++)
+    free(g_envp[i]);
+  free(g_envp);
+
   return 0;
 }

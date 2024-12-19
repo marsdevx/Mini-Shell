@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   header.h                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/25 12:34:19 by vmoroz            #+#    #+#             */
-/*   Updated: 2024/12/18 07:09:54 by marksylaiev      ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef HEADER_H
 # define HEADER_H
 
@@ -21,10 +9,17 @@
 #define EXPORT_CMD "export"
 #define ECHO_CMD "echo"
 
+#define MAX_ENV_VARS 1024
+
+extern char **g_envp;  // Declare the global variable
+
 typedef struct s_command {
   char *name;
   void (*func)(void);
 } t_command;
+
+// Init
+void init_envp(char **envp);
 
 // Commands
 void execute_command(char *input, char **envp);

@@ -6,11 +6,27 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 02:52:38 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 03:14:23 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../header.h"
+
+void init_envp(char **envp) {
+  int i = 0;
+  while (envp[i])
+    i++;
+
+  g_envp = malloc((i + 1) * sizeof(char *));
+  if (!g_envp) {
+    perror("minishell: malloc");
+    exit(EXIT_FAILURE);
+  }
+
+  for (int j = 0; j < i; j++)
+    g_envp[j] = strdup(envp[j]);
+  g_envp[i] = NULL;
+}
 
 char *expand_home(char *path) {
   char *home = getenv("HOME");
@@ -74,7 +90,7 @@ void cmd_echo(char *args, char **envp) {
 
   if (args && strncmp(args, "-n", 2) == 0 && (args[2] == ' ' || args[2] == '\0')) {
     my_newline = 0;
-    args = args + 2;
+    args += 2;
     while (*args == ' ') args++;
   }
 
@@ -88,7 +104,7 @@ void cmd_echo(char *args, char **envp) {
     } else if (args[i] == '$' && !in_single_quote) {
       i++;
       int var_start = i;
-      while (ft_isalnum(args[i]) || args[i] == '_')
+      while (isalnum(args[i]) || args[i] == '_')
         i++;
       char *var_name = strndup(&args[var_start], i - var_start);
       if (!var_name) {
@@ -97,7 +113,14 @@ void cmd_echo(char *args, char **envp) {
         return;
       }
 
-      char *var_value = getenv(var_name);
+      char *var_value = NULL;
+      for (int k = 0; g_envp[k] != NULL; k++) {
+        if (strncmp(g_envp[k], var_name, strlen(var_name)) == 0 && g_envp[k][strlen(var_name)] == '=') {
+          var_value = &g_envp[k][strlen(var_name) + 1];
+          break;
+        }
+      }
+
       if (var_value) {
         while (*var_value)
           result[j++] = *var_value++;
@@ -117,33 +140,37 @@ void cmd_echo(char *args, char **envp) {
   free(result);
 }
 
-void cmd_unset(char *arg, char **envp) {
+void cmd_unset(char *arg) {
   if (!arg) {
     fprintf(stderr, "minishell: unset: missing argument\n");
     return;
   }
 
-  int len = strlen(arg);
-  if ((arg[0] == '\'' && arg[len - 1] != '\'') || (arg[0] == '"' && arg[len - 1] != '"')) {
-    fprintf(stderr, "minishell: syntax error: unclosed quotes\n");
-    return;
-  }
-
   // Remove surrounding quotes if they exist
+  int len = strlen(arg);
   if ((arg[0] == '\'' && arg[len - 1] == '\'') || (arg[0] == '"' && arg[len - 1] == '"')) {
-    arg[len - 1] = '\0';
-    arg++;
+    arg[len - 1] = '\0';  // Remove the closing quote
+    arg++;                // Skip the opening quote
   }
 
-  int i = 0;
-  while (envp[i] != NULL) {
-    if (strncmp(envp[i], arg, strlen(arg)) == 0 && envp[i][strlen(arg)] == '=') {
-      int j = i;
-      while (envp[j] != NULL) {
-        envp[j] = envp[j + 1];
-        j++;
-      }
+  // Check if the variable name is valid (letters, digits, underscores)
+  for (int i = 0; arg[i]; i++) {
+    if (!(isalnum(arg[i]) || arg[i] == '_')) {
+      fprintf(stderr, "minishell: unset: `%s': not a valid identifier\n", arg);
       return;
+    }
+  }
+
+  // Search for the variable and remove it
+  int i = 0;
+  while (g_envp[i] != NULL) {
+    if (strncmp(g_envp[i], arg, strlen(arg)) == 0 && g_envp[i][strlen(arg)] == '=') {
+      free(g_envp[i]);
+      while (g_envp[i] != NULL) {
+        g_envp[i] = g_envp[i + 1];  // Shift the remaining variables left
+        i++;
+      }
+      return;  // Successfully unset the variable
     }
     i++;
   }
@@ -199,7 +226,7 @@ void execute_command(char *input, char **envp) {
       if (strcmp(command, "cd") == 0)
         cmd_cd(arg);
       else if (strcmp(command, "unset") == 0)
-        cmd_unset(arg, envp);
+        cmd_unset(arg);
       else if (strcmp(command, "env") == 0)
         cmd_env(envp);
       else if (strcmp(command, "export") == 0)
