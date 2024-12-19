@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 03:34:34 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 03:50:10 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,12 +150,18 @@ void cmd_echo(char *args, char **envp) {
 
 void cmd_unset(char *arg) {
   if (!arg) {
-    fprintf(stderr, "minishell: unset: missing argument\n");
+    fprintf(stderr, "minishell: error: var not exist\n");
+    return;
+  }
+
+  // Check for unclosed quotes
+  int len = strlen(arg);
+  if ((arg[0] == '\'' && arg[len - 1] != '\'') || (arg[0] == '"' && arg[len - 1] != '"')) {
+    fprintf(stderr, "minishell: error: unclosed quotes\n");
     return;
   }
 
   // Remove surrounding quotes if they exist
-  int len = strlen(arg);
   if ((arg[0] == '\'' && arg[len - 1] == '\'') || (arg[0] == '"' && arg[len - 1] == '"')) {
     arg[len - 1] = '\0';  // Remove the closing quote
     arg++;                // Skip the opening quote
@@ -183,7 +189,8 @@ void cmd_unset(char *arg) {
     i++;
   }
 
-  fprintf(stderr, "minishell: unset: %s not found\n", arg);
+  // If the variable was not found
+  fprintf(stderr, "minishell: error: var not exist\n");
 }
 
 void cmd_export(char **envp) {

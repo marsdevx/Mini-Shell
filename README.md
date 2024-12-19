@@ -54,7 +54,7 @@ unset VAR
 
 
 # All funcs explanathion
--------------------------------------
+--------------------------------------------------------------------------
 ## Echo
 minishell> echo home (same: echo "home") (same: echo 'home')
 minishell> home
@@ -85,9 +85,8 @@ minishell>
 minishell> echo Hello;World
 Hello;World
 minishell> 
-
-------
-# Full program example:
+-----------------
+## Full program example:
 ./minishell
 minishell> echo home
 home
@@ -117,8 +116,70 @@ Hello\World
 minishell> echo Hello;World
 Hello;World
 minishell> 
--------------------------------------
+--------------------------------------------------------------------------
+## Unset
+minishell> echo $HOME
+/Users/marksylaiev
 
+minishell> unset VAR  (same: unset 'VAR') (same: unset "VAR")
+minishell> echo $HOME
+
+minishell>
+
+minishell> unset NONEXIST
+minishell: error: var not exist
+
+minishell> unset
+minishell: error: var not exist
+
+minishell> unset 'VAR    (same: unset "VAR)
+minishell: error: unclosed quotes
+-----------------
+## Full program example:
+❯ ./minishell
+minishell> echo $HOME
+/Users/marksylaiev
+minishell> unset HOME
+minishell> echo $HOME
+
+minishell> exit
+exit
+❯ ./minishell
+minishell> echo $HOME
+/Users/marksylaiev
+minishell> unset "HOME"
+minishell> echo $HOME
+
+minishell> exit
+exit
+❯ ./minishell
+minishell> echo $HOME
+/Users/marksylaiev
+minishell> unset 'HOME'
+minishell> echo $HOME
+
+minishell> unset NONEXIST
+minishell: error: var not exist
+minishell> unset
+minishell: error: var not exist
+minishell> unset 'HOME
+minishell: error: unclosed quotes
+minishell> unset "HOME
+minishell: error: unclosed quotes
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+unset INVALID-VAR  # Should display an error: not a valid identifier
+unset              # Should display an error: missing argument
 
 
 
