@@ -1,6 +1,6 @@
-# All funcs explanathion
+# Builtins
 --------------------------------------------------------------------------
-## Echo
+1. Echo
 minishell> echo home (same: echo "home") (same: echo 'home')
 minishell> home
 
@@ -31,7 +31,7 @@ minishell> echo Hello;World
 Hello;World
 minishell> 
 -----------------
-## Full program example:
+### Full program example:
 ./minishell
 minishell> echo home
 home
@@ -62,7 +62,7 @@ minishell> echo Hello;World
 Hello;World
 minishell> 
 --------------------------------------------------------------------------
-## Unset
+2. Unset
 minishell> echo $HOME
 /Users/marksylaiev
 
@@ -80,7 +80,7 @@ minishell: error: var not exist
 minishell> unset 'VAR    (same: unset "VAR)
 minishell: error: unclosed quotes
 -----------------
-## Full program example:
+### Full program example:
 ❯ ./minishell
 minishell> echo $HOME
 /Users/marksylaiev
@@ -112,7 +112,7 @@ minishell: error: unclosed quotes
 minishell> unset "HOME
 minishell: error: unclosed quotes
 --------------------------------------------------------------------------
-## Cd
+3. Cd
 minishell> pwd
 /Users/marksylaiev/Desktop/Projects/42-school/42-core/My-Shell
 
@@ -141,7 +141,7 @@ minishell> pwd
 minishell> cd "~/../../../Users/marksylaiev    (same: cd '~/../../../Users/marksylaiev)
 minishell: error: unclosed quotes
 -----------------
-## Full program example:
+### Full program example:
 ❯ ./minishell
 minishell> pwd
 /Users/marksylaiev/Desktop/Projects/42-school/42-core/My-Shell
@@ -169,7 +169,7 @@ minishell: error: unclosed quotes
 minishell> cd '~/../../../Users/marksylaiev
 minishell: error: unclosed quotes
 --------------------------------------------------------------------------
-# Export
+4. Export
 minishell> export
 (Lists all environment variables in alphabetical order)
 
@@ -191,7 +191,7 @@ minishell>
 minishell> export VAR="Hello World    (same: export VAR='Hello World)
 minishell: error: unclosed quotes
 -----------------
-## Full program example:
+### Full program example:
 ❯ ./minishell
 minishell> export VAR="Hello World"
 minishell> echo $VAR
@@ -216,6 +216,64 @@ declare -x COMMAND_MODE=unix2003
 declare -x GIT_ASKPASS=/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/git/dist/askpass.sh
 declare -x HOME=/Users/marksylaiev
 --------------------------------------------------------------------------
+5. Pwd
+❯ ./minishell
+minishell> pwd
+/Users/marksylaiev/Desktop/Projects/42-school/42-core/My-Shell
+--------------------------------------------------------------------------
+6. Env
+❯ ./minishell
+minishell> env
+PWD=/Users/marksylaiev/Desktop/Projects/42-school/42-core/My-Shell
+ITERM_PROFILE=Default
+USER=marksylaiev
+--------------------------------------------------------------------------
+7. Exit
+❯ ./minishell
+minishell> exit
+exit
+--------------------------------------------------------------------------
+
+
+# Redirections
+--------------------------------------------------------------------------
+1. Input Redirection: <
+
+minishell>  echo "Hello World!" > input.txt
+minishell>  echo < input.txt
+minishell>  Hello World!
+
+minishell>  pwd < input.txt
+
+echo "../" > path.txt
+cd < path.txt
+pwd
+--------------------------------------------------------------------------
+2. Output Redirection: >
+echo -n "Hello, World!" > output.txt
+pwd > current_dir.txt
+env > environment.txt
+--------------------------------------------------------------------------
+3. Here-Document: <<
+echo << EOF
+Hello, this is a here-document.
+This is another line.
+EOF
+
+pwd << STOP
+STOP
+--------------------------------------------------------------------------
+4. Append Output Redirection: >>
+echo -n "First line." >> append.txt
+echo -n " Second line." >> append.txt
+
+pwd >> append.txt
+
+env >> environment_log.txt
+--------------------------------------------------------------------------
+5. Combine
+
+
 
 
 
@@ -238,8 +296,6 @@ tgetnum, tgetstr, tgoto, tputs
 ft_calloc.c     ft_isascii.c    ft_itoa.c       ft_memcpy.c     ft_putchar_fd.c ft_putstr_fd.c  ft_strdup.c     ft_strlcat.c    ft_strmapi.c    ft_strrchr.c    ft_tolower.c
 ft_atoi.c       ft_isalnum.c    ft_isdigit.c    ft_memchr.c     ft_memmove.c    ft_putendl_fd.c ft_split.c      ft_striteri.c   ft_strlcpy.c    ft_strncmp.c    ft_strtrim.c    ft_toupper.c
 ft_bzero.c      ft_isalpha.c    ft_isprint.c    ft_memcmp.c     ft_memset.c     ft_putnbr_fd.c  ft_strchr.c     ft_strjoin.c    ft_strlen.c     ft_strnstr.c    ft_substr.c
-
-
 
 # Change for linux
 1)  clear_history, on_new_line, === rl_clear_history, rl_on_new_line,
