@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 08:49:58 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 08:56:59 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,8 +271,6 @@ void cmd_export(char **args) {
   }
 }
 
-#include "../header.h"
-
 void handle_redirection(char **cmd_parts) {
   int i = 0;
 
@@ -286,7 +284,10 @@ void handle_redirection(char **cmd_parts) {
       }
       dup2(fd, STDIN_FILENO);
       close(fd);
+
+      // Remove the redirection operator and filename from the arguments
       cmd_parts[i] = NULL;
+      cmd_parts[i + 1] = NULL;
     }
     // Output redirection: >
     else if (strcmp(cmd_parts[i], ">") == 0) {
@@ -297,7 +298,9 @@ void handle_redirection(char **cmd_parts) {
       }
       dup2(fd, STDOUT_FILENO);
       close(fd);
+
       cmd_parts[i] = NULL;
+      cmd_parts[i + 1] = NULL;
     }
     // Append redirection: >>
     else if (strcmp(cmd_parts[i], ">>") == 0) {
@@ -308,32 +311,9 @@ void handle_redirection(char **cmd_parts) {
       }
       dup2(fd, STDOUT_FILENO);
       close(fd);
-      cmd_parts[i] = NULL;
-    }
-    // Here-Document: <<
-    else if (strcmp(cmd_parts[i], "<<") == 0) {
-      char *delimiter = cmd_parts[i + 1];
-      int pipe_fd[2];
-      if (pipe(pipe_fd) == -1) {
-        perror("minishell: pipe");
-        return;
-      }
 
-      char *line;
-      while (1) {
-        line = readline("> ");
-        if (!line || strcmp(line, delimiter) == 0) {
-          free(line);
-          break;
-        }
-        write(pipe_fd[1], line, strlen(line));
-        write(pipe_fd[1], "\n", 1);
-        free(line);
-      }
-      close(pipe_fd[1]);
-      dup2(pipe_fd[0], STDIN_FILENO);
-      close(pipe_fd[0]);
       cmd_parts[i] = NULL;
+      cmd_parts[i + 1] = NULL;
     }
     i++;
   }
@@ -387,25 +367,47 @@ void execute_command(char *input, char **envp) {
   // Handle redirection before executing the command
   handle_redirection(cmd_parts);
 
+  // Rebuild the command parts after handling redirection
+  char *filtered_cmd[256] = {0};
+  int j = 0;
+  for (int i = 0; i < count; i++) {
+    if (cmd_parts[i]) {
+      filtered_cmd[j++] = cmd_parts[i];
+    }
+  }
+  filtered_cmd[j] = NULL;
+
   // Execute built-in commands
-  if (strcmp(cmd_parts[0], "pwd") == 0) {
-    cmd_pwd();
-  } else if (strcmp(cmd_parts[0], "exit") == 0) {
-    cmd_exit();
-  } else if (strcmp(cmd_parts[0], "env") == 0) {
-    cmd_env(envp);
-  } else if (strcmp(cmd_parts[0], "cd") == 0) {
-    cmd_cd(cmd_parts[1]);
-  } else if (strcmp(cmd_parts[0], "unset") == 0) {
-    cmd_unset(cmd_parts[1]);
-  } else if (strcmp(cmd_parts[0], "export") == 0) {
-    cmd_export(&cmd_parts[1]);
-  } else if (strcmp(cmd_parts[0], "echo") == 0) {
-    cmd_echo(cmd_parts[1], envp);
-  } else {
-    // Execute external command using execve
-    if (execve(cmd_parts[0], cmd_parts, envp) == -1) {
-      perror("minishell: execve");
+  if (filtered_cmd[0]) {
+    if (strcmp(filtered_cmd[0], "pwd") == 0) {
+      cmd_pwd();
+    } else if (strcmp(filtered_cmd[0], "exit") == 0) {
+      cmd_exit();
+    } else if (strcmp(filtered_cmd[0], "env") == 0) {
+      cmd_env(envp);
+    } else if (strcmp(filtered_cmd[0], "cd") == 0) {
+      cmd_cd(filtered_cmd[1]);
+    } else if (strcmp(filtered_cmd[0], "unset") == 0) {
+      cmd_unset(filtered_cmd[1]);
+    } else if (strcmp(filtered_cmd[0], "export") == 0) {
+      cmd_export(&filtered_cmd[1]);
+    } else if (strcmp(filtered_cmd[0], "echo") == 0) {
+      if (filtered_cmd[1]) {
+        cmd_echo(filtered_cmd[1], envp);
+      } else {
+        // Read from stdin if no arguments are provided due to input redirection
+        char buffer[1024];
+        ssize_t bytes_read;
+        while ((bytes_read = read(STDIN_FILENO, buffer, sizeof(buffer) - 1)) > 0) {
+          buffer[bytes_read] = '\0';
+          printf("%s", buffer);
+        }
+      }
+    } else {
+      // Execute external command using execve
+      if (execve(filtered_cmd[0], filtered_cmd, envp) == -1) {
+        perror("minishell: execve");
+      }
     }
   }
 

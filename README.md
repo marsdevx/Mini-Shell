@@ -243,8 +243,6 @@ minishell>  echo "Hello World!" > input.txt
 minishell>  echo < input.txt
 minishell>  Hello World!
 
-minishell>  pwd < input.txt
-
 echo "../" > path.txt
 cd < path.txt
 pwd
