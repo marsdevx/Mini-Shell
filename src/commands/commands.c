@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 03:50:10 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 04:27:05 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,40 +39,76 @@ char *expand_home(char *path) {
   if (strcmp(path, "~") == 0) {
     return strdup(home);
   } else if (strncmp(path, "~/", 2) == 0) {
+    // Allocate space for the expanded path
     char *expanded_path = malloc(strlen(home) + strlen(path));
     if (!expanded_path) {
-      perror("minishell: cd");
+      perror("minishell: malloc");
       return NULL;
     }
     sprintf(expanded_path, "%s%s", home, path + 1);
     return expanded_path;
   }
 
+  // If no ~ is present, return a copy of the original path
   return strdup(path);
 }
 
 void cmd_cd(char *arg) {
-  char *path;
-
   if (!arg) {
-    path = getenv("HOME");
-    if (!path) {
+    // No argument, default to HOME directory
+    char *home = getenv("HOME");
+    if (!home) {
       fprintf(stderr, "minishell: cd: HOME not set\n");
       return;
     }
-    if (chdir(path) != 0)
+    if (chdir(home) != 0)
       perror("minishell: cd");
     return;
   }
 
-  path = expand_home(arg);
-  if (!path)
+  // Check for unclosed quotes
+  int len = strlen(arg);
+  if ((arg[0] == '\'' && arg[len - 1] != '\'') || (arg[0] == '"' && arg[len - 1] != '"')) {
+    fprintf(stderr, "minishell: error: unclosed quotes\n");
     return;
+  }
 
-  if (chdir(path) != 0)
-    perror("minishell: cd");
+  char *processed_path = NULL;
 
-  free(path);
+  // Handle single quotes: take the path literally
+  if (arg[0] == '\'' && arg[len - 1] == '\'') {
+    arg[len - 1] = '\0';
+    processed_path = strdup(arg + 1);  // Remove the surrounding quotes
+  }
+  // Handle double quotes or no quotes: expand variables
+  else {
+    if ((arg[0] == '"' && arg[len - 1] == '"')) {
+      arg[len - 1] = '\0';
+      arg++;
+    }
+
+    // Expand environment variables in the path
+    processed_path = expand_dollar(arg, g_envp);
+    if (!processed_path) {
+      fprintf(stderr, "minishell: cd: failed to expand path\n");
+      return;
+    }
+  }
+
+  // Expand home directory if the path starts with ~
+  char *final_path = expand_home(processed_path);
+  free(processed_path);
+
+  if (!final_path) {
+    return;  // Error already handled in expand_home
+  }
+
+  // Change to the specified directory
+  if (chdir(final_path) != 0) {
+    fprintf(stderr, "minishell: cd: %s: No such file or directory\n", final_path);
+  }
+
+  free(final_path);
 }
 
 void cmd_echo(char *args, char **envp) {

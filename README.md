@@ -26,29 +26,12 @@ echo, echo -n, cd, pwd, exprot, unset, env, exit (without any characters or shor
 	•	Do not interpret special characters like \ (backslash) or ; (semicolon).
 
 
-## cd command 
-Single Quotes ('): The path inside single quotes should be taken literally, without expanding any special characters or variables.
-Double Quotes ("): The path inside double quotes allows variable expansion.
-Unclosed Quotes: If quotes are unclosed, cd should return an error and not execute.
+
 
 ## export command
 Single Quotes ('): Prevents variable expansion in the value.
 Double Quotes ("): Allows variable expansion in the value.
 Unclosed Quotes: Should return an error and not set the variable.
-
-## unset command 
-Single or Double Quotes: Quotes can be used around the variable name, and they should be handled correctly.
-unset 'VAR'
-unset "VAR"
-These should both work and unset VAR.
-
-Unclosed Quotes: Should return an error and not execute.
-unset 'VAR
-unset "VAR
-syntax error: unclosed quotes
-
-Simple usage
-unset VAR
 
 
 
@@ -167,19 +150,67 @@ minishell: error: unclosed quotes
 minishell> unset "HOME
 minishell: error: unclosed quotes
 --------------------------------------------------------------------------
+## Cd
+minishell> pwd
+/Users/marksylaiev/Desktop/Projects/42-school/42-core/My-Shell
+
+minishell> cd ..
+minishell> pwd
+/Users/marksylaiev/Desktop/Projects/42-school/42-core
+
+minishell> cd ../../..
+minishell> pwd
+/Users/marksylaiev/Desktop
+
+minishell> cd ~/Desktop/Projects/42-school/42-core/My-Shell/
+minishell> pwd
+/Users/marksylaiev/Desktop/Projects/42-school/42-core/My-Shell
+
+minishell> cd '~/../../../Users/$USER'
+minishell: cd: No such file or directory
+
+minishell> cd ~/../../../Users/nonexist
+minishell: cd: No such file or directory
+
+minishell> cd "~/../../../Users/$USER"  (same: cd ~/../../../Users/$USER)
+minishell> pwd
+/Users/marksylaiev
+
+minishell> cd "~/../../../Users/marksylaiev    (same: cd '~/../../../Users/marksylaiev)
+minishell: error: unclosed quotes
+-----------------
+## Full program example:
+❯ ./minishell
+minishell> pwd
+/Users/marksylaiev/Desktop/Projects/42-school/42-core/My-Shell
+minishell> cd ..
+minishell> pwd
+/Users/marksylaiev/Desktop/Projects/42-school/42-core
+minishell> cd ../../..
+minishell> pwd
+/Users/marksylaiev/Desktop
+minishell> cd ~/Desktop/Projects/42-school/42-core/My-Shell/
+minishell> pwd
+/Users/marksylaiev/Desktop/Projects/42-school/42-core/My-Shell
+minishell> cd '~/../../../Users/$USER'
+minishell: cd: /Users/marksylaiev/../../../Users/$USER: No such file or directory
+minishell> cd ~/../../../Users/nonexist
+minishell: cd: /Users/marksylaiev/../../../Users/nonexist: No such file or directory
+minishell> cd "~/../../../Users/$USER"
+minishell> pwd
+/Users/marksylaiev
+minishell> cd ~/../../../Users/$USER
+minishell> pwd
+/Users/marksylaiev
+minishell> cd "~/../../../Users/marksylaiev
+minishell: error: unclosed quotes
+minishell> cd '~/../../../Users/marksylaiev
+minishell: error: unclosed quotes
+--------------------------------------------------------------------------
 
 
 
 
-
-
-
-
-
-
-
-unset INVALID-VAR  # Should display an error: not a valid identifier
-unset              # Should display an error: missing argument
 
 
 
