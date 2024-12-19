@@ -32,6 +32,9 @@ void cmd_pwd(void);
 void cmd_exit(void);
 void cmd_env(char **envp);
 
+// Utils
+char *expand_dollar(char *input, char **envp);
+
 /* For libft */
 # include "../libs/libft/libft.h"
 

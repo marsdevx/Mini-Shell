@@ -12,6 +12,49 @@ ft_strncmp(input, EXIT_CMD, sizeof(EXIT_CMD)) == 0 -> compare input with existin
 echo, echo -n, cd, pwd, exprot, unset, env, exit (without any characters or shortcuts)
 
 
+# Version 3
+
+	1.	Unclosed Quotes:
+	•	Detect unclosed single (') or double quotes (") and prevent the command from executing, displaying an error message.
+	2.	Single Quotes ('):
+	•	Treat everything inside single quotes literally.
+	•	Special characters like $, \, *, etc., should not be interpreted.
+	3.	Double Quotes ("):
+	•	Treat everything inside double quotes literally except for $.
+	•	Variables (e.g., $USER) should be expanded.
+	4.	Ignore Special Characters:
+	•	Do not interpret special characters like \ (backslash) or ; (semicolon).
+
+
+## cd command 
+Single Quotes ('): The path inside single quotes should be taken literally, without expanding any special characters or variables.
+Double Quotes ("): The path inside double quotes allows variable expansion.
+Unclosed Quotes: If quotes are unclosed, cd should return an error and not execute.
+
+## export command
+Single Quotes ('): Prevents variable expansion in the value.
+Double Quotes ("): Allows variable expansion in the value.
+Unclosed Quotes: Should return an error and not set the variable.
+
+## unset command 
+Single or Double Quotes: Quotes can be used around the variable name, and they should be handled correctly.
+Unclosed Quotes: Should return an error and not execute.
+
+## echo command
+Unclosed Quotes: If quotes are unclosed, cd should return an error and not execute.
+Single Quotes: variable must not be expanded
+Double Quotes: variable must be expanded
+Ignoring Special Characters: 
+	echo Hello\World
+	Hello\World
+	echo Hello; World
+	Hello; World
+
+
+
+
+
+
 
 
 # Allowed funcs:

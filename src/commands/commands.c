@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 00:02:43 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 02:30:29 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,15 +59,25 @@ void cmd_cd(char *arg) {
   free(path);
 }
 
-void cmd_echo(char *args) {
+void cmd_echo(char *args, char **envp) {
   int my_newline = 1;
+
   if (args && strncmp(args, "-n", 2) == 0 && (args[2] == ' ' || args[2] == '\0')) {
     my_newline = 0;
     args = args + 2;
     while (*args == ' ') args++;
   }
-  if (args)
-    printf("%s", args);
+
+  if (args) {
+    char *expanded = expand_dollar(args, envp);
+    if (expanded) {
+      printf("%s", expanded);
+      free(expanded);
+    } else {
+      printf("%s", args);
+    }
+  }
+
   if (my_newline)
     printf("\n");
 }
@@ -145,8 +155,8 @@ void execute_command(char *input, char **envp) {
         cmd_env(envp);
       else if (strcmp(command, "export") == 0)
         cmd_export(envp);
-      else if (strcmp(command, "echo") == 0)
-        cmd_echo(arg);
+			else if (strcmp(command, "echo") == 0)
+				cmd_echo(arg, envp);
       else
         commands[i].func();
       free(args);
