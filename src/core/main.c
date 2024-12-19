@@ -1,9 +1,9 @@
 #include "../header.h"
 
-char **g_envp = NULL;  // Define the global variable
+char **g_envp = NULL;
 
 int main(int argc, char **argv, char **envp) {
-  init_envp(envp);  // Initialize the global environment copy
+  init_envp(envp);
 
   (void)argv;
   (void)argc;
@@ -19,7 +19,6 @@ int main(int argc, char **argv, char **envp) {
     free(line);
   }
 
-  // Free g_envp before exiting
   for (int i = 0; g_envp[i]; i++)
     free(g_envp[i]);
   free(g_envp);

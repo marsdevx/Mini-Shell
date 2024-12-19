@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 02:29:20 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 07:03:45 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,4 +54,3 @@ char *expand_dollar(char *input, char **envp) {
   result[j] = '\0';
   return result;
 }
-

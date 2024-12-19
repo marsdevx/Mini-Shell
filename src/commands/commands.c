@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 04:55:04 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 07:06:09 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ char *expand_home(char *path) {
   if (strcmp(path, "~") == 0) {
     return strdup(home);
   } else if (strncmp(path, "~/", 2) == 0) {
-    // Allocate space for the expanded path
     char *expanded_path = malloc(strlen(home) + strlen(path));
     if (!expanded_path) {
       perror("minishell: malloc");
@@ -49,13 +48,11 @@ char *expand_home(char *path) {
     return expanded_path;
   }
 
-  // If no ~ is present, return a copy of the original path
   return strdup(path);
 }
 
 void cmd_cd(char *arg) {
   if (!arg) {
-    // No argument, default to HOME directory
     char *home = getenv("HOME");
     if (!home) {
       fprintf(stderr, "minishell: cd: HOME not set\n");
@@ -66,7 +63,6 @@ void cmd_cd(char *arg) {
     return;
   }
 
-  // Check for unclosed quotes
   int len = strlen(arg);
   if ((arg[0] == '\'' && arg[len - 1] != '\'') || (arg[0] == '"' && arg[len - 1] != '"')) {
     fprintf(stderr, "minishell: error: unclosed quotes\n");
@@ -75,19 +71,15 @@ void cmd_cd(char *arg) {
 
   char *processed_path = NULL;
 
-  // Handle single quotes: take the path literally
   if (arg[0] == '\'' && arg[len - 1] == '\'') {
     arg[len - 1] = '\0';
-    processed_path = strdup(arg + 1);  // Remove the surrounding quotes
-  }
-  // Handle double quotes or no quotes: expand variables
-  else {
+    processed_path = strdup(arg + 1);
+  } else {
     if ((arg[0] == '"' && arg[len - 1] == '"')) {
       arg[len - 1] = '\0';
       arg++;
     }
 
-    // Expand environment variables in the path
     processed_path = expand_dollar(arg, g_envp);
     if (!processed_path) {
       fprintf(stderr, "minishell: cd: failed to expand path\n");
@@ -95,15 +87,13 @@ void cmd_cd(char *arg) {
     }
   }
 
-  // Expand home directory if the path starts with ~
   char *final_path = expand_home(processed_path);
   free(processed_path);
 
   if (!final_path) {
-    return;  // Error already handled in expand_home
+    return;
   }
 
-  // Change to the specified directory
   if (chdir(final_path) != 0) {
     fprintf(stderr, "minishell: cd: %s: No such file or directory\n", final_path);
   }
@@ -169,7 +159,6 @@ void cmd_echo(char *args, char **envp) {
     }
   }
 
-  // Check if there are unclosed quotes
   if (in_single_quote || in_double_quote) {
     fprintf(stderr, "minishell: error: unclosed quotes\n");
     free(result);
@@ -190,20 +179,17 @@ void cmd_unset(char *arg) {
     return;
   }
 
-  // Check for unclosed quotes
   int len = strlen(arg);
   if ((arg[0] == '\'' && arg[len - 1] != '\'') || (arg[0] == '"' && arg[len - 1] != '"')) {
     fprintf(stderr, "minishell: error: unclosed quotes\n");
     return;
   }
 
-  // Remove surrounding quotes if they exist
   if ((arg[0] == '\'' && arg[len - 1] == '\'') || (arg[0] == '"' && arg[len - 1] == '"')) {
-    arg[len - 1] = '\0';  // Remove the closing quote
-    arg++;                // Skip the opening quote
+    arg[len - 1] = '\0';
+    arg++;
   }
 
-  // Check if the variable name is valid (letters, digits, underscores)
   for (int i = 0; arg[i]; i++) {
     if (!(isalnum(arg[i]) || arg[i] == '_')) {
       fprintf(stderr, "minishell: unset: `%s': not a valid identifier\n", arg);
@@ -211,25 +197,21 @@ void cmd_unset(char *arg) {
     }
   }
 
-  // Search for the variable and remove it
   int i = 0;
   while (g_envp[i] != NULL) {
     if (strncmp(g_envp[i], arg, strlen(arg)) == 0 && g_envp[i][strlen(arg)] == '=') {
       free(g_envp[i]);
       while (g_envp[i] != NULL) {
-        g_envp[i] = g_envp[i + 1];  // Shift the remaining variables left
+        g_envp[i] = g_envp[i + 1];
         i++;
       }
-      return;  // Successfully unset the variable
+      return;
     }
     i++;
   }
 
-  // If the variable was not found
   fprintf(stderr, "minishell: error: var not exist\n");
 }
-
-
 
 void execute_command(char *input, char **envp) {
   char *args = strdup(input);
@@ -253,10 +235,10 @@ void execute_command(char *input, char **envp) {
         cmd_unset(arg);
       else if (strcmp(command, "env") == 0)
         cmd_env(envp);
-			else if (strcmp(command, "export") == 0)
-				cmd_export(arg ? (char *[]){arg, NULL} : NULL);
-			else if (strcmp(command, "echo") == 0)
-				cmd_echo(arg, envp);
+      else if (strcmp(command, "export") == 0)
+        cmd_export(arg ? (char *[]){arg, NULL} : NULL);
+      else if (strcmp(command, "echo") == 0)
+        cmd_echo(arg, envp);
       else
         commands[i].func();
       free(args);

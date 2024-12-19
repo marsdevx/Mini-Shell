@@ -224,22 +224,6 @@ declare -x HOME=/Users/marksylaiev
 
 
 
-
-## export command
-Single Quotes ('): Prevents variable expansion in the value.
-Double Quotes ("): Allows variable expansion in the value.
-Unclosed Quotes: Should return an error and not set the variable.
-
-
-
-
-
-
-
-
-
-
-
 # Allowed funcs:
 readline, rl_clear_history, rl_on_new_line,
 rl_replace_line, rl_redisplay, add_history,

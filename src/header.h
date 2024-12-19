@@ -8,10 +8,9 @@
 #define UNSET_CMD "unset"
 #define EXPORT_CMD "export"
 #define ECHO_CMD "echo"
-
 #define MAX_ENV_VARS 1024
 
-extern char **g_envp;  // Declare the global variable
+extern char **g_envp;
 
 typedef struct s_command {
   char *name;
