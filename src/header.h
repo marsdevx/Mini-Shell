@@ -23,6 +23,7 @@ void init_envp(char **envp);
 
 // Commands
 void execute_command(char *input, char **envp);
+void cmd_export(char **args);
 void cmd_pwd(void);
 void cmd_exit(void);
 void cmd_env(char **envp);

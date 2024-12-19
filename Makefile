@@ -8,7 +8,7 @@ LIBFTDIR = libs/libft
 
 SRC_CORE = core/main.c
 SRC_UT = utils/dollar.c
-SRC_CMD = commands/commands.c commands/commands_utils.c 
+SRC_CMD = commands/commands.c commands/commands_utils.c  commands/command_export.c
 SRC = $(SRC_CORE) $(SRC_CMD) $(SRC_UT)
 
 OBJS = $(addprefix $(OBJDIR)/, $(SRC:.c=.o))

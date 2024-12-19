@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:00:00 by marksylaiev       #+#    #+#             */
-/*   Updated: 2024/12/19 04:27:05 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2024/12/19 04:55:04 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,34 +229,7 @@ void cmd_unset(char *arg) {
   fprintf(stderr, "minishell: error: var not exist\n");
 }
 
-void cmd_export(char **envp) {
-  int i, j;
-  char *temp;
-  int count = 0;
-  while (envp[count] != NULL)
-    count++;
-  char **sorted_env = malloc((count + 1) * sizeof(char *));
-  if (!sorted_env) {
-    perror("minishell: export");
-    return;
-  }
-  for (i = 0; i < count; i++)
-    sorted_env[i] = envp[i];
-  sorted_env[count] = NULL;
-  for (i = 0; i < count - 1; i++) {
-    for (j = 0; j < count - i - 1; j++) {
-      if (strcmp(sorted_env[j], sorted_env[j + 1]) > 0) {
-        temp = sorted_env[j];
-        sorted_env[j] = sorted_env[j + 1];
-        sorted_env[j + 1] = temp;
-      }
-    }
-  }
-  for (i = 0; sorted_env[i] != NULL; i++) {
-    printf("declare -x %s\n", sorted_env[i]);
-  }
-  free(sorted_env);
-}
+
 
 void execute_command(char *input, char **envp) {
   char *args = strdup(input);
@@ -280,8 +253,8 @@ void execute_command(char *input, char **envp) {
         cmd_unset(arg);
       else if (strcmp(command, "env") == 0)
         cmd_env(envp);
-      else if (strcmp(command, "export") == 0)
-        cmd_export(envp);
+			else if (strcmp(command, "export") == 0)
+				cmd_export(arg ? (char *[]){arg, NULL} : NULL);
 			else if (strcmp(command, "echo") == 0)
 				cmd_echo(arg, envp);
       else

@@ -1,41 +1,3 @@
-# Version 1
-./minishell
-minishell > hello
-minishell > hello
-
-## V1 --work
-readline(PROMPT) -> save str after minishell> in var, and write minishell> while program started
-ft_strncmp(input, EXIT_CMD, sizeof(EXIT_CMD)) == 0 -> compare input with existing commands, if cont print error
-
-
-# Version 2
-echo, echo -n, cd, pwd, exprot, unset, env, exit (without any characters or shortcuts)
-
-
-# Version 3
-
-	1.	Unclosed Quotes:
-	•	Detect unclosed single (') or double quotes (") and prevent the command from executing, displaying an error message.
-	2.	Single Quotes ('):
-	•	Treat everything inside single quotes literally.
-	•	Special characters like $, \, *, etc., should not be interpreted.
-	3.	Double Quotes ("):
-	•	Treat everything inside double quotes literally except for $.
-	•	Variables (e.g., $USER) should be expanded.
-	4.	Ignore Special Characters:
-	•	Do not interpret special characters like \ (backslash) or ; (semicolon).
-
-
-
-
-## export command
-Single Quotes ('): Prevents variable expansion in the value.
-Double Quotes ("): Allows variable expansion in the value.
-Unclosed Quotes: Should return an error and not set the variable.
-
-
-
-
 # All funcs explanathion
 --------------------------------------------------------------------------
 ## Echo
@@ -207,8 +169,66 @@ minishell: error: unclosed quotes
 minishell> cd '~/../../../Users/marksylaiev
 minishell: error: unclosed quotes
 --------------------------------------------------------------------------
+# Export
+minishell> export
+(Lists all environment variables in alphabetical order)
+
+minishell> export VAR="Hello World"    (same: export VAR='Hello World')
+minishell> echo $VAR
+Hello World
+minishell>
+
+minishell> export VAR="Hello $USER"
+minishell> echo $VAR
+Hello marksylaiev
+minishell> 
+
+minishell> export VAR='Hello $USER'
+minishell> echo $VAR
+Hello $USER
+minishell>
+
+minishell> export VAR="Hello World    (same: export VAR='Hello World)
+minishell: error: unclosed quotes
+-----------------
+## Full program example:
+❯ ./minishell
+minishell> export VAR="Hello World"
+minishell> echo $VAR
+Hello World
+minishell> export VAR='Hello World'
+minishell> echo $VAR
+Hello World
+minishell> export VAR="Hello $USER"
+minishell> echo $VAR
+Hello marksylaiev
+minishell> export VAR='Hello $USER'
+minishell> echo $VAR
+Hello $USER
+minishell> export VAR="Hello World
+minishell: export: error: unclosed quotes
+minishell> export VAR='Hello World
+minishell: export: error: unclosed quotes
+minishell> export
+declare -x COLORFGBG=15;0
+declare -x COLORTERM=truecolor
+declare -x COMMAND_MODE=unix2003
+declare -x GIT_ASKPASS=/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+declare -x HOME=/Users/marksylaiev
+--------------------------------------------------------------------------
 
 
+
+
+
+
+
+
+
+## export command
+Single Quotes ('): Prevents variable expansion in the value.
+Double Quotes ("): Allows variable expansion in the value.
+Unclosed Quotes: Should return an error and not set the variable.
 
 
 
@@ -238,5 +258,5 @@ ft_bzero.c      ft_isalpha.c    ft_isprint.c    ft_memcmp.c     ft_memset.c     
 
 
 # Change for linux
-1)  clear_history, on_new_line, - rl_clear_history, rl_on_new_line,
+1)  clear_history, on_new_line, === rl_clear_history, rl_on_new_line,
 2) makefile - 
