@@ -1,11 +1,36 @@
+# Symbols 
+
+## $VAR
+  $VARNAME, "$VARNAME" - var
+  '$VARNAME' - string
+
+## (>) (>>)
+  command > file.txt  # Overwrites file.txt with output from command
+  command >> file.txt  # Append file.txt with output from command
+
+
+
+
 # Builtins
 --------------------------------------------------------------------------
 1. Echo
 minishell> echo home (same: echo "home") (same: echo 'home')
 minishell> home
 
+minishell> echo hello world (same: echo "hello world") (same: echo 'hello world')
+minishell> hello world
+
 minishell> echo -n home (same: echo -n "home") (same: echo -n 'home')
 homeminishell> 
+
+minishell> echo -n -n -n home (same: echo -n -n -n "home") (same: echo -n -n -n 'home')
+homeminishell> 
+
+minishell> echo -n -v -n home (same: echo -n -v -n "home") (same: echo -n -v -n 'home')
+-v -n homeminishell> 
+
+minishell> echo -n hello world (same: echo -n "hello world") (same: echo -n 'hello world')
+hello worldminishell> 
 
 minishell> echo $HOME    (same: echo "$HOME")
 /Users/marksylaiev
