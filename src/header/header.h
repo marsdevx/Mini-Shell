@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <signal.h>
 
 // Our header files
 // #include "../utils/utils.h"
@@ -39,6 +40,7 @@ typedef struct s_token
     char *value;      // Token value as a string
     int   value_len;  // Length of the value
 } t_token;
+
 
 typedef struct s_command { char *arg; } t_command;
 typedef struct s_group   { t_list *argv; } t_group;
