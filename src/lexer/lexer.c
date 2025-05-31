@@ -219,16 +219,16 @@ void print_tokens(t_list *tokens)
     }
 }
 
-/* Main function for testing */
-int main(void)
-{
-    char *input = "echo \"dshgjksfgsf'''rgfsdggj42tc|\" >> file";
-    printf("Testing input: %s\n", input);
-    t_list *tokens = lexer(input);
-    if (tokens)
-    {
-        print_tokens(tokens);
-        free_tokens(&tokens);
-    }
-    return 0;
-}
+// /* Main function for testing */
+// int main(void)
+// {
+//     char *input = "echo \"dshgjksfgsf'''rgfsdggj42tc|\" >> file";
+//     printf("Testing input: %s\n", input);
+//     t_list *tokens = lexer(input);
+//     if (tokens)
+//     {
+//         print_tokens(tokens);
+//         free_tokens(&tokens);
+//     }
+//     return 0;
+// }

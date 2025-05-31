@@ -1,2 +1,0 @@
-1) always `git pull` before `git push`
-2) don't use `git add .` only `git add src/lexer`

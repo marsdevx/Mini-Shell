@@ -99,7 +99,7 @@ int push_token(t_list **lst, e_type type, const char *str)
 }
 
 /* for debug */
-void print_tokens(t_list *lst)
+void ft_print_tokens(t_list *lst)
 {
     for (; lst; lst = lst->next)
     {
@@ -113,7 +113,7 @@ const char *type_name(e_type t)
     return g_type_name[t];
 }
 
-void free_tokens(t_list **lst)
+void ft_free_tokens(t_list **lst)
 {
     while (*lst)
     {
@@ -287,113 +287,113 @@ void free_groups(t_list **groups)
 
 /* ─────────────────────────────  driver  ─────────────────────────────────── */
 
-int main(void)
-{
-    /* target command: echo hello | echo world */
-    t_list *tokens = NULL;
+// int main(void)
+// {
+//     /* target command: echo hello | echo world */
+//     t_list *tokens = NULL;
 
-    push_token(&tokens, WORD, "grep");        
-    push_token(&tokens, SEP, " ");
-    push_token(&tokens, WORD, "-i");          
-    push_token(&tokens, SEP, " ");
-    push_token(&tokens, WORD, "pattern");     
-    push_token(&tokens, SEP, " ");
-    push_token(&tokens, REDIRECT_IN,  "<");   
-    push_token(&tokens, SEP, " ");
-    push_token(&tokens, WORD, "in.txt");      
-    push_token(&tokens, SEP, " ");
-    push_token(&tokens, REDIRECT_OUT, ">");   
-    push_token(&tokens, SEP, " ");
-    push_token(&tokens, WORD, "out.txt");
-
-
-
-    puts("── token list ─────────────────────────────");
-    print_tokens(tokens);
-
-    /* 1-D → 2-D */
-    t_list *groups = tokens_to_groups(tokens);
-    if (!groups)
-    {
-        perror("parser");
-        free_tokens(&tokens);
-        return 1;
-    }
-
-    puts("\n── parsed commands ───────────────────────");
-    print_groups(groups);
-
-    /* cleanup */
-    free_groups(&groups);
-    free_tokens(&tokens);
-    return 0;
-}
+//     push_token(&tokens, WORD, "grep");        
+//     push_token(&tokens, SEP, " ");
+//     push_token(&tokens, WORD, "-i");          
+//     push_token(&tokens, SEP, " ");
+//     push_token(&tokens, WORD, "pattern");     
+//     push_token(&tokens, SEP, " ");
+//     push_token(&tokens, REDIRECT_IN,  "<");   
+//     push_token(&tokens, SEP, " ");
+//     push_token(&tokens, WORD, "in.txt");      
+//     push_token(&tokens, SEP, " ");
+//     push_token(&tokens, REDIRECT_OUT, ">");   
+//     push_token(&tokens, SEP, " ");
+//     push_token(&tokens, WORD, "out.txt");
 
 
 
-    // if (!push_token(&tokens, WORD, "echo"))   return 1;
-    // if (!push_token(&tokens, SEP,  " "))      return 1;
-    // if (!push_token(&tokens, WORD, "hello"))  return 1;
-    // if (!push_token(&tokens, SEP,  " "))      return 1;
-    // if (!push_token(&tokens, PIPE, "|"))      return 1;
-    // if (!push_token(&tokens, SEP,  " "))      return 1;
-    // if (!push_token(&tokens, WORD, "echo"))   return 1;
-    // if (!push_token(&tokens, SEP,  " "))      return 1;
-    // if (!push_token(&tokens, WORD, "world"))  return 1;
+//     puts("── token list ─────────────────────────────");
+//     print_tokens(tokens);
+
+//     /* 1-D → 2-D */
+//     t_list *groups = tokens_to_groups(tokens);
+//     if (!groups)
+//     {
+//         perror("parser");
+//         free_tokens(&tokens);
+//         return 1;
+//     }
+
+//     puts("\n── parsed commands ───────────────────────");
+//     print_groups(groups);
+
+//     /* cleanup */
+//     free_groups(&groups);
+//     free_tokens(&tokens);
+//     return 0;
+// }
 
 
-    // push_token(&tokens, WORD, "ls");
-    // push_token(&tokens, SEP , " ");
-    // push_token(&tokens, WORD, "-la");
-    // push_token(&tokens, SEP , " ");
-    // push_token(&tokens, WORD, "/usr/bin");
+
+//     // if (!push_token(&tokens, WORD, "echo"))   return 1;
+//     // if (!push_token(&tokens, SEP,  " "))      return 1;
+//     // if (!push_token(&tokens, WORD, "hello"))  return 1;
+//     // if (!push_token(&tokens, SEP,  " "))      return 1;
+//     // if (!push_token(&tokens, PIPE, "|"))      return 1;
+//     // if (!push_token(&tokens, SEP,  " "))      return 1;
+//     // if (!push_token(&tokens, WORD, "echo"))   return 1;
+//     // if (!push_token(&tokens, SEP,  " "))      return 1;
+//     // if (!push_token(&tokens, WORD, "world"))  return 1;
 
 
-    // push_token(&tokens, WORD, "grep");        
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "-i");          
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "pattern");     
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_IN,  "<");   
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "in.txt");      
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_OUT, ">");   
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "out.txt");
-
-    // push_token(&tokens, WORD, "grep");         
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "-i");           
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "pattern");      
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_IN,  "<");    
-
-    // push_token(&tokens, HEREDOC,  "<");    push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_OUT,  "<");    push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_APPEND,  "<");    push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "ls");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "-la");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "/usr/bin");
 
 
-    // push_token(&tokens, WORD, "ls");
-    // push_token(&tokens, SEP , " ");
-    // push_token(&tokens, WORD, "-la");
-    // push_token(&tokens, FIELD, "-la");
-    // push_token(&tokens, EXP_FIELD, "-la");
+//     // push_token(&tokens, WORD, "grep");        
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "-i");          
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "pattern");     
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_IN,  "<");   
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "in.txt");      
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_OUT, ">");   
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "out.txt");
+
+//     // push_token(&tokens, WORD, "grep");         
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "-i");           
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "pattern");      
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_IN,  "<");    
+
+//     // push_token(&tokens, HEREDOC,  "<");    push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_OUT,  "<");    push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_APPEND,  "<");    push_token(&tokens, SEP, " ");
 
 
-    // push_token(&tokens, WORD, "ls");
-    // push_token(&tokens, SEP , " ");
-    // push_token(&tokens, WORD, "-la");
-    // push_token(&tokens, FIELD, "$USER");
-    // push_token(&tokens, EXP_FIELD, "$USER");
-    // push_token(&tokens, EXP_FIELD, "$PWD");
+//     // push_token(&tokens, WORD, "ls");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "-la");
+//     // push_token(&tokens, FIELD, "-la");
+//     // push_token(&tokens, EXP_FIELD, "-la");
 
 
-    // push_token(&tokens, WORD, "ls");
-    // push_token(&tokens, SEP , " ");
-    // push_token(&tokens, WORD, "-la");
-    // push_token(&tokens, FIELD, "-la");
-    // push_token(&tokens, REDIRECT_OUT, ">");
-    // push_token(&tokens, WORD, "-la");
+//     // push_token(&tokens, WORD, "ls");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "-la");
+//     // push_token(&tokens, FIELD, "$USER");
+//     // push_token(&tokens, EXP_FIELD, "$USER");
+//     // push_token(&tokens, EXP_FIELD, "$PWD");
+
+
+//     // push_token(&tokens, WORD, "ls");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "-la");
+//     // push_token(&tokens, FIELD, "-la");
+//     // push_token(&tokens, REDIRECT_OUT, ">");
+//     // push_token(&tokens, WORD, "-la");

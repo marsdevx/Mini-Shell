@@ -1,15 +1,16 @@
 # Vars
 CC = cc # cc / clang
-CFLAGS = -Wall -Werror -Wextra -I$(SRCDIR) -I$(LIBFTDIR) -I/opt/homebrew/opt/readline/include
+CFLAGS = -I$(SRCDIR) -I$(LIBFTDIR) -I/opt/homebrew/opt/readline/include # -Wall -Werror -Wextra
 NAME = minishell
 SRCDIR = src
 OBJDIR = obj
 LIBFTDIR = libs/libft
 
-SRC_CORE = core/main.c
-SRC_UT = utils/utils.c
-SRC_CMD = commands/commands.c
-SRC = $(SRC_CORE) $(SRC_CMD) $(SRC_UT)
+SRC_DESTR = destr/main.c
+SRC_LEXER = lexer/lexer.c 
+SRC_PARSER = parser/parser.c 
+SRC_READER = reader/reader.c
+SRC = $(SRC_DESTR) $(SRC_LEXER) $(SRC_PARSER) $(SRC_READER)
 
 OBJS = $(addprefix $(OBJDIR)/, $(SRC:.c=.o))
 SRCS = $(addprefix $(SRCDIR)/, $(SRC))
@@ -20,7 +21,7 @@ $(NAME): $(OBJS) $(LIBFTDIR)/libft.a
 
 # Create necessary directories for object files
 $(OBJDIR):
-	mkdir -p $(OBJDIR)/core $(OBJDIR)/commands $(OBJDIR)/utils
+	mkdir -p $(OBJDIR)/destr $(OBJDIR)/lexer $(OBJDIR)/parser $(OBJDIR)/reader
 
 # Compile source files to object files
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
