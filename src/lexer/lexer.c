@@ -1,17 +1,6 @@
 #include "../header/header.h"
 
-/* Helper function: Duplicate a string up to n characters */
-char *ft_strndup(const char *s, size_t n)
-{
-    char *dup = malloc(n + 1);
-    if (!dup)
-        return NULL;
-    strncpy(dup, s, n);
-    dup[n] = '\0';
-    return dup;
-}
 
-/* Check for unmatched quotes in the input */
 int quotes_check(char *input)
 {
     int i = 0;
@@ -34,7 +23,6 @@ int quotes_check(char *input)
     return 1;
 }
 
-/* Lexer function: Tokenize the input string */
 t_list *lexer(char *input)
 {
     if (!quotes_check(input))
@@ -50,17 +38,14 @@ t_list *lexer(char *input)
         if (!token)
             return NULL;
 
-        /* Handle separators (spaces/tabs) */
         if (*ptr == ' ' || *ptr == '\t')
         {
             while (*ptr == ' ' || *ptr == '\t')
                 ptr++;
-            size_t len = ptr - start;
             token->type = SEP;
-            token->value = ft_strndup(start, len);
-            token->value_len = len;
+            token->value = ft_strndup(ptr - 1, 1);
+            token->value_len = 1;
         }
-        /* Handle pipe symbol */
         else if (*ptr == '|')
         {
             token->type = PIPE;
@@ -68,7 +53,6 @@ t_list *lexer(char *input)
             token->value_len = 1;
             ptr++;
         }
-        /* Handle input redirection or heredoc */
         else if (*ptr == '<')
         {
             if (*(ptr + 1) == '<')
@@ -86,7 +70,6 @@ t_list *lexer(char *input)
                 ptr++;
             }
         }
-        /* Handle output redirection or append */
         else if (*ptr == '>')
         {
             if (*(ptr + 1) == '>')
@@ -104,49 +87,46 @@ t_list *lexer(char *input)
                 ptr++;
             }
         }
-        /* Handle single-quoted fields */
         else if (*ptr == '\'')
         {
-            ptr++; // Skip opening quote
+            ptr++;
             start = ptr;
             while (*ptr && *ptr != '\'')
                 ptr++;
-            if (*ptr == '\'') // Found closing quote
+            if (*ptr == '\'')
             {
                 size_t len = ptr - start;
                 token->type = FIELD;
                 token->value = ft_strndup(start, len);
                 token->value_len = len;
-                ptr++; // Skip closing quote
+                ptr++;
             }
             else
             {
                 free(token);
-                return NULL; // Unmatched quote (caught by quotes_check)
+                return NULL;
             }
         }
-        /* Handle double-quoted fields */
         else if (*ptr == '"')
         {
-            ptr++; // Skip opening double quote
+            ptr++;
             start = ptr;
             while (*ptr && *ptr != '"')
                 ptr++;
-            if (*ptr == '"') // Found closing double quote
+            if (*ptr == '"')
             {
                 size_t len = ptr - start;
                 token->type = EXP_FIELD;
                 token->value = ft_strndup(start, len);
                 token->value_len = len;
-                ptr++; // Skip closing double quote
+                ptr++;
             }
             else
             {
                 free(token);
-                return NULL; // Unmatched quote (caught by quotes_check)
+                return NULL;
             }
         }
-        /* Handle unquoted words */
         else
         {
             while (*ptr && *ptr != ' ' && *ptr != '\t' && *ptr != '|' && *ptr != '<' && *ptr != '>' && *ptr != '\'' && *ptr != '"')
@@ -164,19 +144,11 @@ t_list *lexer(char *input)
     return tokens;
 }
 
-
-
-
-// /* Main function for testing */
-// int main(void)
-// {
-//     char *input = "echo \"dshgjksfgsf'''rgfsdggj42tc|\" >> file";
-//     printf("Testing input: %s\n", input);
-//     t_list *tokens = lexer(input);
-//     if (tokens)
-//     {
-//         print_tokens(tokens);
-//         ft_free_tokens(&tokens);
-//     }
-//     return 0;
-// }
+static void process_input(char *line, t_info *info)
+{
+    t_list *tokens = lexer(line);
+    if (tokens) {
+        ft_print_tokens(tokens);
+        ft_free_tokens(&tokens);
+    }
+}

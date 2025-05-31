@@ -43,7 +43,8 @@ void ft_free_tokens(t_list **tokens)
     *tokens = NULL;
 }
 
-/* Print the tokens for debugging */
+/* Print the tokens for debugging */ 
+//need only for debug
 void ft_print_tokens(t_list *tokens)
 {
     t_list *current = tokens;
@@ -53,4 +54,14 @@ void ft_print_tokens(t_list *tokens)
         printf("Type: %d, Value: %s, Length: %d\n", token->type, token->value, token->value_len);
         current = current->next;
     }
+}
+
+char *ft_strndup(const char *s, size_t n)
+{
+    char *dup = malloc(n + 1);
+    if (!dup)
+        return NULL;
+    strncpy(dup, s, n);
+    dup[n] = '\0';
+    return dup;
 }

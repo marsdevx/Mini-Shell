@@ -1,39 +1,28 @@
 
 #include "../header/header.h"
 
-static char	*ft_readline(void)
-{
-	char	*line;
 
-	line = readline("minishell> ");
-	if (line && *line)
-		add_history(line);
-	return (line);
+static char *ft_readline(const char *prompt)
+{
+    char *line = readline(prompt);
+    if (line && *line) {
+        add_history(line);
+    }
+    return line;
 }
 
-//gcc -Wall -Wextra -g3 /home/dkot/Desktop/Mini-Shell/src/reader/reader.c -o /home/dkot/Desktop/Mini-Shell/src/reader/output/reader -lreadline -lncurses
-// int main(void)
-// {
-//     char *line;
+static int ft_init(t_info *info)
+{
+    info->exit_f = 1;
+    return 0;
+}
 
-//     while (1)
-//     {
-//         // Read input with a prompt
-//         line = readline("minishell> ");
-        
-//         // Check for EOF (Ctrl+D)
-//         if (line == NULL)
-//         {
-//             break; // Exit the loop to terminate the shell
-//         }
-        
-//         // Add non-empty input to history
-//         if (*line) // Check if the string is not empty
-//         {
-//             add_history(line);
-//         }
-
-//         free(line);
-//     }
-//     return (0);
-// }
+static void handle_sigint(int sig)
+{
+    if (sig == SIGINT) {
+        printf("\n");
+        rl_on_new_line();
+        rl_replace_line("", 0);
+        rl_redisplay();
+    }
+}
