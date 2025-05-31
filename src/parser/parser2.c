@@ -48,6 +48,12 @@ static int is_redirect(e_type t)
          || t == HEREDOC);
 }
 
+/* put it next to is_redirect() ------------------------------------------ */
+static int is_text(e_type t)
+{
+    return (t == WORD || t == FIELD || t == EXP_FIELD);
+}
+
 /* forward declaration – needed because tokens_to_groups() calls it */
 void free_groups(t_list **groups);
 
@@ -160,50 +166,88 @@ int add_argument(t_group *grp, const char *arg)
 
 t_list *tokens_to_groups(t_list *tok_lst)
 {
-    t_list  *groups = NULL;   /* outer list (pipeline)      */
-    t_group *cur    = NULL;   /* current command segment    */
+    t_list  *groups = NULL;      /* outer list (pipeline)      */
+    t_group *cur    = NULL;      /* current command segment    */
 
     while (tok_lst)
     {
         t_token *tk = tok_lst->content;
 
-        /* ── NEW: validate redirect syntax ───────────────────────────── */
+        /* ---------- 1) redirect syntax check (unchanged) -------------- */
         if (is_redirect(tk->type))
         {
-            t_list *look = tok_lst->next;                /* token after >, >>, <, << */
-
-            /* optional single space that your lexer still keeps            */
+            t_list *look = tok_lst->next;
             if (look && ((t_token *)look->content)->type == SEP)
-                look = look->next;                       /* skip that one SEP */
+                look = look->next;                 /* optional single SEP */
 
-            /* missing token, or next thing is NOT a WORD → error           */
-            if (!look || ((t_token *)look->content)->type != WORD)
+            if (!look || !is_text(((t_token *)look->content)->type))
             {
                 fprintf(stderr,
                         "syntax error: redirect \"%s\" needs a filename\n",
                         tk->value);
-                free_groups(&groups);                    /* prevent leaks    */
-                return NULL;                             /* signal failure   */
-            }
-        }
-        /* ─────────────────────────────────────────────────────────────── */
-
-        if (tk->type == PIPE)                   /* new pipeline segment   */
-            cur = NULL;
-        else if (tk->type != SEP)               /* WORD / FIELD / …       */
-        {
-            if (!cur)                           /* first arg in segment?  */
-            {
-                cur = new_group();
-                if (!cur) { free_groups(&groups); return NULL; }
-                lstadd_back(&groups, lstnew(cur));
-            }
-            if (!add_argument(cur, tk->value))
-            {
                 free_groups(&groups);
                 return NULL;
             }
         }
+        /* ---------- 2) pipeline delimiter ----------------------------- */
+        if (tk->type == PIPE)
+        {
+            cur = NULL;                /* next token starts new command  */
+            tok_lst = tok_lst->next;
+            continue;
+        }
+        /* ---------- 3) skip explicit separators ----------------------- */
+        if (tk->type == SEP)
+        {
+            tok_lst = tok_lst->next;
+            continue;
+        }
+        /* ---------- 4) handle *text* tokens (WORD|FIELD|EXP_FIELD) ---- */
+        if (is_text(tk->type))
+        {
+            /* start a new command node if we’re at segment boundary */
+            if (!cur)
+            {
+                cur = new_group();
+                if (!cur) { free_groups(&groups); return NULL; }
+                lstadd_back(&groups, lstnew(cur));      /* <-- correct helpers */
+            }
+
+            /* ---- 4a: find how many consecutive text tokens ----------- */
+            t_list  *scan  = tok_lst;
+            size_t   total = 0;
+
+            while (scan && is_text(((t_token *)scan->content)->type))
+            {
+                total += ((t_token *)scan->content)->len;   /* ← here */
+                scan  = scan->next;
+            }
+
+            /* ---- 4b: allocate and concatenate them ------------------- */
+            char *arg = malloc(total + 1);
+            if (!arg) { free_groups(&groups); return NULL; }
+            arg[0] = '\0';
+
+            scan = tok_lst;
+            while (scan && is_text(((t_token *)scan->content)->type))
+            {
+                strcat(arg, ((t_token *)scan->content)->value);
+                scan = scan->next;
+            }
+
+            /* ---- 4c: store merged argument & advance tok_lst --------- */
+            if (!add_argument(cur, arg))          /* add_argument strdup’s */
+            {                                    /* so we can free arg now */
+                free(arg);
+                free_groups(&groups);
+                return NULL;
+            }
+            free(arg);
+            tok_lst = scan;       /* skip every text token we just merged */
+            continue;
+        }
+
+        /* ---------- 5) any other token class (should not occur here) -- */
         tok_lst = tok_lst->next;
     }
     return groups;
@@ -255,7 +299,6 @@ int main(void)
     t_list *tokens = NULL;
 
     /* съёмка токенов-заглушек вместо полноценного лексера */
-    
 
     puts("── token list ─────────────────────────────");
     print_tokens(tokens);
@@ -280,37 +323,44 @@ int main(void)
 
 
 
-// if (!push_token(&tokens, WORD, "echo"))   return 1;
-// if (!push_token(&tokens, SEP,  " "))      return 1;
-// if (!push_token(&tokens, WORD, "hello"))  return 1;
-// if (!push_token(&tokens, SEP,  " "))      return 1;
-// if (!push_token(&tokens, PIPE, "|"))      return 1;
-// if (!push_token(&tokens, SEP,  " "))      return 1;
-// if (!push_token(&tokens, WORD, "echo"))   return 1;
-// if (!push_token(&tokens, SEP,  " "))      return 1;
-// if (!push_token(&tokens, WORD, "world"))  return 1;
+    // if (!push_token(&tokens, WORD, "echo"))   return 1;
+    // if (!push_token(&tokens, SEP,  " "))      return 1;
+    // if (!push_token(&tokens, WORD, "hello"))  return 1;
+    // if (!push_token(&tokens, SEP,  " "))      return 1;
+    // if (!push_token(&tokens, PIPE, "|"))      return 1;
+    // if (!push_token(&tokens, SEP,  " "))      return 1;
+    // if (!push_token(&tokens, WORD, "echo"))   return 1;
+    // if (!push_token(&tokens, SEP,  " "))      return 1;
+    // if (!push_token(&tokens, WORD, "world"))  return 1;
 
 
-// push_token(&tokens, WORD, "ls");
-// push_token(&tokens, SEP , " ");
-// push_token(&tokens, WORD, "-la");
-// push_token(&tokens, SEP , " ");
-// push_token(&tokens, WORD, "/usr/bin");
+    // push_token(&tokens, WORD, "ls");
+    // push_token(&tokens, SEP , " ");
+    // push_token(&tokens, WORD, "-la");
+    // push_token(&tokens, SEP , " ");
+    // push_token(&tokens, WORD, "/usr/bin");
 
 
-// push_token(&tokens, WORD, "grep");         push_token(&tokens, SEP, " ");
-// push_token(&tokens, WORD, "-i");           push_token(&tokens, SEP, " ");
-// push_token(&tokens, WORD, "pattern");      push_token(&tokens, SEP, " ");
-// push_token(&tokens, REDIRECT_IN,  "<");    push_token(&tokens, SEP, " ");
-// push_token(&tokens, WORD, "in.txt");       push_token(&tokens, SEP, " ");
-// push_token(&tokens, REDIRECT_OUT, ">");    push_token(&tokens, SEP, " ");
-// push_token(&tokens, WORD, "out.txt");
+    // push_token(&tokens, WORD, "grep");         push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "-i");           push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "pattern");      push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_IN,  "<");    push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "in.txt");       push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_OUT, ">");    push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "out.txt");
 
-// push_token(&tokens, WORD, "grep");         push_token(&tokens, SEP, " ");
-// push_token(&tokens, WORD, "-i");           push_token(&tokens, SEP, " ");
-// push_token(&tokens, WORD, "pattern");      push_token(&tokens, SEP, " ");
-// push_token(&tokens, REDIRECT_IN,  "<");    push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "grep");         push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "-i");           push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "pattern");      push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_IN,  "<");    push_token(&tokens, SEP, " ");
 
-// push_token(&tokens, HEREDOC,  "<");    push_token(&tokens, SEP, " ");
-// push_token(&tokens, REDIRECT_OUT,  "<");    push_token(&tokens, SEP, " ");
-// push_token(&tokens, REDIRECT_APPEND,  "<");    push_token(&tokens, SEP, " ");
+    // push_token(&tokens, HEREDOC,  "<");    push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_OUT,  "<");    push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_APPEND,  "<");    push_token(&tokens, SEP, " ");
+
+
+    // push_token(&tokens, WORD, "ls");
+    // push_token(&tokens, SEP , " ");
+    // push_token(&tokens, WORD, "-la");
+    // push_token(&tokens, FIELD, "-la");
+    // push_token(&tokens, EXP_FIELD, "-la");
