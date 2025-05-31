@@ -2,6 +2,18 @@
 #include <readline/history.h>
 #include <stdlib.h>
 
+
+static char	*ft_readline(void)
+{
+	char	*line;
+
+	line = readline("minishell> ");
+	if (line && *line)
+		add_history(line);
+	return (line);
+}
+
+//gcc -Wall -Wextra -g3 /home/dkot/Desktop/Mini-Shell/src/reader/reader.c -o /home/dkot/Desktop/Mini-Shell/src/reader/output/reader -lreadline -lncurses
 int main(void)
 {
     char *line;
@@ -22,12 +34,7 @@ int main(void)
         {
             add_history(line);
         }
-        
-        // Process the command here (e.g., parse and execute)
-        // For now, we’ll just assume this part is handled elsewhere
-        // Example: printf("You entered: %s\n", line);
-        
-        // Free the allocated memory
+
         free(line);
     }
     return (0);
