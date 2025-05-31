@@ -1,6 +1,5 @@
 #include "../header/header.h"
 
-
 /* ───────────────────────────  globals  ──────────────────────────────────── */
 
 const char *const g_type_name[] = {
@@ -92,7 +91,7 @@ int push_token(t_list **lst, e_type type, const char *str)
     t_token *tok = malloc(sizeof *tok);
     if (!tok) return 0;
     tok->type  = type;
-    tok->len   = (int)strlen(str);
+    tok->value_len   = (int)strlen(str);
     tok->value = strdup(str);
     if (!tok->value) { free(tok); return 0; }
     lstadd_back(lst, lstnew(tok));
@@ -105,7 +104,7 @@ void print_tokens(t_list *lst)
     for (; lst; lst = lst->next)
     {
         t_token *tk = lst->content;
-        printf("%-14s \"%s\" (len=%d)\n", g_type_name[tk->type], tk->value, tk->len);
+        printf("%-14s \"%s\" (len=%d)\n", g_type_name[tk->type], tk->value, tk->value_len);
     }
 }
 
@@ -293,12 +292,19 @@ int main(void)
     /* target command: echo hello | echo world */
     t_list *tokens = NULL;
 
-    push_token(&tokens, WORD, "ls");
-    push_token(&tokens, SEP , " ");
-    push_token(&tokens, WORD, "-la");
-    push_token(&tokens, FIELD, "-la");
-    push_token(&tokens, REDIRECT_OUT, ">");
-    push_token(&tokens, WORD, "-la");
+    // push_token(&tokens, WORD, "grep");        
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "-i");          
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "pattern");     
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_IN,  "<");   
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "in.txt");      
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_OUT, ">");   
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "out.txt");
 
 
 
