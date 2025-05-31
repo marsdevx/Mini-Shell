@@ -292,19 +292,19 @@ int main(void)
     /* target command: echo hello | echo world */
     t_list *tokens = NULL;
 
-    // push_token(&tokens, WORD, "grep");        
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "-i");          
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "pattern");     
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_IN,  "<");   
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "in.txt");      
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_OUT, ">");   
-    // push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "out.txt");
+    push_token(&tokens, WORD, "grep");        
+    push_token(&tokens, SEP, " ");
+    push_token(&tokens, WORD, "-i");          
+    push_token(&tokens, SEP, " ");
+    push_token(&tokens, WORD, "pattern");     
+    push_token(&tokens, SEP, " ");
+    push_token(&tokens, REDIRECT_IN,  "<");   
+    push_token(&tokens, SEP, " ");
+    push_token(&tokens, WORD, "in.txt");      
+    push_token(&tokens, SEP, " ");
+    push_token(&tokens, REDIRECT_OUT, ">");   
+    push_token(&tokens, SEP, " ");
+    push_token(&tokens, WORD, "out.txt");
 
 
 

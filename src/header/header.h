@@ -1,3 +1,6 @@
+#ifndef HEADER_H
+# define HEADER_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,3 +39,5 @@ typedef struct s_token
 
 typedef struct s_command { char *arg; } t_command;
 typedef struct s_group   { t_list *argv; } t_group;
+
+#endif

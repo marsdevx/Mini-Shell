@@ -1,7 +1,6 @@
 
 #include "../header/header.h"
 
-
 static char	*ft_readline(void)
 {
 	char	*line;
