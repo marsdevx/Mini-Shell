@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /* ─────────────────────────  data structures  ────────────────────────────── */
 
@@ -12,58 +13,90 @@ typedef enum e_type
 
 typedef struct s_token
 {
-    e_type type;   /* token class                           */
-    char  *value;  /* raw text (NUL-terminated)             */
-    int    len;    /* strlen(value)                         */
+    e_type type;
+    char  *value;
+    int    len;
 } t_token;
 
-/* универсальный узел связного списка (используем два уровня) */
 typedef struct s_list
 {
-    void          *content;  /* void* → t_token, t_group, t_command … */
+    void          *content;
     struct s_list *next;
 } t_list;
 
-/* второй уровень: одиночный аргумент команды */
 typedef struct s_command { char *arg; } t_command;
-
-/* первый уровень: сама команда (т.е. всё между PIPE) */
-typedef struct s_group  { t_list *argv; } t_group;
+typedef struct s_group   { t_list *argv; } t_group;
 
 /* ───────────────────────────  globals  ──────────────────────────────────── */
 
-/* token-name lookup table (was “static const” inside type_name) */
 const char *const g_type_name[] = {
     "WORD", "FIELD", "EXP_FIELD", "SEP",
     "PIPE", "REDIRECT_IN", "REDIRECT_OUT",
     "REDIRECT_APPEND", "HEREDOC"
 };
 
-/* ── redirect classifier ─────────────────────────────────────────────── */
+/* ── small helpers ──────────────────────────────────────────────────────── */
+
 static int is_redirect(e_type t)
 {
-    return (t == REDIRECT_IN
-         || t == REDIRECT_OUT
-         || t == REDIRECT_APPEND
-         || t == HEREDOC);
+    return (t == REDIRECT_IN || t == REDIRECT_OUT ||
+            t == REDIRECT_APPEND || t == HEREDOC);
 }
 
-/* put it next to is_redirect() ------------------------------------------ */
 static int is_text(e_type t)
 {
     return (t == WORD || t == FIELD || t == EXP_FIELD);
 }
 
-/* forward declaration – needed because tokens_to_groups() calls it */
+/* Expand $VARNAME inside an EXP_FIELD token (simple version) */
+static char *expand_env(const char *src)
+{
+    const char *p = src;
+    size_t  cap = strlen(src) + 32;
+    size_t  len = 0;
+    char   *out = malloc(cap);
+    if (!out) return NULL;
+
+    while (*p)
+    {
+        if (*p == '$' && isalpha((unsigned char)p[1]))
+        {
+            const char *v = ++p;
+            while (isalnum((unsigned char)*p) || *p == '_')
+                ++p;
+            size_t vlen = p - v;
+            char var[256];
+            if (vlen >= sizeof var) vlen = sizeof var - 1;
+            memcpy(var, v, vlen);
+            var[vlen] = '\0';
+
+            const char *val = getenv(var);
+            if (!val) val = "";
+
+            size_t need = len + strlen(val) + 1;
+            if (need > cap) { cap = need * 2; out = realloc(out, cap); if (!out) return NULL; }
+            strcpy(out + len, val);
+            len += strlen(val);
+        }
+        else
+        {
+            if (len + 2 > cap) { cap *= 2; out = realloc(out, cap); if (!out) return NULL; }
+            out[len++] = *p++;
+            out[len]   = '\0';
+        }
+    }
+    return out;
+}
+
+/* forward declaration */
 void free_groups(t_list **groups);
 
-/* ───────────────────────  tiny list helpers (no libft)  ─────────────────── */
+/* ───────────────────── list helpers  ───────────────────────────────────── */
 
 t_list *lstnew(void *content)
 {
-    t_list *n = malloc(sizeof(*n));
-    if (!n)
-        return NULL;
+    t_list *n = malloc(sizeof *n);
+    if (!n) return NULL;
     n->content = content;
     n->next    = NULL;
     return n;
@@ -71,48 +104,40 @@ t_list *lstnew(void *content)
 
 void lstadd_back(t_list **lst, t_list *new)
 {
-    if (!lst || !new)
-        return;
-    if (!*lst)
-        *lst = new;
-    else
-    {
-        t_list *cur = *lst;
-        while (cur->next)
-            cur = cur->next;
-        cur->next = new;
-    }
+    if (!lst || !new) return;
+    if (!*lst) { *lst = new; return; }
+    t_list *cur = *lst;
+    while (cur->next) cur = cur->next;
+    cur->next = new;
 }
 
-/* ─────────────────────────  token helpers  ─────────────────────────────── */
+/* ────────────────── token helpers ─────────────────────────────────────── */
 
 int push_token(t_list **lst, e_type type, const char *str)
 {
-    t_token *tok = malloc(sizeof(*tok));
-    if (!tok)
-        return 0;
+    t_token *tok = malloc(sizeof *tok);
+    if (!tok) return 0;
     tok->type  = type;
     tok->len   = (int)strlen(str);
     tok->value = strdup(str);
-    if (!tok->value)
-        return free(tok), 0;
+    if (!tok->value) { free(tok); return 0; }
     lstadd_back(lst, lstnew(tok));
     return 1;
 }
 
-const char *type_name(e_type t)
-{
-    return g_type_name[t];
-}
-
+/* for debug */
 void print_tokens(t_list *lst)
 {
     for (; lst; lst = lst->next)
     {
         t_token *tk = lst->content;
-        printf("%-14s  \"%s\"  (len=%d)\n",
-               type_name(tk->type), tk->value, tk->len);
+        printf("%-14s \"%s\" (len=%d)\n", g_type_name[tk->type], tk->value, tk->len);
     }
+}
+
+const char *type_name(e_type t)
+{
+    return g_type_name[t];
 }
 
 void free_tokens(t_list **lst)
@@ -128,58 +153,53 @@ void free_tokens(t_list **lst)
     }
 }
 
-/* ──────────────────── helpers for 2-D list (groups / argv) ─────────────── */
+/* ─────────────── higher-level list helpers ────────────────────────────── */
 
 t_command *new_command(const char *arg)
 {
-    t_command *cmd = malloc(sizeof(*cmd));
-    if (!cmd)
-        return NULL;
-    cmd->arg = strdup(arg);
-    if (!cmd->arg)
-        return free(cmd), NULL;
-    return cmd;
+    t_command *c = malloc(sizeof *c);
+    if (!c) return NULL;
+    c->arg = strdup(arg);
+    if (!c->arg) { free(c); return NULL; }
+    return c;
 }
 
 t_group *new_group(void)
 {
-    t_group *grp = malloc(sizeof(*grp));
-    if (!grp)
-        return NULL;
-    grp->argv = NULL;
-    return grp;
+    t_group *g = malloc(sizeof *g);
+    if (!g) return NULL;
+    g->argv = NULL;
+    return g;
 }
 
 int add_argument(t_group *grp, const char *arg)
 {
     t_command *cmd = new_command(arg);
-    if (!cmd)
-        return 0;
-    t_list *node = lstnew(cmd);
-    if (!node)
-        return free(cmd->arg), free(cmd), 0;
-    lstadd_back(&grp->argv, node);
+    if (!cmd) return 0;
+    lstadd_back(&grp->argv, lstnew(cmd));
     return 1;
 }
 
-/* ────────────────────────  PARSER (1-to-2-D)  ──────────────────────────── */
+/* ──────────────────── parser 1-D → 2-D ────────────────────────────────── */
+
+/* ──────────────────── parser 1-D → 2-D ─────────────────────────────── */
 
 t_list *tokens_to_groups(t_list *tok_lst)
 {
-    t_list  *groups = NULL;      /* outer list (pipeline)      */
-    t_group *cur    = NULL;      /* current command segment    */
+    t_list  *groups = NULL;
+    t_group *cur    = NULL;
 
     while (tok_lst)
     {
         t_token *tk = tok_lst->content;
 
-        /* ---------- 1) redirect syntax check (unchanged) -------------- */
+        /* ---------- 1. redirect handling (+ syntax guard) ------------- */
         if (is_redirect(tk->type))
         {
+            /* a) verify there is a filename after the redirect --------- */
             t_list *look = tok_lst->next;
             if (look && ((t_token *)look->content)->type == SEP)
-                look = look->next;                 /* optional single SEP */
-
+                look = look->next;                     /* optional space */
             if (!look || !is_text(((t_token *)look->content)->type))
             {
                 fprintf(stderr,
@@ -188,84 +208,87 @@ t_list *tokens_to_groups(t_list *tok_lst)
                 free_groups(&groups);
                 return NULL;
             }
-        }
-        /* ---------- 2) pipeline delimiter ----------------------------- */
-        if (tk->type == PIPE)
-        {
-            cur = NULL;                /* next token starts new command  */
-            tok_lst = tok_lst->next;
-            continue;
-        }
-        /* ---------- 3) skip explicit separators ----------------------- */
-        if (tk->type == SEP)
-        {
-            tok_lst = tok_lst->next;
-            continue;
-        }
-        /* ---------- 4) handle *text* tokens (WORD|FIELD|EXP_FIELD) ---- */
-        if (is_text(tk->type))
-        {
-            /* start a new command node if we’re at segment boundary */
+
+            /* b) start a command node if we haven't yet ---------------- */
             if (!cur)
             {
                 cur = new_group();
                 if (!cur) { free_groups(&groups); return NULL; }
-                lstadd_back(&groups, lstnew(cur));      /* <-- correct helpers */
+                lstadd_back(&groups, lstnew(cur));
             }
 
-            /* ---- 4a: find how many consecutive text tokens ----------- */
-            t_list  *scan  = tok_lst;
-            size_t   total = 0;
+            /* c) store the redirect operator as an argument ------------ */
+            if (!add_argument(cur, tk->value))
+            {   free_groups(&groups); return NULL; }
 
-            while (scan && is_text(((t_token *)scan->content)->type))
-            {
-                total += ((t_token *)scan->content)->len;   /* ← here */
-                scan  = scan->next;
-            }
-
-            /* ---- 4b: allocate and concatenate them ------------------- */
-            char *arg = malloc(total + 1);
-            if (!arg) { free_groups(&groups); return NULL; }
-            arg[0] = '\0';
-
-            scan = tok_lst;
-            while (scan && is_text(((t_token *)scan->content)->type))
-            {
-                strcat(arg, ((t_token *)scan->content)->value);
-                scan = scan->next;
-            }
-
-            /* ---- 4c: store merged argument & advance tok_lst --------- */
-            if (!add_argument(cur, arg))          /* add_argument strdup’s */
-            {                                    /* so we can free arg now */
-                free(arg);
-                free_groups(&groups);
-                return NULL;
-            }
-            free(arg);
-            tok_lst = scan;       /* skip every text token we just merged */
+            /* d) advance to next token and continue the main loop ------ */
+            tok_lst = tok_lst->next;
             continue;
         }
 
-        /* ---------- 5) any other token class (should not occur here) -- */
+        /* ---------- 2. pipe → new command ----------------------------- */
+        if (tk->type == PIPE) { cur = NULL; tok_lst = tok_lst->next; continue; }
+
+        /* ---------- 3. skip separators -------------------------------- */
+        if (tk->type == SEP)   { tok_lst = tok_lst->next; continue; }
+
+        /* ---------- 4. merge & expand WORD / FIELD / EXP_FIELD -------- */
+        if (is_text(tk->type))
+        {
+            if (!cur)
+            {
+                cur = new_group();
+                if (!cur) { free_groups(&groups); return NULL; }
+                lstadd_back(&groups, lstnew(cur));
+            }
+
+            char   *arg  = NULL;
+            size_t  len  = 0;
+            t_list *scan = tok_lst;
+
+            while (scan && is_text(((t_token *)scan->content)->type))
+            {
+                t_token *tk2  = scan->content;
+                char    *piece = (tk2->type == EXP_FIELD && tk2->value[0] == '$')
+                                   ? expand_env(tk2->value)
+                                   : strdup(tk2->value);
+                if (!piece) { free_groups(&groups); free(arg); return NULL; }
+
+                size_t plen = strlen(piece);
+                char *tmp   = realloc(arg, len + plen + 1);
+                if (!tmp)   { free_groups(&groups); free(arg); free(piece); return NULL; }
+                arg = tmp;
+                memcpy(arg + len, piece, plen);
+                len += plen;
+                arg[len] = '\0';
+                free(piece);
+                scan = scan->next;
+            }
+
+            if (!add_argument(cur, arg))
+            {   free_groups(&groups); free(arg); return NULL; }
+            free(arg);
+            tok_lst = scan;
+            continue;
+        }
+
+        /* ---------- 5. any other token class (nop) -------------------- */
         tok_lst = tok_lst->next;
     }
     return groups;
 }
 
-/* ─────────────────────── debug & free for 2-D list ─────────────────────── */
+/* ─────────────── debug & cleanup helpers ─────────────────────────────── */
 
 void print_groups(t_list *groups)
 {
     int g = 0;
     for (; groups; groups = groups->next, ++g)
     {
-        t_group *grp = groups->content;
         printf("Command %d:\n", g);
         int a = 0;
-        for (t_list *arg = grp->argv; arg; arg = arg->next, ++a)
-            printf("   arg[%d] = \"%s\"\n",
-                   a, ((t_command *)arg->content)->arg);
+        for (t_list *arg = ((t_group *)groups->content)->argv; arg; arg = arg->next, ++a)
+            printf("  arg[%d] = \"%s\"\n", a, ((t_command *)arg->content)->arg);
     }
 }
 
@@ -273,21 +296,19 @@ void free_groups(t_list **groups)
 {
     while (*groups)
     {
-        t_list  *g_next = (*groups)->next;
-        t_group *grp    = (*groups)->content;
-
+        t_list *nextg = (*groups)->next;
+        t_group *grp  = (*groups)->content;
         while (grp->argv)
         {
-            t_list     *a_next = grp->argv->next;
-            t_command  *cmd    = grp->argv->content;
-            free(cmd->arg);
-            free(cmd);
+            t_list *nexta = grp->argv->next;
+            free(((t_command *)grp->argv->content)->arg);
+            free(grp->argv->content);
             free(grp->argv);
-            grp->argv = a_next;
+            grp->argv = nexta;
         }
         free(grp);
         free(*groups);
-        *groups = g_next;
+        *groups = nextg;
     }
 }
 
@@ -298,7 +319,14 @@ int main(void)
     /* target command: echo hello | echo world */
     t_list *tokens = NULL;
 
-    /* съёмка токенов-заглушек вместо полноценного лексера */
+    push_token(&tokens, WORD, "ls");
+    push_token(&tokens, SEP , " ");
+    push_token(&tokens, WORD, "-la");
+    push_token(&tokens, FIELD, "-la");
+    push_token(&tokens, REDIRECT_OUT, ">");
+    push_token(&tokens, WORD, "-la");
+
+
 
     puts("── token list ─────────────────────────────");
     print_tokens(tokens);
@@ -341,18 +369,27 @@ int main(void)
     // push_token(&tokens, WORD, "/usr/bin");
 
 
-    // push_token(&tokens, WORD, "grep");         push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "-i");           push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "pattern");      push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_IN,  "<");    push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "in.txt");       push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_OUT, ">");    push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "grep");        
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "-i");          
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "pattern");     
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_IN,  "<");   
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "in.txt");      
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_OUT, ">");   
+    // push_token(&tokens, SEP, " ");
     // push_token(&tokens, WORD, "out.txt");
 
-    // push_token(&tokens, WORD, "grep");         push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "-i");           push_token(&tokens, SEP, " ");
-    // push_token(&tokens, WORD, "pattern");      push_token(&tokens, SEP, " ");
-    // push_token(&tokens, REDIRECT_IN,  "<");    push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "grep");         
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "-i");           
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, WORD, "pattern");      
+    // push_token(&tokens, SEP, " ");
+    // push_token(&tokens, REDIRECT_IN,  "<");    
 
     // push_token(&tokens, HEREDOC,  "<");    push_token(&tokens, SEP, " ");
     // push_token(&tokens, REDIRECT_OUT,  "<");    push_token(&tokens, SEP, " ");
@@ -364,3 +401,18 @@ int main(void)
     // push_token(&tokens, WORD, "-la");
     // push_token(&tokens, FIELD, "-la");
     // push_token(&tokens, EXP_FIELD, "-la");
+
+
+    // push_token(&tokens, WORD, "ls");
+    // push_token(&tokens, SEP , " ");
+    // push_token(&tokens, WORD, "-la");
+    // push_token(&tokens, FIELD, "$USER");
+    // push_token(&tokens, EXP_FIELD, "$USER");
+    // push_token(&tokens, EXP_FIELD, "$PWD");
+
+
+    // push_token(&tokens, WORD, "ls");
+    // push_token(&tokens, SEP , " ");
+    // push_token(&tokens, WORD, "-la");
+    // push_token(&tokens, FIELD, "-la");
+    // push_token(&tokens, REDIRECT_OUT, ">");
