@@ -1,6 +1,5 @@
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <stdlib.h>
+
+#include "../header/header.h"
 
 
 static char	*ft_readline(void)
