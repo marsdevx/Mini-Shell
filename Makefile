@@ -8,9 +8,9 @@ LIBFTDIR = libs/libft
 
 SRC_DESTR =
 SRC_EXEC = 
-SRC_INIT = 
+SRC_INIT = init/main.c
 SRC_LEXER = lexer/lexer.c 
-SRC_PARSER = parser/parser.c parser/temp_main.c
+SRC_PARSER = parser/parser.c
 SRC_READER = reader/reader.c
 SRC_UTILS = utils/utils.c
 SRC = $(SRC_DESTR) $(SRC_EXEC) $(SRC_INIT) $(SRC_LEXER) $(SRC_PARSER) $(SRC_READER) $(SRC_UTILS)
