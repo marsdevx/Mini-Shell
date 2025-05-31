@@ -165,17 +165,7 @@ t_list *lexer(char *input)
 }
 
 
-/* Print the tokens for debugging */
-void print_tokens(t_list *tokens)
-{
-    t_list *current = tokens;
-    while (current)
-    {
-        t_token *token = (t_token *)current->content;
-        printf("Type: %d, Value: %s, Length: %d\n", token->type, token->value, token->value_len);
-        current = current->next;
-    }
-}
+
 
 // /* Main function for testing */
 // int main(void)

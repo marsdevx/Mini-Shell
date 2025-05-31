@@ -78,16 +78,6 @@ int push_token(t_list **lst, e_type type, const char *str)
     return 1;
 }
 
-/* for debug */
-void ft_print_tokens(t_list *lst)
-{
-    for (; lst; lst = lst->next)
-    {
-        t_token *tk = lst->content;
-        printf("%-14s \"%s\" (len=%d)\n", g_type_name[tk->type], tk->value, tk->value_len);
-    }
-}
-
 const char *type_name(e_type t)
 {
     return g_type_name[t];
