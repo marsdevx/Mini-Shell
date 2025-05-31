@@ -10,7 +10,7 @@
 #include <signal.h>
 
 // Our header files
-// #include "../utils/utils.h"
+#include "../utils/utils.h"
 
 /* Enum for token types */
 typedef enum e_type
@@ -25,13 +25,6 @@ typedef enum e_type
     REDIRECT_APPEND,// Append redirection (>>)
     HEREDOC         // Heredoc redirection (<<)
 } e_type;
-
-typedef struct s_list
-{
-    void          *content;
-    struct s_list *next;
-} t_list;
-
 
 /* Structure for a token */
 typedef struct s_token
