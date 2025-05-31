@@ -26,3 +26,19 @@ void ft_lstadd_back(t_list **lst, t_list *new)
         last->next = new;
     }
 }
+
+/* Free the token list and its contents */
+void ft_free_tokens(t_list **tokens)
+{
+    t_list *current = *tokens;
+    while (current)
+    {
+        t_list *next = current->next;
+        t_token *token = (t_token *)current->content;
+        free(token->value);
+        free(token);
+        free(current);
+        current = next;
+    }
+    *tokens = NULL;
+}

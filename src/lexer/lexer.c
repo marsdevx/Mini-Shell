@@ -164,21 +164,6 @@ t_list *lexer(char *input)
     return tokens;
 }
 
-/* Free the token list and its contents */
-void free_tokens(t_list **tokens)
-{
-    t_list *current = *tokens;
-    while (current)
-    {
-        t_list *next = current->next;
-        t_token *token = (t_token *)current->content;
-        free(token->value);
-        free(token);
-        free(current);
-        current = next;
-    }
-    *tokens = NULL;
-}
 
 /* Print the tokens for debugging */
 void print_tokens(t_list *tokens)
@@ -201,7 +186,7 @@ void print_tokens(t_list *tokens)
 //     if (tokens)
 //     {
 //         print_tokens(tokens);
-//         free_tokens(&tokens);
+//         ft_free_tokens(&tokens);
 //     }
 //     return 0;
 // }

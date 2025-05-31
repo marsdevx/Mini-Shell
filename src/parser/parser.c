@@ -93,19 +93,6 @@ const char *type_name(e_type t)
     return g_type_name[t];
 }
 
-void ft_free_tokens(t_list **lst)
-{
-    while (*lst)
-    {
-        t_list  *n  = *lst;
-        t_token *tk = n->content;
-        free(tk->value);
-        free(tk);
-        *lst = n->next;
-        free(n);
-    }
-}
-
 /* ─────────────── higher-level list helpers ────────────────────────────── */
 
 t_command *new_command(const char *arg)
@@ -296,7 +283,7 @@ void free_groups(t_list **groups)
 //     if (!groups)
 //     {
 //         perror("parser");
-//         free_tokens(&tokens);
+//         ft_free_tokens(&tokens);
 //         return 1;
 //     }
 
@@ -305,7 +292,7 @@ void free_groups(t_list **groups)
 
 //     /* cleanup */
 //     free_groups(&groups);
-//     free_tokens(&tokens);
+//     ft_free_tokens(&tokens);
 //     return 0;
 // }
 
