@@ -11,29 +11,29 @@ static char	*ft_readline(void)
 	return (line);
 }
 
-// //gcc -Wall -Wextra -g3 /home/dkot/Desktop/Mini-Shell/src/reader/reader.c -o /home/dkot/Desktop/Mini-Shell/src/reader/output/reader -lreadline -lncurses
-// int main(void)
-// {
-//     char *line;
+//gcc -Wall -Wextra -g3 /home/dkot/Desktop/Mini-Shell/src/reader/reader.c -o /home/dkot/Desktop/Mini-Shell/src/reader/output/reader -lreadline -lncurses
+int main(void)
+{
+    char *line;
 
-//     while (1)
-//     {
-//         // Read input with a prompt
-//         line = readline("minishell> ");
+    while (1)
+    {
+        // Read input with a prompt
+        line = readline("minishell> ");
         
-//         // Check for EOF (Ctrl+D)
-//         if (line == NULL)
-//         {
-//             break; // Exit the loop to terminate the shell
-//         }
+        // Check for EOF (Ctrl+D)
+        if (line == NULL)
+        {
+            break; // Exit the loop to terminate the shell
+        }
         
-//         // Add non-empty input to history
-//         if (*line) // Check if the string is not empty
-//         {
-//             add_history(line);
-//         }
+        // Add non-empty input to history
+        if (*line) // Check if the string is not empty
+        {
+            add_history(line);
+        }
 
-//         free(line);
-//     }
-//     return (0);
-// }
+        free(line);
+    }
+    return (0);
+}
