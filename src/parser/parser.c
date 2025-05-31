@@ -64,17 +64,6 @@ static char *expand_env(const char *src)
 /* forward declaration */
 void free_groups(t_list **groups);
 
-/* ───────────────────── list helpers  ───────────────────────────────────── */
-
-void lstadd_back(t_list **lst, t_list *new)
-{
-    if (!lst || !new) return;
-    if (!*lst) { *lst = new; return; }
-    t_list *cur = *lst;
-    while (cur->next) cur = cur->next;
-    cur->next = new;
-}
-
 /* ────────────────── token helpers ─────────────────────────────────────── */
 
 int push_token(t_list **lst, e_type type, const char *str)
@@ -85,7 +74,7 @@ int push_token(t_list **lst, e_type type, const char *str)
     tok->value_len   = (int)strlen(str);
     tok->value = strdup(str);
     if (!tok->value) { free(tok); return 0; }
-    lstadd_back(lst, ft_lstnew(tok));
+    ft_lstadd_back(lst, ft_lstnew(tok));
     return 1;
 }
 
@@ -140,7 +129,7 @@ int add_argument(t_group *grp, const char *arg)
 {
     t_command *cmd = new_command(arg);
     if (!cmd) return 0;
-    lstadd_back(&grp->argv, ft_lstnew(cmd));
+    ft_lstadd_back(&grp->argv, ft_lstnew(cmd));
     return 1;
 }
 
@@ -178,7 +167,7 @@ t_list *tokens_to_groups(t_list *tok_lst)
             {
                 cur = new_group();
                 if (!cur) { free_groups(&groups); return NULL; }
-                lstadd_back(&groups, ft_lstnew(cur));
+                ft_lstadd_back(&groups, ft_lstnew(cur));
             }
 
             /* c) store the redirect operator as an argument ------------ */
@@ -203,7 +192,7 @@ t_list *tokens_to_groups(t_list *tok_lst)
             {
                 cur = new_group();
                 if (!cur) { free_groups(&groups); return NULL; }
-                lstadd_back(&groups, ft_lstnew(cur));
+                ft_lstadd_back(&groups, ft_lstnew(cur));
             }
 
             char   *arg  = NULL;
