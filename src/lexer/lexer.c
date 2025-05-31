@@ -11,22 +11,6 @@ char *ft_strndup(const char *s, size_t n)
     return dup;
 }
 
-/* Helper function: Add a node to the back of the list */
-void ft_lstadd_back(t_list **lst, t_list *new)
-{
-    if (!lst || !new)
-        return;
-    if (!*lst)
-        *lst = new;
-    else
-    {
-        t_list *last = *lst;
-        while (last->next)
-            last = last->next;
-        last->next = new;
-    }
-}
-
 /* Check for unmatched quotes in the input */
 int quotes_check(char *input)
 {

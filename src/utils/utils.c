@@ -10,3 +10,19 @@ t_list *ft_lstnew(void *content)
     node->next = NULL;
     return node;
 }
+
+/* Helper function: Add a node to the back of the list */
+void ft_lstadd_back(t_list **lst, t_list *new)
+{
+    if (!lst || !new)
+        return;
+    if (!*lst)
+        *lst = new;
+    else
+    {
+        t_list *last = *lst;
+        while (last->next)
+            last = last->next;
+        last->next = new;
+    }
+}
