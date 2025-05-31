@@ -11,6 +11,17 @@ char *ft_strndup(const char *s, size_t n)
     return dup;
 }
 
+/* Helper function: Create a new linked list node */
+t_list *ft_lstnew(void *content)
+{
+    t_list *node = malloc(sizeof(t_list));
+    if (!node)
+        return NULL;
+    node->content = content;
+    node->next = NULL;
+    return node;
+}
+
 /* Helper function: Add a node to the back of the list */
 void ft_lstadd_back(t_list **lst, t_list *new)
 {
