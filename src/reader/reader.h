@@ -4,9 +4,9 @@
 #  include "../init/init.h"
 
 
-static int ft_init(t_info *info);
-static void handle_sigint(int sig);
-static char *ft_readline(const char *prompt);
+int ft_init(t_info *info);
+void handle_sigint(int sig);
+char *ft_readline(const char *prompt);
 
 
 #endif

@@ -2,7 +2,7 @@
 #include "../header/header.h"
 
 
-static char *ft_readline(const char *prompt)
+char *ft_readline(const char *prompt)
 {
     char *line = readline(prompt);
     if (line && *line) {
@@ -11,13 +11,13 @@ static char *ft_readline(const char *prompt)
     return line;
 }
 
-static int ft_init(t_info *info)
+int ft_init(t_info *info)
 {
     info->exit_f = 1;
     return 0;
 }
 
-static void handle_sigint(int sig)
+void handle_sigint(int sig)
 {
     if (sig == SIGINT) {
         printf("\n");

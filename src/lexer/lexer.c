@@ -144,7 +144,7 @@ t_list *lexer(char *input)
     return tokens;
 }
 
-static void process_input(char *line, t_info *info)
+void process_input(char *line, t_info *info)
 {
     t_list *tokens = lexer(line);
     if (tokens) {

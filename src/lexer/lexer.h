@@ -4,7 +4,7 @@
 #include "../init/init.h"
 
 int quotes_check(char *input);
-static void process_input(char *line, t_info *info);
+void process_input(char *line, t_info *info);
 t_list *lexer(char *input);
 
 
