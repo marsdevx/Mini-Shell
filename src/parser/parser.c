@@ -1,13 +1,5 @@
 #include "../header/header.h"
 
-/* ───────────────────────────  globals  ──────────────────────────────────── */
-
-const char *const g_type_name[] = {
-    "WORD", "FIELD", "EXP_FIELD", "SEP",
-    "PIPE", "REDIRECT_IN", "REDIRECT_OUT",
-    "REDIRECT_APPEND", "HEREDOC"
-};
-
 /* ── small helpers ──────────────────────────────────────────────────────── */
 
 static int is_redirect(e_type t)
@@ -66,6 +58,13 @@ void free_groups(t_list **groups);
 
 /* ────────────────── token helpers ─────────────────────────────────────── */
 
+const char *type_name(e_type t)
+{
+  static char buf[16];
+  snprintf(buf, sizeof(buf), "%d", (int)t);
+  return buf;
+}
+
 int push_token(t_list **lst, e_type type, const char *str)
 {
     t_token *tok = malloc(sizeof *tok);
@@ -76,11 +75,6 @@ int push_token(t_list **lst, e_type type, const char *str)
     if (!tok->value) { free(tok); return 0; }
     ft_lstadd_back(lst, ft_lstnew(tok));
     return 1;
-}
-
-const char *type_name(e_type t)
-{
-    return g_type_name[t];
 }
 
 /* ─────────────── higher-level list helpers ────────────────────────────── */
@@ -244,47 +238,41 @@ void free_groups(t_list **groups)
 
 /* ─────────────────────────────  driver  ─────────────────────────────────── */
 
-// int main(void)
-// {
-//     /* target command: echo hello | echo world */
-//     t_list *tokens = NULL;
+int main(void)
+{
+    /* target command: echo hello | echo world */
+    t_list *tokens = NULL;
 
-//     push_token(&tokens, WORD, "grep");        
-//     push_token(&tokens, SEP, " ");
-//     push_token(&tokens, WORD, "-i");          
-//     push_token(&tokens, SEP, " ");
-//     push_token(&tokens, WORD, "pattern");     
-//     push_token(&tokens, SEP, " ");
-//     push_token(&tokens, REDIRECT_IN,  "<");   
-//     push_token(&tokens, SEP, " ");
-//     push_token(&tokens, WORD, "in.txt");      
-//     push_token(&tokens, SEP, " ");
-//     push_token(&tokens, REDIRECT_OUT, ">");   
-//     push_token(&tokens, SEP, " ");
-//     push_token(&tokens, WORD, "out.txt");
+    push_token(&tokens, WORD, "ls");
+    push_token(&tokens, SEP , " ");
+    push_token(&tokens, WORD, "-la");
+    push_token(&tokens, REDIRECT_IN,  "<");   
+    push_token(&tokens, WORD, "-la");
+    push_token(&tokens, SEP , " ");
+    push_token(&tokens, EXP_FIELD, "-la");
+    push_token(&tokens, SEP , " ");
+    push_token(&tokens, WORD, "-la");
 
+    puts("── token list ─────────────────────────────");
+    ft_print_tokens(tokens);
 
+    /* 1-D → 2-D */
+    t_list *groups = tokens_to_groups(tokens);
+    if (!groups)
+    {
+        perror("parser");
+        ft_free_tokens(&tokens);
+        return 1;
+    }
 
-//     puts("── token list ─────────────────────────────");
-//     print_tokens(tokens);
+    puts("\n── parsed commands ───────────────────────");
+    print_groups(groups);
 
-//     /* 1-D → 2-D */
-//     t_list *groups = tokens_to_groups(tokens);
-//     if (!groups)
-//     {
-//         perror("parser");
-//         ft_free_tokens(&tokens);
-//         return 1;
-//     }
-
-//     puts("\n── parsed commands ───────────────────────");
-//     print_groups(groups);
-
-//     /* cleanup */
-//     free_groups(&groups);
-//     ft_free_tokens(&tokens);
-//     return 0;
-// }
+    /* cleanup */
+    free_groups(&groups);
+    ft_free_tokens(&tokens);
+    return 0;
+}
 
 
 
