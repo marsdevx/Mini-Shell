@@ -1,4 +1,4 @@
-#include "../header/header.h"
+#include "../init/header.h"
 
 /* ── small helpers ──────────────────────────────────────────────────────── */
 

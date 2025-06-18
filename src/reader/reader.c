@@ -1,6 +1,4 @@
-
-#include "../header/header.h"
-
+#include "../init/header.h"
 
 char *ft_readline(const char *prompt)
 {

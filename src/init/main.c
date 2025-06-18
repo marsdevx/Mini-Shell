@@ -1,4 +1,4 @@
-#include "../header/header.h"
+#include "../init/header.h"
 
 void process_input(char *line, t_info *info)
 {
