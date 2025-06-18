@@ -1,5 +1,24 @@
 #include "../header/header.h"
 
+void process_input(char *line, t_info *info)
+{
+  if (!line)
+    return;
+
+  t_list *tokens = lexer(line);
+  if (!tokens)
+    return;
+
+  t_list *groups = parser(tokens);
+  if (groups)
+  {
+    print_groups(groups);
+    free_groups(&groups);
+  }
+
+  ft_free_tokens(&tokens);
+}
+
 int main(int argc, char *argv[], char *envp[])
 {
     t_info info;
