@@ -13,6 +13,7 @@
 #include "../utils/utils.h"
 #include "../lexer/lexer.h"
 #include "../reader/reader.h"
+#include "../parser/parser.h"
 
 
 #endif
