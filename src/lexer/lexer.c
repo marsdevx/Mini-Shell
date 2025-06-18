@@ -234,16 +234,3 @@ t_list *lexer(char *input)
     }
     return tokens;
 }
-
-void process_input(char *line, t_info *info)
-{
-    if (!line)
-        return;
-        
-    t_list *tokens = lexer(line);
-    if (tokens) 
-    {
-        ft_print_tokens(tokens);
-        ft_free_tokens(&tokens);
-    }
-}
