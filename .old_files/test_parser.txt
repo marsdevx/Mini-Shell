@@ -1,0 +1,107 @@
+
+// /* ─────────────────────────────  driver  ─────────────────────────────────── */
+
+// int main(void)
+// {
+//     /* target command: echo hello | echo world */
+//     t_list *tokens = NULL;
+
+//     push_token(&tokens, WORD, "ls");
+//     push_token(&tokens, SEP , " ");
+//     push_token(&tokens, WORD, "-la");
+//     push_token(&tokens, REDIRECT_IN,  "<");   
+//     push_token(&tokens, WORD, "-la");
+//     push_token(&tokens, SEP , " ");
+//     push_token(&tokens, EXP_FIELD, "-la");
+//     push_token(&tokens, SEP , " ");
+//     push_token(&tokens, WORD, "-la");
+
+//     puts("── token list ─────────────────────────────");
+//     ft_print_tokens(tokens);
+
+//     /* 1-D → 2-D */
+//     t_list *groups = tokens_to_groups(tokens);
+//     if (!groups)
+//     {
+//         perror("parser");
+//         ft_free_tokens(&tokens);
+//         return 1;
+//     }
+
+//     puts("\n── parsed commands ───────────────────────");
+//     print_groups(groups);
+
+//     /* cleanup */
+//     free_groups(&groups);
+//     ft_free_tokens(&tokens);
+//     return 0;
+// }
+
+
+
+//     // if (!push_token(&tokens, WORD, "echo"))   return 1;
+//     // if (!push_token(&tokens, SEP,  " "))      return 1;
+//     // if (!push_token(&tokens, WORD, "hello"))  return 1;
+//     // if (!push_token(&tokens, SEP,  " "))      return 1;
+//     // if (!push_token(&tokens, PIPE, "|"))      return 1;
+//     // if (!push_token(&tokens, SEP,  " "))      return 1;
+//     // if (!push_token(&tokens, WORD, "echo"))   return 1;
+//     // if (!push_token(&tokens, SEP,  " "))      return 1;
+//     // if (!push_token(&tokens, WORD, "world"))  return 1;
+
+
+//     // push_token(&tokens, WORD, "ls");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "-la");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "/usr/bin");
+
+
+//     // push_token(&tokens, WORD, "grep");        
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "-i");          
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "pattern");     
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_IN,  "<");   
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "in.txt");      
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_OUT, ">");   
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "out.txt");
+
+//     // push_token(&tokens, WORD, "grep");         
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "-i");           
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, WORD, "pattern");      
+//     // push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_IN,  "<");    
+
+//     // push_token(&tokens, HEREDOC,  "<");    push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_OUT,  "<");    push_token(&tokens, SEP, " ");
+//     // push_token(&tokens, REDIRECT_APPEND,  "<");    push_token(&tokens, SEP, " ");
+
+
+//     // push_token(&tokens, WORD, "ls");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "-la");
+//     // push_token(&tokens, FIELD, "-la");
+//     // push_token(&tokens, EXP_FIELD, "-la");
+
+
+//     // push_token(&tokens, WORD, "ls");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "-la");
+//     // push_token(&tokens, FIELD, "$USER");
+//     // push_token(&tokens, EXP_FIELD, "$USER");
+//     // push_token(&tokens, EXP_FIELD, "$PWD");
+
+
+//     // push_token(&tokens, WORD, "ls");
+//     // push_token(&tokens, SEP , " ");
+//     // push_token(&tokens, WORD, "-la");
+//     // push_token(&tokens, FIELD, "-la");
+//     // push_token(&tokens, REDIRECT_OUT, ">");
+//     // push_token(&tokens, WORD, "-la");
