@@ -39,13 +39,29 @@ static char *expand_env(const char *src)
             if (!val) val = "";
 
             size_t need = len + strlen(val) + 1;
-            if (need > cap) { cap = need * 2; out = realloc(out, cap); if (!out) return NULL; }
+            if (need > cap) { 
+                cap = need * 2; 
+                char *new_out = realloc(out, cap); 
+                if (!new_out) { 
+                    free(out); 
+                    return NULL; 
+                }
+                out = new_out;
+            }
             strcpy(out + len, val);
             len += strlen(val);
         }
         else
         {
-            if (len + 2 > cap) { cap *= 2; out = realloc(out, cap); if (!out) return NULL; }
+            if (len + 2 > cap) { 
+                cap *= 2; 
+                char *new_out = realloc(out, cap); 
+                if (!new_out) { 
+                    free(out); 
+                    return NULL; 
+                }
+                out = new_out;
+            }
             out[len++] = *p++;
             out[len]   = '\0';
         }
@@ -79,13 +95,19 @@ int add_argument(t_group *grp, const char *arg)
 {
     t_command *cmd = new_command(arg);
     if (!cmd) return 0;
-    ft_lstadd_back(&grp->argv, ft_lstnew(cmd));
+    
+    t_list *node = ft_lstnew(cmd);
+    if (!node) {
+        free(cmd->arg);
+        free(cmd);
+        return 0;
+    }
+    
+    ft_lstadd_back(&grp->argv, node);
     return 1;
 }
 
 /* ──────────────────── parser 1-D → 2-D ────────────────────────────────── */
-
-/* ──────────────────── parser 1-D → 2-D ─────────────────────────────── */
 
 t_list *tokens_to_groups(t_list *tok_lst)
 {
@@ -117,7 +139,14 @@ t_list *tokens_to_groups(t_list *tok_lst)
             {
                 cur = new_group();
                 if (!cur) { free_groups(&groups); return NULL; }
-                ft_lstadd_back(&groups, ft_lstnew(cur));
+                
+                t_list *group_node = ft_lstnew(cur);
+                if (!group_node) {
+                    free(cur);
+                    free_groups(&groups);
+                    return NULL;
+                }
+                ft_lstadd_back(&groups, group_node);
             }
 
             /* c) store the redirect operator as an argument ------------ */
@@ -142,7 +171,14 @@ t_list *tokens_to_groups(t_list *tok_lst)
             {
                 cur = new_group();
                 if (!cur) { free_groups(&groups); return NULL; }
-                ft_lstadd_back(&groups, ft_lstnew(cur));
+                
+                t_list *group_node = ft_lstnew(cur);
+                if (!group_node) {
+                    free(cur);
+                    free_groups(&groups);
+                    return NULL;
+                }
+                ft_lstadd_back(&groups, group_node);
             }
 
             char   *arg  = NULL;
@@ -155,11 +191,20 @@ t_list *tokens_to_groups(t_list *tok_lst)
                 char    *piece = (tk2->type == EXP_FIELD && tk2->value[0] == '$')
                                    ? expand_env(tk2->value)
                                    : strdup(tk2->value);
-                if (!piece) { free_groups(&groups); free(arg); return NULL; }
+                if (!piece) { 
+                    free_groups(&groups); 
+                    free(arg); 
+                    return NULL; 
+                }
 
                 size_t plen = strlen(piece);
                 char *tmp   = realloc(arg, len + plen + 1);
-                if (!tmp)   { free_groups(&groups); free(arg); free(piece); return NULL; }
+                if (!tmp)   { 
+                    free_groups(&groups); 
+                    free(arg); 
+                    free(piece); 
+                    return NULL; 
+                }
                 arg = tmp;
                 memcpy(arg + len, piece, plen);
                 len += plen;
@@ -169,7 +214,11 @@ t_list *tokens_to_groups(t_list *tok_lst)
             }
 
             if (!add_argument(cur, arg))
-            {   free_groups(&groups); free(arg); return NULL; }
+            {   
+                free_groups(&groups); 
+                free(arg); 
+                return NULL; 
+            }
             free(arg);
             tok_lst = scan;
             continue;
