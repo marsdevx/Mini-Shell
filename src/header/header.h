@@ -8,12 +8,14 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 // Our header files
 #include "../utils/utils.h"
 #include "../lexer/lexer.h"
 #include "../reader/reader.h"
 #include "../parser/parser.h"
-
+#include "../exec/exec.h"
 
 #endif
