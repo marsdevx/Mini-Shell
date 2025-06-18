@@ -1,5 +1,5 @@
-#ifndef DESTR_H
-# define DESTR_H
+#ifndef BUILT_H
+# define BUILT_H
 
 #  include "../init/init.h"
 
