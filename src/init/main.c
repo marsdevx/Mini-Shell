@@ -12,6 +12,17 @@ void process_input(char *line, t_info *info)
   t_list *groups = parser(tokens);
   if (groups)
   {
+    t_group *first_group = groups->content;
+    if (first_group && first_group->argv)
+    {
+      t_command *first_cmd = first_group->argv->content;
+      if (first_cmd && run_builtin(first_cmd->arg))
+      {
+        free_groups(&groups);
+        ft_free_tokens(&tokens);
+      }
+    }
+
     print_groups(groups);
     free_groups(&groups);
   }
