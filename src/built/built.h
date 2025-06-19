@@ -3,8 +3,6 @@
 
 #  include "../init/init.h"
 
-
-
-
+int run_builtin(const char *cmd);
 
 #endif
