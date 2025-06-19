@@ -16,6 +16,7 @@
 #include "../lexer/lexer.h"
 #include "../reader/reader.h"
 #include "../parser/parser.h"
+#include "../builtin/builtin.h"
 #include "../exec/exec.h"
 
 #endif

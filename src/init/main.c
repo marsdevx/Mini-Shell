@@ -12,7 +12,6 @@ void process_input(char *line, t_info *info, char **envp)
   t_list *groups = parser(tokens);
   if (groups)
   {
-    /* Execute commands - don't assign return value to exit_f */
     execute_commands(groups, envp, info);
     free_groups(&groups);
   }

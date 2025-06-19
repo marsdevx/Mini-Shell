@@ -33,6 +33,12 @@ typedef struct s_info {
     int exit_f;
 } t_info;
 
-typedef struct s_command { char *arg; } t_command;
-typedef struct s_group   { t_list *argv; } t_group;
+typedef struct s_command { 
+    char *arg; 
+} t_command;
+
+typedef struct s_group { 
+    t_list *argv; 
+} t_group;
+
 #endif
