@@ -41,4 +41,22 @@ typedef struct s_group {
     t_list *argv; 
 } t_group;
 
+/* Execution context structure */
+typedef struct s_exec_ctx {
+    int     stdin_backup;
+    int     stdout_backup;
+    int     last_exit_status;
+    char    **envp;
+    t_info  *info;
+} t_exec_ctx;
+
+/* Built-in function prototype */
+typedef int (*t_builtin_func)(char **args, t_exec_ctx *ctx);
+
+/* Built-in structure */
+typedef struct s_builtin {
+    char            *name;
+    t_builtin_func  func;
+} t_builtin;
+
 #endif
