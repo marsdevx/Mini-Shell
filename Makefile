@@ -6,14 +6,15 @@ SRCDIR = src
 OBJDIR = obj
 LIBFTDIR = libs/libft
 
-SRC_DESTR =
-SRC_EXEC = 
+SRC_BUILT = built/built.c
+SRC_DESTR = 
+SRC_EXEC  =  
 SRC_INIT = init/main.c
 SRC_LEXER = lexer/lexer.c 
 SRC_PARSER = parser/parser.c
 SRC_READER = reader/reader.c
 SRC_UTILS = utils/utils.c
-SRC = $(SRC_DESTR) $(SRC_EXEC) $(SRC_INIT) $(SRC_LEXER) $(SRC_PARSER) $(SRC_READER) $(SRC_UTILS)
+SRC = $(SRC_BUILT) $(SRC_DESTR) $(SRC_EXEC) $(SRC_INIT) $(SRC_LEXER) $(SRC_PARSER) $(SRC_READER) $(SRC_UTILS)
 
 OBJS = $(addprefix $(OBJDIR)/, $(SRC:.c=.o))
 SRCS = $(addprefix $(SRCDIR)/, $(SRC))
@@ -24,7 +25,7 @@ $(NAME): $(OBJS) $(LIBFTDIR)/libft.a
 
 # Create necessary directories for object files
 $(OBJDIR):
-	mkdir -p $(OBJDIR)/destr $(OBJDIR)/exec $(OBJDIR)/init $(OBJDIR)/lexer $(OBJDIR)/parser $(OBJDIR)/reader $(OBJDIR)/utils
+	mkdir -p $(OBJDIR)/built $(OBJDIR)/destr $(OBJDIR)/exec $(OBJDIR)/init $(OBJDIR)/lexer $(OBJDIR)/parser $(OBJDIR)/reader $(OBJDIR)/utils
 
 # Compile source files to object files
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
