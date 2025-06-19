@@ -11,7 +11,7 @@ char *ft_readline(const char *prompt)
 
 int ft_init(t_info *info)
 {
-    info->exit_f = 1;
+    info->exit_f = 1;  /* 1 means keep running, 0 means exit */
     return 0;
 }
 

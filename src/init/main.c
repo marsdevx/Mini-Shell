@@ -1,6 +1,6 @@
 #include "../init/header.h"
 
-void process_input(char *line, t_info *info)
+void process_input(char *line, t_info *info, char **envp)
 {
   if (!line)
     return;
@@ -12,18 +12,8 @@ void process_input(char *line, t_info *info)
   t_list *groups = parser(tokens);
   if (groups)
   {
-    t_group *first_group = groups->content;
-    if (first_group && first_group->argv)
-    {
-      t_command *first_cmd = first_group->argv->content;
-      if (first_cmd && run_builtin(first_cmd->arg))
-      {
-        free_groups(&groups);
-        ft_free_tokens(&tokens);
-      }
-    }
-
-    print_groups(groups);
+    /* Execute commands - don't assign return value to exit_f */
+    execute_commands(groups, envp, info);
     free_groups(&groups);
   }
 
@@ -37,7 +27,6 @@ int main(int argc, char *argv[], char *envp[])
 
     (void)argc;
     (void)argv;
-    (void)envp;
 
     if (ft_init(&info) != 0) {
         return EXIT_FAILURE;
@@ -46,17 +35,17 @@ int main(int argc, char *argv[], char *envp[])
     signal(SIGINT, handle_sigint);
     signal(SIGQUIT, SIG_IGN);
 
-    while (1) {
+    while (info.exit_f) {
         line = ft_readline("minishell> ");
         if (line == NULL) {
             printf("exit\n");
             break;
         }
         if (*line) {
-            process_input(line, &info);
+            process_input(line, &info, envp);
         }
         free(line);
     }
 
-    return 0;
+    return info.exit_f;
 }

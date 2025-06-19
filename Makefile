@@ -8,7 +8,7 @@ LIBFTDIR = libs/libft
 
 SRC_BUILT = built/built.c
 SRC_DESTR = 
-SRC_EXEC  =  
+SRC_EXEC = exec/exec.c exec/builtins.c exec/external.c exec/path.c exec/redirections.c
 SRC_INIT = init/main.c
 SRC_LEXER = lexer/lexer.c 
 SRC_PARSER = parser/parser.c
