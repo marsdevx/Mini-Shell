@@ -62,12 +62,25 @@ int execute_commands(t_list *groups, char **envp, t_info *info)
     ctx.envp = envp;
     ctx.info = info;
     
-    /* Execute each command group */
-    while (groups)
+    /* Check if we have pipes by counting groups */
+    int group_count = 0;
+    t_list *tmp = groups;
+    while (tmp)
     {
+        group_count++;
+        tmp = tmp->next;
+    }
+    
+    /* If multiple groups, use pipeline execution */
+    if (group_count > 1)
+    {
+        ctx.last_exit_status = execute_pipeline(groups, &ctx);
+    }
+    else if (groups)
+    {
+        /* Single command execution */
         t_group *grp = (t_group *)groups->content;
         ctx.last_exit_status = execute_single_command(grp, &ctx);
-        groups = groups->next;
     }
     
     /* Clean up */
