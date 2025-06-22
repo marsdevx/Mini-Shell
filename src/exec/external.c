@@ -6,8 +6,25 @@ int execute_external(char **args, t_exec_ctx *ctx)
     char *cmd_path = resolve_command_path(args[0]);
     if (!cmd_path)
     {
-        fprintf(stderr, "%s: command not found\n", args[0]);
+        fprintf(stderr, "bash: %s: command not found\n", args[0]);
         return 127;
+    }
+    
+    /* Check if file exists but is a directory */
+    struct stat st;
+    if (stat(cmd_path, &st) == 0 && S_ISDIR(st.st_mode))
+    {
+        fprintf(stderr, "bash: %s: Is a directory\n", args[0]);
+        free(cmd_path);
+        return 126;
+    }
+    
+    /* Check if file exists but is not executable */
+    if (access(cmd_path, X_OK) != 0 && access(cmd_path, F_OK) == 0)
+    {
+        fprintf(stderr, "bash: %s: Permission denied\n", args[0]);
+        free(cmd_path);
+        return 126;
     }
     
     pid_t pid = fork();

@@ -31,6 +31,7 @@ typedef struct s_list
 
 typedef struct s_info {
     int exit_f;
+    int last_exit_status;
 } t_info;
 
 typedef struct s_command { 

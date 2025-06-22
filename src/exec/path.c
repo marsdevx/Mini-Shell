@@ -36,9 +36,9 @@ char *resolve_command_path(const char *cmd)
     /* If command contains '/', treat as path */
     if (is_path_command(cmd))
     {
-        if (access(cmd, X_OK) == 0)
-            return strdup(cmd);
-        return NULL;
+        /* For paths, we just return a copy of the command */
+        /* The actual checking will be done in execute_external */
+        return strdup(cmd);
     }
     
     /* Get PATH environment variable */

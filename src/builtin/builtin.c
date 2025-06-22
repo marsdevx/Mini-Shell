@@ -29,9 +29,33 @@ int execute_builtin(char **args, t_exec_ctx *ctx)
     for (int i = 0; g_builtins[i].name; i++)
     {
         if (strcmp(args[0], g_builtins[i].name) == 0)
-            return g_builtins[i].func(args, ctx);
+        {
+            int status = g_builtins[i].func(args, ctx);
+            ctx->last_exit_status = status;
+            return status;
+        }
     }
     return 127; /* Command not found */
+}
+
+/* Helper function to check if string is valid identifier */
+static int is_valid_identifier(const char *str)
+{
+    if (!str || !*str)
+        return 0;
+    
+    /* First character must be letter or underscore */
+    if (!isalpha((unsigned char)*str) && *str != '_')
+        return 0;
+    
+    /* Rest must be alphanumeric or underscore */
+    for (const char *p = str + 1; *p; p++)
+    {
+        if (!isalnum((unsigned char)*p) && *p != '_')
+            return 0;
+    }
+    
+    return 1;
 }
 
 /* Built-in: cd */
@@ -40,13 +64,20 @@ int builtin_cd(char **args, t_exec_ctx *ctx)
     (void)ctx;
     char *path;
     
+    /* Check for too many arguments */
+    if (args[1] && args[2])
+    {
+        fprintf(stderr, "bash: cd: too many arguments\n");
+        return 1;
+    }
+    
     if (!args[1])
     {
         /* No argument: go to HOME */
         path = getenv("HOME");
         if (!path)
         {
-            fprintf(stderr, "cd: HOME not set\n");
+            fprintf(stderr, "bash: cd: HOME not set\n");
             return 1;
         }
     }
@@ -56,7 +87,7 @@ int builtin_cd(char **args, t_exec_ctx *ctx)
         path = getenv("OLDPWD");
         if (!path)
         {
-            fprintf(stderr, "cd: OLDPWD not set\n");
+            fprintf(stderr, "bash: cd: OLDPWD not set\n");
             return 1;
         }
         printf("%s\n", path);
@@ -74,7 +105,7 @@ int builtin_cd(char **args, t_exec_ctx *ctx)
     /* Change directory */
     if (chdir(path) != 0)
     {
-        perror("cd");
+        fprintf(stderr, "bash: cd: %s: No such file or directory\n", path);
         return 1;
     }
     
@@ -111,15 +142,22 @@ int builtin_echo(char **args, t_exec_ctx *ctx)
     if (newline)
         printf("\n");
     
+    fflush(stdout);
     return 0;
 }
 
 /* Built-in: pwd */
 int builtin_pwd(char **args, t_exec_ctx *ctx)
 {
-    (void)args;
     (void)ctx;
     char cwd[1024];
+    
+    /* pwd doesn't take arguments in bash */
+    if (args[1])
+    {
+        /* bash just ignores extra arguments for pwd */
+        /* No error is printed */
+    }
     
     if (getcwd(cwd, sizeof(cwd)) != NULL)
     {
@@ -138,11 +176,10 @@ int builtin_env(char **args, t_exec_ctx *ctx)
 {
     (void)args;
     
-    if (!ctx->envp)
-        return 0;
+    extern char **environ;
     
-    for (int i = 0; ctx->envp[i]; i++)
-        printf("%s\n", ctx->envp[i]);
+    for (int i = 0; environ[i]; i++)
+        printf("%s\n", environ[i]);
     
     return 0;
 }
@@ -151,6 +188,7 @@ int builtin_env(char **args, t_exec_ctx *ctx)
 int builtin_export(char **args, t_exec_ctx *ctx)
 {
     (void)ctx;
+    int ret = 0;
     
     /* No arguments: print all exported variables */
     if (!args[1])
@@ -165,29 +203,61 @@ int builtin_export(char **args, t_exec_ctx *ctx)
     for (int i = 1; args[i]; i++)
     {
         char *equals = strchr(args[i], '=');
+        
         if (equals)
         {
             /* VAR=value format */
             *equals = '\0';
-            setenv(args[i], equals + 1, 1);
+            
+            if (!is_valid_identifier(args[i]))
+            {
+                fprintf(stderr, "bash: export: `%s': not a valid identifier\n", args[i]);
+                *equals = '=';
+                ret = 1;
+                continue;
+            }
+            
+            /* Restore the equals sign */
             *equals = '=';
+            
+            /* Extract variable name and value */
+            char *var_name = malloc(equals - args[i] + 1);
+            if (!var_name)
+                return 1;
+            strncpy(var_name, args[i], equals - args[i]);
+            var_name[equals - args[i]] = '\0';
+            
+            setenv(var_name, equals + 1, 1);
+            free(var_name);
         }
         else
         {
-            /* Just mark as exported (already in env) */
+            /* Just the variable name */
+            if (!is_valid_identifier(args[i]))
+            {
+                fprintf(stderr, "bash: export: `%s': not a valid identifier\n", args[i]);
+                ret = 1;
+                continue;
+            }
+            
+            /* Mark as exported (if it exists) */
             char *value = getenv(args[i]);
             if (value)
                 setenv(args[i], value, 1);
         }
     }
     
-    return 0;
+    return ret;
 }
 
 /* Built-in: unset */
 int builtin_unset(char **args, t_exec_ctx *ctx)
 {
     (void)ctx;
+    
+    /* No arguments is valid, just return 0 */
+    if (!args[1])
+        return 0;
     
     for (int i = 1; args[i]; i++)
         unsetenv(args[i]);
@@ -200,27 +270,37 @@ int builtin_exit(char **args, t_exec_ctx *ctx)
 {
     int exit_code = ctx->last_exit_status;
     
+    printf("exit\n");
+    
+    /* Check for too many arguments first */
+    if (args[1] && args[2])
+    {
+        fprintf(stderr, "bash: exit: too many arguments\n");
+        return 1;  /* Don't exit the shell, just return error */
+    }
+    
     /* Parse exit code if provided */
     if (args[1])
     {
         char *endptr;
         long val = strtol(args[1], &endptr, 10);
         
-        if (*endptr != '\0' || val < 0 || val > 255)
+        /* Check if it's a valid number */
+        if (*endptr != '\0')
         {
-            fprintf(stderr, "exit: %s: numeric argument required\n", args[1]);
+            fprintf(stderr, "bash: exit: %s: numeric argument required\n", args[1]);
             exit_code = 2;
         }
         else
         {
-            exit_code = (int)val;
+            /* Handle the modulo 256 behavior */
+            exit_code = ((val % 256) + 256) % 256;
         }
     }
     
     /* Set exit flag to 0 to signal main loop to exit */
     ctx->info->exit_f = 0;
+    ctx->info->last_exit_status = exit_code;
     
-    printf("exit\n");
-    /* Don't call exit() here - let main loop handle it */
     return exit_code;
 }

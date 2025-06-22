@@ -56,6 +56,9 @@ int execute_pipeline(t_list *groups, t_exec_ctx *ctx)
         return 1;
     }
     
+    /* Track whether we've had a pipe error */
+    int pipe_error = 0;
+    
     while (groups)
     {
         t_group *grp = (t_group *)groups->content;
@@ -66,6 +69,7 @@ int execute_pipeline(t_list *groups, t_exec_ctx *ctx)
             for (int i = 0; i < cmd_index; i++)
             {
                 kill(pids[i], SIGTERM);
+                waitpid(pids[i], NULL, 0);
             }
             for (int i = 0; i < pipe_count - 1; i++)
             {
@@ -86,6 +90,7 @@ int execute_pipeline(t_list *groups, t_exec_ctx *ctx)
             for (int i = 0; i < cmd_index; i++)
             {
                 kill(pids[i], SIGTERM);
+                waitpid(pids[i], NULL, 0);
             }
             for (int i = 0; i < pipe_count - 1; i++)
             {
@@ -125,12 +130,18 @@ int execute_pipeline(t_list *groups, t_exec_ctx *ctx)
             }
             
             /* Setup file redirections */
-            if (setup_redirections(&argv) < 0)
-                exit(1);
+            int redir_status = setup_redirections(&argv);
             
             /* Execute command */
-            if (!argv[0])
+            if (!argv[0] || strlen(argv[0]) == 0)
+            {
+                /* Empty command after expansion */
                 exit(0);
+            }
+            
+            /* If we had a redirection error, exit with status 1 */
+            if (redir_status < 0)
+                exit(1);
                 
             if (is_builtin(argv[0]))
             {
@@ -145,12 +156,31 @@ int execute_pipeline(t_list *groups, t_exec_ctx *ctx)
             }
             else
             {
+                /* Use execve directly to avoid double error messages */
                 char *cmd_path = resolve_command_path(argv[0]);
                 if (!cmd_path)
                 {
-                    fprintf(stderr, "%s: command not found\n", argv[0]);
+                    fprintf(stderr, "bash: %s: command not found\n", argv[0]);
                     exit(127);
                 }
+                
+                /* Check if it's a directory */
+                struct stat st;
+                if (stat(cmd_path, &st) == 0 && S_ISDIR(st.st_mode))
+                {
+                    fprintf(stderr, "bash: %s: Is a directory\n", argv[0]);
+                    free(cmd_path);
+                    exit(126);
+                }
+                
+                /* Check if file exists but is not executable */
+                if (access(cmd_path, X_OK) != 0 && access(cmd_path, F_OK) == 0)
+                {
+                    fprintf(stderr, "bash: %s: Permission denied\n", argv[0]);
+                    free(cmd_path);
+                    exit(126);
+                }
+                
                 execve(cmd_path, argv, ctx->envp);
                 perror(argv[0]);
                 exit(126);
@@ -179,13 +209,16 @@ int execute_pipeline(t_list *groups, t_exec_ctx *ctx)
         {
             perror("waitpid");
         }
-        /* Keep status of last command */
-        if (i == pipe_count - 1)
+        else
         {
-            if (WIFEXITED(child_status))
-                status = WEXITSTATUS(child_status);
-            else if (WIFSIGNALED(child_status))
-                status = 128 + WTERMSIG(child_status);
+            /* Keep status of last command */
+            if (i == pipe_count - 1)
+            {
+                if (WIFEXITED(child_status))
+                    status = WEXITSTATUS(child_status);
+                else if (WIFSIGNALED(child_status))
+                    status = 128 + WTERMSIG(child_status);
+            }
         }
     }
     

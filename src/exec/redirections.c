@@ -16,6 +16,7 @@ int setup_redirections(char ***argv_ptr)
 {
     char **argv = *argv_ptr;
     int i = 0;
+    int last_error = 0;
     
     while (argv[i])
     {
@@ -29,7 +30,10 @@ int setup_redirections(char ***argv_ptr)
                 return -1;
             }
             if (handle_input_redirect(argv[i + 1]) < 0)
-                return -1;
+            {
+                last_error = -1;
+                /* Continue processing to check all redirections */
+            }
             remove_argv_element(argv, i);
             remove_argv_element(argv, i);
             handled = 1;
@@ -42,7 +46,10 @@ int setup_redirections(char ***argv_ptr)
                 return -1;
             }
             if (handle_output_redirect(argv[i + 1]) < 0)
-                return -1;
+            {
+                last_error = -1;
+                /* Continue processing to check all redirections */
+            }
             remove_argv_element(argv, i);
             remove_argv_element(argv, i);
             handled = 1;
@@ -55,7 +62,10 @@ int setup_redirections(char ***argv_ptr)
                 return -1;
             }
             if (handle_append_redirect(argv[i + 1]) < 0)
-                return -1;
+            {
+                last_error = -1;
+                /* Continue processing to check all redirections */
+            }
             remove_argv_element(argv, i);
             remove_argv_element(argv, i);
             handled = 1;
@@ -68,7 +78,10 @@ int setup_redirections(char ***argv_ptr)
                 return -1;
             }
             if (handle_heredoc(argv[i + 1]) < 0)
-                return -1;
+            {
+                last_error = -1;
+                /* Continue processing to check all redirections */
+            }
             remove_argv_element(argv, i);
             remove_argv_element(argv, i);
             handled = 1;
@@ -78,7 +91,7 @@ int setup_redirections(char ***argv_ptr)
             i++;
     }
     
-    return 0;
+    return last_error;
 }
 
 /* Handle input redirection */
@@ -87,7 +100,7 @@ int handle_input_redirect(const char *filename)
     int fd = open(filename, O_RDONLY);
     if (fd < 0)
     {
-        perror(filename);
+        fprintf(stderr, "bash: %s: %s\n", filename, strerror(errno));
         return -1;
     }
     
@@ -108,7 +121,7 @@ int handle_output_redirect(const char *filename)
     int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd < 0)
     {
-        perror(filename);
+        fprintf(stderr, "bash: %s: %s\n", filename, strerror(errno));
         return -1;
     }
     
@@ -129,7 +142,7 @@ int handle_append_redirect(const char *filename)
     int fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
     if (fd < 0)
     {
-        perror(filename);
+        fprintf(stderr, "bash: %s: %s\n", filename, strerror(errno));
         return -1;
     }
     

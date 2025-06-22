@@ -13,34 +13,74 @@ static int is_text(e_type t)
     return (t == WORD || t == FIELD || t == EXP_FIELD);
 }
 
-/* Expand $VARNAME inside an EXP_FIELD token (simple version) */
-static char *expand_env(const char *src)
+/* Expand environment variables in WORD tokens as well */
+static char *expand_word_env(const char *src)
 {
     const char *p = src;
-    size_t  cap = strlen(src) + 32;
+    size_t  cap = strlen(src) + 256;
     size_t  len = 0;
     char   *out = malloc(cap);
     if (!out) return NULL;
 
     while (*p)
     {
-        if (*p == '$' && isalpha((unsigned char)p[1]))
+        if (*p == '$' && (isalpha((unsigned char)p[1]) || p[1] == '_' || p[1] == '?'))
         {
             const char *v = ++p;
-            while (isalnum((unsigned char)*p) || *p == '_')
-                ++p;
-            size_t vlen = p - v;
-            char var[256];
-            if (vlen >= sizeof var) vlen = sizeof var - 1;
-            memcpy(var, v, vlen);
-            var[vlen] = '\0';
+            
+            // Special case for $?
+            if (*p == '?')
+            {
+                p++;
+                const char *val = getenv("?");
+                if (!val) val = "0";
+                
+                size_t need = len + strlen(val) + 1;
+                if (need > cap) { 
+                    cap = need * 2; 
+                    char *new_out = realloc(out, cap); 
+                    if (!new_out) { 
+                        free(out); 
+                        return NULL; 
+                    }
+                    out = new_out;
+                }
+                strcpy(out + len, val);
+                len += strlen(val);
+            }
+            else
+            {
+                // Regular variable name
+                while (isalnum((unsigned char)*p) || *p == '_')
+                    ++p;
+                size_t vlen = p - v;
+                char var[256];
+                if (vlen >= sizeof var) vlen = sizeof var - 1;
+                memcpy(var, v, vlen);
+                var[vlen] = '\0';
 
-            const char *val = getenv(var);
-            if (!val) val = "";
+                const char *val = getenv(var);
+                if (!val) val = "";
 
-            size_t need = len + strlen(val) + 1;
-            if (need > cap) { 
-                cap = need * 2; 
+                size_t need = len + strlen(val) + 1;
+                if (need > cap) { 
+                    cap = need * 2; 
+                    char *new_out = realloc(out, cap); 
+                    if (!new_out) { 
+                        free(out); 
+                        return NULL; 
+                    }
+                    out = new_out;
+                }
+                strcpy(out + len, val);
+                len += strlen(val);
+            }
+        }
+        else if (*p == '$' && !isalpha((unsigned char)p[1]) && p[1] != '_' && p[1] != '?')
+        {
+            // Just a dollar sign followed by non-variable character
+            if (len + 2 > cap) { 
+                cap *= 2; 
                 char *new_out = realloc(out, cap); 
                 if (!new_out) { 
                     free(out); 
@@ -48,8 +88,8 @@ static char *expand_env(const char *src)
                 }
                 out = new_out;
             }
-            strcpy(out + len, val);
-            len += strlen(val);
+            out[len++] = *p++;
+            out[len]   = '\0';
         }
         else
         {
@@ -188,9 +228,14 @@ t_list *tokens_to_groups(t_list *tok_lst)
             while (scan && is_text(((t_token *)scan->content)->type))
             {
                 t_token *tk2  = scan->content;
-                char    *piece = (tk2->type == EXP_FIELD && tk2->value[0] == '$')
-                                   ? expand_env(tk2->value)
-                                   : strdup(tk2->value);
+                char    *piece;
+                
+                // Expand environment variables in EXP_FIELD (double quotes) and WORD
+                if (tk2->type == EXP_FIELD || tk2->type == WORD)
+                    piece = expand_word_env(tk2->value);
+                else
+                    piece = strdup(tk2->value);
+                    
                 if (!piece) { 
                     free_groups(&groups); 
                     free(arg); 
@@ -213,11 +258,15 @@ t_list *tokens_to_groups(t_list *tok_lst)
                 scan = scan->next;
             }
 
-            if (!add_argument(cur, arg))
-            {   
-                free_groups(&groups); 
-                free(arg); 
-                return NULL; 
+            /* Only add non-empty arguments or if it's the first argument (command) */
+            if (strlen(arg) > 0 || ((t_group *)groups->content)->argv == NULL)
+            {
+                if (!add_argument(cur, arg))
+                {   
+                    free_groups(&groups); 
+                    free(arg); 
+                    return NULL; 
+                }
             }
             free(arg);
             tok_lst = scan;

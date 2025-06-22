@@ -58,9 +58,17 @@ int execute_commands(t_list *groups, char **envp, t_info *info)
     /* Initialize execution context */
     ctx.stdin_backup = dup(STDIN_FILENO);
     ctx.stdout_backup = dup(STDOUT_FILENO);
-    ctx.last_exit_status = 0;
+    ctx.last_exit_status = info->last_exit_status;
     ctx.envp = envp;
     ctx.info = info;
+    
+    /* Handle empty command (just pressing enter) */
+    if (!groups)
+    {
+        close(ctx.stdin_backup);
+        close(ctx.stdout_backup);
+        return info->last_exit_status;
+    }
     
     /* Check if we have pipes by counting groups */
     int group_count = 0;
@@ -86,6 +94,14 @@ int execute_commands(t_list *groups, char **envp, t_info *info)
     /* Clean up */
     close(ctx.stdin_backup);
     close(ctx.stdout_backup);
+    
+    /* Update info with last exit status */
+    info->last_exit_status = ctx.last_exit_status;
+    
+    /* Update $? environment variable */
+    char exit_str[16];
+    snprintf(exit_str, sizeof(exit_str), "%d", ctx.last_exit_status);
+    setenv("?", exit_str, 1);
     
     return ctx.last_exit_status;
 }
@@ -123,6 +139,13 @@ int execute_single_command(t_group *grp, t_exec_ctx *ctx)
     
     /* Check if command exists after redirections are removed */
     if (!argv[0])
+    {
+        status = 0;
+        goto cleanup;
+    }
+    
+    /* Handle empty command that expands to nothing (like $EMPTY) */
+    if (strlen(argv[0]) == 0)
     {
         status = 0;
         goto cleanup;
