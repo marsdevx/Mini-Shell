@@ -28,7 +28,6 @@ void process_input(char *line, t_info *info, char **envp)
   }
   else
   {
-    // Parser failed - set exit status to 2 (syntax error)
     setenv("?", "2", 1);
     info->last_exit_status = 2;
   }
