@@ -44,7 +44,11 @@ char *resolve_command_path(const char *cmd)
     /* Get PATH environment variable */
     char *path_env = getenv("PATH");
     if (!path_env)
-        path_env = "/usr/local/bin:/usr/bin:/bin";
+    {
+        /* IMPORTANT: If PATH is unset, we should NOT provide a default */
+        /* This matches bash behavior - commands won't be found without PATH */
+        return NULL;
+    }
     
     /* Make a copy of PATH to tokenize */
     char *path_copy = strdup(path_env);
