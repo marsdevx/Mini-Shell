@@ -2,17 +2,12 @@
 
 void process_input(char *line, t_info *info, char **envp)
 {
-  if (!line)
-    return;
-
-  /* Handle empty line */
-  if (*line == '\0')
+  if (!line || *line == '\0')
     return;
 
   t_list *tokens = lexer(line);
   if (!tokens)
   {
-    // Lexer failed - set exit status to 2 (syntax error)
     setenv("?", "2", 1);
     info->last_exit_status = 2;
     return;
@@ -45,19 +40,14 @@ int main(int argc, char *argv[], char *envp[])
 {
     t_info info;
     char *line;
-
     (void)argc;
     (void)argv;
 
     if (ft_init(&info) != 0) {
         return EXIT_FAILURE;
     }
-
-    // Initialize exit status to 0
     setenv("?", "0", 1);
-    info.last_exit_status = 0;
     
-    // Ensure USER is set if not present
     if (!getenv("USER"))
     {
         char *user = getenv("LOGNAME");
@@ -67,13 +57,8 @@ int main(int argc, char *argv[], char *envp[])
             setenv("USER", "user", 1);
     }
     
-    // Ensure HOME is set if not present
     if (!getenv("HOME"))
-    {
-        char *home = getenv("HOME");
-        if (!home)
-            setenv("HOME", "/home/user", 1);
-    }
+      setenv("HOME", "/home/user", 1);
 
     signal(SIGINT, handle_sigint);
     signal(SIGQUIT, SIG_IGN);

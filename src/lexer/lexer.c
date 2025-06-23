@@ -1,5 +1,6 @@
 #include "../init/header.h"
 
+// Check if quotes are correct
 int quotes_check(char *input)
 {
     int i = 0;
@@ -22,7 +23,7 @@ int quotes_check(char *input)
     return 1;
 }
 
-// Helper function to free a single token
+// Free
 void free_token(t_token *token)
 {
     if (token)
@@ -33,7 +34,6 @@ void free_token(t_token *token)
     }
 }
 
-// Helper function to clean up tokens list on error
 void cleanup_tokens(t_list **tokens)
 {
     if (tokens && *tokens)
@@ -42,6 +42,7 @@ void cleanup_tokens(t_list **tokens)
     }
 }
 
+// Lexer
 t_list *lexer(char *input)
 {
     if (!quotes_check(input))
@@ -52,6 +53,7 @@ t_list *lexer(char *input)
 
     while (*ptr)
     {
+        // allocate token
         char *start = ptr;
         t_token *token = malloc(sizeof(t_token));
         if (!token)
@@ -60,16 +62,16 @@ t_list *lexer(char *input)
             return NULL;
         }
 
-        // Initialize token values to prevent issues
         token->value = NULL;
         token->value_len = 0;
 
+        // Type of token
         if (*ptr == ' ' || *ptr == '\t')
         {
             while (*ptr == ' ' || *ptr == '\t')
                 ptr++;
             token->type = SEP;
-            token->value = ft_strndup(start, 1);  // Fixed: use start instead of ptr-1
+            token->value = ft_strndup(start, 1);
             if (!token->value)
             {
                 free(token);
@@ -220,6 +222,7 @@ t_list *lexer(char *input)
             token->value_len = len;
         }
 
+        // Input data
         t_list *new_node = ft_lstnew(token);
         if (!new_node)
         {

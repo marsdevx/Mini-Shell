@@ -1,7 +1,6 @@
 #include "../init/header.h"
 
-/* ── small helpers ──────────────────────────────────────────────────────── */
-
+// Type def funcs
 static int is_redirect(e_type t)
 {
     return (t == REDIRECT_IN || t == REDIRECT_OUT ||
@@ -13,7 +12,8 @@ static int is_text(e_type t)
     return (t == WORD || t == FIELD || t == EXP_FIELD);
 }
 
-/* Expand environment variables in WORD tokens as well */
+
+// Expand quotes
 static char *expand_word_env(const char *src)
 {
     const char *p = src;
@@ -28,7 +28,6 @@ static char *expand_word_env(const char *src)
         {
             const char *v = ++p;
             
-            // Special case for $?
             if (*p == '?')
             {
                 p++;
@@ -50,7 +49,6 @@ static char *expand_word_env(const char *src)
             }
             else
             {
-                // Regular variable name
                 while (isalnum((unsigned char)*p) || *p == '_')
                     ++p;
                 size_t vlen = p - v;
@@ -78,7 +76,6 @@ static char *expand_word_env(const char *src)
         }
         else if (*p == '$' && !isalpha((unsigned char)p[1]) && p[1] != '_' && p[1] != '?')
         {
-            // Just a dollar sign followed by non-variable character
             if (len + 2 > cap) { 
                 cap *= 2; 
                 char *new_out = realloc(out, cap); 
@@ -109,11 +106,8 @@ static char *expand_word_env(const char *src)
     return out;
 }
 
-/* forward declaration */
-void free_groups(t_list **groups);
 
-/* ─────────────── higher-level list helpers ────────────────────────────── */
-
+// Utils commands
 t_command *new_command(const char *arg)
 {
     t_command *c = malloc(sizeof *c);
@@ -147,8 +141,30 @@ int add_argument(t_group *grp, const char *arg)
     return 1;
 }
 
-/* ──────────────────── parser 1-D → 2-D ────────────────────────────────── */
+void free_groups(t_list **groups)
+{
+    while (*groups)
+    {
+        t_list *nextg = (*groups)->next;
+        t_group *grp  = (*groups)->content;
+        while (grp->argv)
+        {
+            t_list *nexta = grp->argv->next;
+            free(((t_command *)grp->argv->content)->arg);
+            free(grp->argv->content);
+            free(grp->argv);
+            grp->argv = nexta;
+        }
+        free(grp);
+        free(*groups);
+        *groups = nextg;
+    }
+}
 
+
+
+
+// Main tokens to groups func
 t_list *tokens_to_groups(t_list *tok_lst)
 {
     t_list  *groups = NULL;
@@ -158,13 +174,15 @@ t_list *tokens_to_groups(t_list *tok_lst)
     {
         t_token *tk = tok_lst->content;
 
-        /* ---------- 1. redirect handling (+ syntax guard) ------------- */
+        // Redirect
+        // text after redirect check
+        // add new group, command,
+        // go next
         if (is_redirect(tk->type))
         {
-            /* a) verify there is a filename after the redirect --------- */
             t_list *look = tok_lst->next;
             if (look && ((t_token *)look->content)->type == SEP)
-                look = look->next;                     /* optional space */
+                look = look->next;
             if (!look || !is_text(((t_token *)look->content)->type))
             {
                 fprintf(stderr,
@@ -174,7 +192,6 @@ t_list *tokens_to_groups(t_list *tok_lst)
                 return NULL;
             }
 
-            /* b) start a command node if we haven't yet ---------------- */
             if (!cur)
             {
                 cur = new_group();
@@ -189,22 +206,29 @@ t_list *tokens_to_groups(t_list *tok_lst)
                 ft_lstadd_back(&groups, group_node);
             }
 
-            /* c) store the redirect operator as an argument ------------ */
             if (!add_argument(cur, tk->value))
             {   free_groups(&groups); return NULL; }
 
-            /* d) advance to next token and continue the main loop ------ */
             tok_lst = tok_lst->next;
             continue;
         }
 
-        /* ---------- 2. pipe → new command ----------------------------- */
-        if (tk->type == PIPE) { cur = NULL; tok_lst = tok_lst->next; continue; }
+        // If pipe, create new group
+        if (tk->type == PIPE) {
+            cur = NULL; 
+            tok_lst = tok_lst->next; 
+            continue;
+        }
 
-        /* ---------- 3. skip separators -------------------------------- */
-        if (tk->type == SEP)   { tok_lst = tok_lst->next; continue; }
+        // If separator, skip
+        if (tk->type == SEP) { 
+            tok_lst = tok_lst->next; 
+            continue; 
+        }
 
-        /* ---------- 4. merge & expand WORD / FIELD / EXP_FIELD -------- */
+        // If word, field, exp field
+        // expand quotes
+        // if no sep between, merge into one argument
         if (is_text(tk->type))
         {
             if (!cur)
@@ -230,7 +254,6 @@ t_list *tokens_to_groups(t_list *tok_lst)
                 t_token *tk2  = scan->content;
                 char    *piece;
                 
-                // Expand environment variables in EXP_FIELD (double quotes) and WORD
                 if (tk2->type == EXP_FIELD || tk2->type == WORD)
                     piece = expand_word_env(tk2->value);
                 else
@@ -258,7 +281,6 @@ t_list *tokens_to_groups(t_list *tok_lst)
                 scan = scan->next;
             }
 
-            /* Only add non-empty arguments or if it's the first argument (command) */
             if (strlen(arg) > 0 || ((t_group *)groups->content)->argv == NULL)
             {
                 if (!add_argument(cur, arg))
@@ -273,44 +295,10 @@ t_list *tokens_to_groups(t_list *tok_lst)
             continue;
         }
 
-        /* ---------- 5. any other token class (nop) -------------------- */
+        // Other tokens, do nothing
         tok_lst = tok_lst->next;
     }
     return groups;
-}
-
-/* ─────────────── debug & cleanup helpers ─────────────────────────────── */
-
-void print_groups(t_list *groups)
-{
-    int g = 0;
-    for (; groups; groups = groups->next, ++g)
-    {
-        printf("Command %d:\n", g);
-        int a = 0;
-        for (t_list *arg = ((t_group *)groups->content)->argv; arg; arg = arg->next, ++a)
-            printf("  arg[%d] = \"%s\"\n", a, ((t_command *)arg->content)->arg);
-    }
-}
-
-void free_groups(t_list **groups)
-{
-    while (*groups)
-    {
-        t_list *nextg = (*groups)->next;
-        t_group *grp  = (*groups)->content;
-        while (grp->argv)
-        {
-            t_list *nexta = grp->argv->next;
-            free(((t_command *)grp->argv->content)->arg);
-            free(grp->argv->content);
-            free(grp->argv);
-            grp->argv = nexta;
-        }
-        free(grp);
-        free(*groups);
-        *groups = nextg;
-    }
 }
 
 t_list *parser(t_list *tokens)
