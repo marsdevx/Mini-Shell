@@ -57,8 +57,6 @@ int execute_pipeline(t_list *groups, t_exec_ctx *ctx)
     }
     
     /* Track whether we've had a pipe error */
-    int pipe_error = 0;
-    
     while (groups)
     {
         t_group *grp = (t_group *)groups->content;

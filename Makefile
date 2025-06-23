@@ -1,6 +1,6 @@
 # Vars
 CC = cc # cc / clang
-CFLAGS = -I$(SRCDIR) -I$(LIBFTDIR) -I/opt/homebrew/opt/readline/include # -Wall -Werror -Wextra
+CFLAGS = -I$(SRCDIR) -I$(LIBFTDIR) -I/opt/homebrew/opt/readline/include  -Wall -Wextra -Werror 
 NAME = minishell
 SRCDIR = src
 OBJDIR = obj

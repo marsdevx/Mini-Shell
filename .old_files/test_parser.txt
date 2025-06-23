@@ -17,7 +17,6 @@
 //     push_token(&tokens, WORD, "-la");
 
 //     puts("── token list ─────────────────────────────");
-//     ft_print_tokens(tokens);
 
 //     /* 1-D → 2-D */
 //     t_list *groups = tokens_to_groups(tokens);
