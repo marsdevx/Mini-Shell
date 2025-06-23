@@ -1,23 +1,29 @@
 #include "../init/header.h"
 
-/* Built-in command table */
-static const t_builtin g_builtins[] = {
-    {"cd", builtin_cd},
-    {"echo", builtin_echo},
-    {"pwd", builtin_pwd},
-    {"export", builtin_export},
-    {"unset", builtin_unset},
-    {"env", builtin_env},
-    {"exit", builtin_exit},
-    {NULL, NULL}
-};
+/* Static builtin table - encapsulated in getter function */
+static const t_builtin *get_builtin_table(void)
+{
+    static const t_builtin builtins[] = {
+        {"cd", builtin_cd},
+        {"echo", builtin_echo},
+        {"pwd", builtin_pwd},
+        {"export", builtin_export},
+        {"unset", builtin_unset},
+        {"env", builtin_env},
+        {"exit", builtin_exit},
+        {NULL, NULL}
+    };
+    return builtins;
+}
 
 /* Check if command is a built-in */
 int is_builtin(const char *cmd)
 {
-    for (int i = 0; g_builtins[i].name; i++)
+    const t_builtin *builtins = get_builtin_table();
+    
+    for (int i = 0; builtins[i].name; i++)
     {
-        if (strcmp(cmd, g_builtins[i].name) == 0)
+        if (strcmp(cmd, builtins[i].name) == 0)
             return 1;
     }
     return 0;
@@ -26,11 +32,13 @@ int is_builtin(const char *cmd)
 /* Execute built-in command */
 int execute_builtin(char **args, t_exec_ctx *ctx)
 {
-    for (int i = 0; g_builtins[i].name; i++)
+    const t_builtin *builtins = get_builtin_table();
+    
+    for (int i = 0; builtins[i].name; i++)
     {
-        if (strcmp(args[0], g_builtins[i].name) == 0)
+        if (strcmp(args[0], builtins[i].name) == 0)
         {
-            int status = g_builtins[i].func(args, ctx);
+            int status = builtins[i].func(args, ctx);
             ctx->last_exit_status = status;
             return status;
         }
@@ -117,7 +125,8 @@ int builtin_cd(char **args, t_exec_ctx *ctx)
 }
 
 /* Built-in: echo */
-int builtin_echo(char **args, t_exec_ctx *ctx) {
+int builtin_echo(char **args, t_exec_ctx *ctx) 
+{
     (void)ctx;
     int i = 1;
     int newline = 1;
@@ -172,6 +181,7 @@ int builtin_pwd(char **args, t_exec_ctx *ctx)
 int builtin_env(char **args, t_exec_ctx *ctx)
 {
     (void)args;
+    (void)ctx;
     
     extern char **environ;
     
