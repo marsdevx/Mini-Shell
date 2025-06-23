@@ -117,22 +117,19 @@ int builtin_cd(char **args, t_exec_ctx *ctx)
 }
 
 /* Built-in: echo */
-int builtin_echo(char **args, t_exec_ctx *ctx)
-{
+int builtin_echo(char **args, t_exec_ctx *ctx) {
     (void)ctx;
     int i = 1;
     int newline = 1;
     
-    /* Check for -n flag */
-    if (args[1] && strcmp(args[1], "-n") == 0)
-    {
+    /* Check for all -n flags */
+    while (args[i] && strcmp(args[i], "-n") == 0) {
         newline = 0;
-        i = 2;
+        i++;
     }
     
     /* Print arguments */
-    while (args[i])
-    {
+    while (args[i]) {
         printf("%s", args[i]);
         if (args[i + 1])
             printf(" ");
