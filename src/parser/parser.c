@@ -6,22 +6,94 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 20:04:06 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 20:15:15 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
 
-static int is_redirect(e_type t)
+static int	is_redirect(e_type t)
 {
-    return (t == REDIRECT_IN || t == REDIRECT_OUT ||
-            t == REDIRECT_APPEND || t == HEREDOC);
+	return (t == REDIRECT_IN || t == REDIRECT_OUT || t == REDIRECT_APPEND
+		|| t == HEREDOC);
 }
 
-static int is_text(e_type t)
+static int	is_text(e_type t)
 {
-    return (t == WORD || t == FIELD || t == EXP_FIELD);
+	return (t == WORD || t == FIELD || t == EXP_FIELD);
 }
+
+t_command	*new_command(const char *arg)
+{
+	t_command	*c;
+
+	c = malloc(sizeof *c);
+	if (!c)
+		return (NULL);
+	c->arg = strdup(arg);
+	if (!c->arg)
+	{
+		free(c);
+		return (NULL);
+	}
+	return (c);
+}
+
+t_group	*new_group(void)
+{
+	t_group	*g;
+
+	g = malloc(sizeof *g);
+	if (!g)
+		return (NULL);
+	g->argv = NULL;
+	return (g);
+}
+
+int	add_argument(t_group *grp, const char *arg)
+{
+	t_command	*cmd;
+	t_list		*node;
+
+	cmd = new_command(arg);
+	if (!cmd)
+		return (0);
+	node = ft_lstnew(cmd);
+	if (!node)
+	{
+		free(cmd->arg);
+		free(cmd);
+		return (0);
+	}
+	ft_lstadd_back(&grp->argv, node);
+	return (1);
+}
+
+void	free_groups(t_list **groups)
+{
+	t_list	*nextg;
+	t_group	*grp;
+	t_list	*nexta;
+
+	while (*groups)
+	{
+		nextg = (*groups)->next;
+		grp = (*groups)->content;
+		while (grp->argv)
+		{
+			nexta = grp->argv->next;
+			free(((t_command *)grp->argv->content)->arg);
+			free(grp->argv->content);
+			free(grp->argv);
+			grp->argv = nexta;
+		}
+		free(grp);
+		free(*groups);
+		*groups = nextg;
+	}
+}
+
+
 
 static char *expand_word_env(const char *src)
 {
@@ -113,59 +185,6 @@ static char *expand_word_env(const char *src)
         }
     }
     return out;
-}
-
-t_command *new_command(const char *arg)
-{
-    t_command *c = malloc(sizeof *c);
-    if (!c) return NULL;
-    c->arg = strdup(arg);
-    if (!c->arg) { free(c); return NULL; }
-    return c;
-}
-
-t_group *new_group(void)
-{
-    t_group *g = malloc(sizeof *g);
-    if (!g) return NULL;
-    g->argv = NULL;
-    return g;
-}
-
-int add_argument(t_group *grp, const char *arg)
-{
-    t_command *cmd = new_command(arg);
-    if (!cmd) return 0;
-    
-    t_list *node = ft_lstnew(cmd);
-    if (!node) {
-        free(cmd->arg);
-        free(cmd);
-        return 0;
-    }
-    
-    ft_lstadd_back(&grp->argv, node);
-    return 1;
-}
-
-void free_groups(t_list **groups)
-{
-    while (*groups)
-    {
-        t_list *nextg = (*groups)->next;
-        t_group *grp  = (*groups)->content;
-        while (grp->argv)
-        {
-            t_list *nexta = grp->argv->next;
-            free(((t_command *)grp->argv->content)->arg);
-            free(grp->argv->content);
-            free(grp->argv);
-            grp->argv = nexta;
-        }
-        free(grp);
-        free(*groups);
-        *groups = nextg;
-    }
 }
 
 t_list *tokens_to_groups(t_list *tok_lst)
