@@ -1,3 +1,5 @@
 still reacheble meamory leaks
 strndup
 exit too many arguments
+fix Makefile
+test it on the 42 pc
