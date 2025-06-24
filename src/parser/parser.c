@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 20:47:03 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 21:05:28 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,96 +93,110 @@ void	free_groups(t_list **groups)
 	}
 }
 
-static char *expand_word_env(const char *src)
+static char	*expand_word_env(const char *src)
 {
-    const char *p = src;
-    size_t  cap = strlen(src) + 256;
-    size_t  len = 0;
-    char   *out = malloc(cap);
-    if (!out) return NULL;
+	const char *p = src;
+	size_t cap = strlen(src) + 256;
+	size_t len = 0;
+	char *out = malloc(cap);
+	if (!out)
+		return (NULL);
 
-    while (*p)
-    {
-        if (*p == '$' && (isalpha((unsigned char)p[1]) || p[1] == '_' || p[1] == '?'))
-        {
-            const char *v = ++p;
-            
-            if (*p == '?')
-            {
-                p++;
-                const char *val = getenv("?");
-                if (!val) val = "0";
-                
-                size_t need = len + strlen(val) + 1;
-                if (need > cap) { 
-                    cap = need * 2; 
-                    char *new_out = realloc(out, cap); 
-                    if (!new_out) { 
-                        free(out); 
-                        return NULL; 
-                    }
-                    out = new_out;
-                }
-                strcpy(out + len, val);
-                len += strlen(val);
-            }
-            else
-            {
-                while (isalnum((unsigned char)*p) || *p == '_')
-                    ++p;
-                size_t vlen = p - v;
-                char var[256];
-                if (vlen >= sizeof var) vlen = sizeof var - 1;
-                memcpy(var, v, vlen);
-                var[vlen] = '\0';
+	while (*p)
+	{
+		if (*p == '$' && (isalpha((unsigned char)p[1]) || p[1] == '_'
+				|| p[1] == '?'))
+		{
+			const char *v = ++p;
 
-                const char *val = getenv(var);
-                if (!val) val = "";
+			if (*p == '?')
+			{
+				p++;
+				const char *val = getenv("?");
+				if (!val)
+					val = "0";
 
-                size_t need = len + strlen(val) + 1;
-                if (need > cap) { 
-                    cap = need * 2; 
-                    char *new_out = realloc(out, cap); 
-                    if (!new_out) { 
-                        free(out); 
-                        return NULL; 
-                    }
-                    out = new_out;
-                }
-                strcpy(out + len, val);
-                len += strlen(val);
-            }
-        }
-        else if (*p == '$' && !isalpha((unsigned char)p[1]) && p[1] != '_' && p[1] != '?')
-        {
-            if (len + 2 > cap) { 
-                cap *= 2; 
-                char *new_out = realloc(out, cap); 
-                if (!new_out) { 
-                    free(out); 
-                    return NULL; 
-                }
-                out = new_out;
-            }
-            out[len++] = *p++;
-            out[len]   = '\0';
-        }
-        else
-        {
-            if (len + 2 > cap) { 
-                cap *= 2; 
-                char *new_out = realloc(out, cap); 
-                if (!new_out) { 
-                    free(out); 
-                    return NULL; 
-                }
-                out = new_out;
-            }
-            out[len++] = *p++;
-            out[len]   = '\0';
-        }
-    }
-    return out;
+				size_t need = len + strlen(val) + 1;
+				if (need > cap)
+				{
+					cap = need * 2;
+					char *new_out = realloc(out, cap);
+					if (!new_out)
+					{
+						free(out);
+						return (NULL);
+					}
+					out = new_out;
+				}
+				strcpy(out + len, val);
+				len += strlen(val);
+			}
+			else
+			{
+				while (isalnum((unsigned char)*p) || *p == '_')
+					++p;
+				size_t vlen = p - v;
+				char var[256];
+				if (vlen >= sizeof var)
+					vlen = sizeof var - 1;
+				memcpy(var, v, vlen);
+				var[vlen] = '\0';
+
+				const char *val = getenv(var);
+				if (!val)
+					val = "";
+
+				size_t need = len + strlen(val) + 1;
+				if (need > cap)
+				{
+					cap = need * 2;
+					char *new_out = realloc(out, cap);
+					if (!new_out)
+					{
+						free(out);
+						return (NULL);
+					}
+					out = new_out;
+				}
+				strcpy(out + len, val);
+				len += strlen(val);
+			}
+		}
+		else if (*p == '$' && !isalpha((unsigned char)p[1]) && p[1] != '_'
+			&& p[1] != '?')
+		{
+			if (len + 2 > cap)
+			{
+				cap *= 2;
+				char *new_out = realloc(out, cap);
+				if (!new_out)
+				{
+					free(out);
+					return (NULL);
+				}
+				out = new_out;
+			}
+			out[len++] = *p++;
+			out[len] = '\0';
+		}
+		else
+		{
+			if (len + 2 > cap)
+			{
+				cap *= 2;
+				char *new_out = realloc(out, cap);
+				if (!new_out)
+				{
+					free(out);
+					return (NULL);
+				}
+				out = new_out;
+			}
+			out[len++] = *p++;
+			out[len] = '\0';
+		}
+	}
+	return (out);
 }
 
 t_list *tokens_to_groups(t_list *tok_lst)
