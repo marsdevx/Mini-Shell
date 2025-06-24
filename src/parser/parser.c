@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 20:32:25 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 20:47:03 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,8 +92,6 @@ void	free_groups(t_list **groups)
 		*groups = nextg;
 	}
 }
-
-
 
 static char *expand_word_env(const char *src)
 {
@@ -313,14 +311,14 @@ t_list *tokens_to_groups(t_list *tok_lst)
     return groups;
 }
 
-t_list *parser(t_list *tokens)
+t_list	*parser(t_list *tokens)
 {
-  if (!tokens)
-    return NULL;
+	t_list	*groups;
 
-  t_list *groups = tokens_to_groups(tokens);
-  if (!groups)
-    return NULL;
-
-  return groups;
+	if (!tokens)
+		return (NULL);
+	groups = tokens_to_groups(tokens);
+	if (!groups)
+		return (NULL);
+	return (groups);
 }
