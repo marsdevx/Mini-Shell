@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 21:05:28 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 21:09:03 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,130 +199,147 @@ static char	*expand_word_env(const char *src)
 	return (out);
 }
 
-t_list *tokens_to_groups(t_list *tok_lst)
+t_list	*tokens_to_groups(t_list *tok_lst)
 {
-    t_list  *groups = NULL;
-    t_group *cur    = NULL;
+	t_list *groups = NULL;
+	t_group *cur = NULL;
 
-    while (tok_lst)
-    {
-        t_token *tk = tok_lst->content;
+	while (tok_lst)
+	{
+		t_token *tk = tok_lst->content;
 
-        if (is_redirect(tk->type))
-        {
-            t_list *look = tok_lst->next;
-            if (look && ((t_token *)look->content)->type == SEP)
-                look = look->next;
-            if (!look || !is_text(((t_token *)look->content)->type))
-            {
-                fprintf(stderr,
-                        "syntax error: redirect \"%s\" needs a filename\n",
-                        tk->value);
-                free_groups(&groups);
-                return NULL;
-            }
+		if (is_redirect(tk->type))
+		{
+			t_list *look = tok_lst->next;
+			if (look && ((t_token *)look->content)->type == SEP)
+				look = look->next;
+			if (!look || !is_text(((t_token *)look->content)->type))
+			{
+				fprintf(stderr,
+					"syntax error: redirect \"%s\" needs a filename\n",
+					tk->value);
+				free_groups(&groups);
+				return (NULL);
+			}
 
-            if (!cur)
-            {
-                cur = new_group();
-                if (!cur) { free_groups(&groups); return NULL; }
-                
-                t_list *group_node = ft_lstnew(cur);
-                if (!group_node) {
-                    free(cur);
-                    free_groups(&groups);
-                    return NULL;
-                }
-                ft_lstadd_back(&groups, group_node);
-            }
+			if (!cur)
+			{
+				cur = new_group();
+				if (!cur)
+				{
+					free_groups(&groups);
+					return (NULL);
+				}
 
-            if (!add_argument(cur, tk->value))
-            {   free_groups(&groups); return NULL; }
+				t_list *group_node = ft_lstnew(cur);
+				if (!group_node)
+				{
+					free(cur);
+					free_groups(&groups);
+					return (NULL);
+				}
+				ft_lstadd_back(&groups, group_node);
+			}
 
-            tok_lst = tok_lst->next;
-            continue;
-        }
+			if (!add_argument(cur, tk->value))
+			{
+				free_groups(&groups);
+				return (NULL);
+			}
 
-        if (tk->type == PIPE) {
-            cur = NULL; 
-            tok_lst = tok_lst->next; 
-            continue;
-        }
+			tok_lst = tok_lst->next;
+			continue ;
+		}
 
-        if (tk->type == SEP) { 
-            tok_lst = tok_lst->next; 
-            continue; 
-        }
+		if (tk->type == PIPE)
+		{
+			cur = NULL;
+			tok_lst = tok_lst->next;
+			continue ;
+		}
 
-        if (is_text(tk->type))
-        {
-            if (!cur)
-            {
-                cur = new_group();
-                if (!cur) { free_groups(&groups); return NULL; }
-                
-                t_list *group_node = ft_lstnew(cur);
-                if (!group_node) {
-                    free(cur);
-                    free_groups(&groups);
-                    return NULL;
-                }
-                ft_lstadd_back(&groups, group_node);
-            }
+		if (tk->type == SEP)
+		{
+			tok_lst = tok_lst->next;
+			continue ;
+		}
 
-            char   *arg  = NULL;
-            size_t  len  = 0;
-            t_list *scan = tok_lst;
+		if (is_text(tk->type))
+		{
+			if (!cur)
+			{
+				cur = new_group();
+				if (!cur)
+				{
+					free_groups(&groups);
+					return (NULL);
+				}
 
-            while (scan && is_text(((t_token *)scan->content)->type))
-            {
-                t_token *tk2  = scan->content;
-                char    *piece;
-                
-                if (tk2->type == EXP_FIELD || tk2->type == WORD)
-                    piece = expand_word_env(tk2->value);
-                else
-                    piece = strdup(tk2->value);
-                    
-                if (!piece) { 
-                    free_groups(&groups); 
-                    free(arg); 
-                    return NULL; 
-                }
+				t_list *group_node = ft_lstnew(cur);
+				if (!group_node)
+				{
+					free(cur);
+					free_groups(&groups);
+					return (NULL);
+				}
+				ft_lstadd_back(&groups, group_node);
+			}
 
-                size_t plen = strlen(piece);
-                char *tmp   = realloc(arg, len + plen + 1);
-                if (!tmp)   { 
-                    free_groups(&groups); 
-                    free(arg); 
-                    free(piece); 
-                    return NULL; 
-                }
-                arg = tmp;
-                memcpy(arg + len, piece, plen);
-                len += plen;
-                arg[len] = '\0';
-                free(piece);
-                scan = scan->next;
-            }
+			char *arg = NULL;
+			size_t len = 0;
+			t_list *scan = tok_lst;
 
-            if (strlen(arg) > 0 || ((t_group *)groups->content)->argv == NULL)
-            {
-                if (!add_argument(cur, arg))
-                {   
-                    free_groups(&groups); 
-                    free(arg); 
-                    return NULL; 
-                }
-            }
-            free(arg);
-            tok_lst = scan;
-            continue;
-        }
+			while (scan && is_text(((t_token *)scan->content)->type))
+			{
+				t_token *tk2 = scan->content;
+				char *piece;
 
-        tok_lst = tok_lst->next;
-    }
-    return groups;
+				if (tk2->type == EXP_FIELD || tk2->type == WORD)
+					piece = expand_word_env(tk2->value);
+				else
+					piece = strdup(tk2->value);
+
+				if (!piece)
+				{
+					free_groups(&groups);
+					free(arg);
+					return (NULL);
+				}
+
+				size_t plen = strlen(piece);
+				char *tmp = realloc(arg, len + plen + 1);
+				if (!tmp)
+				{
+					free_groups(&groups);
+					free(arg);
+					free(piece);
+					return (NULL);
+				}
+				arg = tmp;
+				memcpy(arg + len, piece, plen);
+				len += plen;
+				arg[len] = '\0';
+				free(piece);
+				scan = scan->next;
+			}
+
+			if (strlen(arg) > 0 || ((t_group *)groups->content)->argv == NULL)
+			{
+				if (!add_argument(cur, arg))
+				{
+					free_groups(&groups);
+					free(arg);
+					return (NULL);
+				}
+			}
+			free(arg);
+			tok_lst = scan;
+			continue ;
+		}
+
+		tok_lst = tok_lst->next;
+	}
+	return (groups);
 }
 
 t_list	*parser(t_list *tokens)
