@@ -27,7 +27,6 @@
 #include <fcntl.h>
 #include <errno.h>
 
-// Our header files
 #include "../utils/utils.h"
 #include "../lexer/lexer.h"
 #include "../reader/reader.h"

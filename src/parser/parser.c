@@ -6,13 +6,12 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 19:53:36 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 20:04:06 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
 
-// Type def funcs
 static int is_redirect(e_type t)
 {
     return (t == REDIRECT_IN || t == REDIRECT_OUT ||
@@ -24,8 +23,6 @@ static int is_text(e_type t)
     return (t == WORD || t == FIELD || t == EXP_FIELD);
 }
 
-
-// Expand quotes
 static char *expand_word_env(const char *src)
 {
     const char *p = src;
@@ -118,8 +115,6 @@ static char *expand_word_env(const char *src)
     return out;
 }
 
-
-// Utils commands
 t_command *new_command(const char *arg)
 {
     t_command *c = malloc(sizeof *c);
@@ -173,10 +168,6 @@ void free_groups(t_list **groups)
     }
 }
 
-
-
-
-// Main tokens to groups func
 t_list *tokens_to_groups(t_list *tok_lst)
 {
     t_list  *groups = NULL;
@@ -186,10 +177,6 @@ t_list *tokens_to_groups(t_list *tok_lst)
     {
         t_token *tk = tok_lst->content;
 
-        // Redirect
-        // text after redirect check
-        // add new group, command,
-        // go next
         if (is_redirect(tk->type))
         {
             t_list *look = tok_lst->next;
@@ -225,22 +212,17 @@ t_list *tokens_to_groups(t_list *tok_lst)
             continue;
         }
 
-        // If pipe, create new group
         if (tk->type == PIPE) {
             cur = NULL; 
             tok_lst = tok_lst->next; 
             continue;
         }
 
-        // If separator, skip
         if (tk->type == SEP) { 
             tok_lst = tok_lst->next; 
             continue; 
         }
 
-        // If word, field, exp field
-        // expand quotes
-        // if no sep between, merge into one argument
         if (is_text(tk->type))
         {
             if (!cur)
@@ -307,7 +289,6 @@ t_list *tokens_to_groups(t_list *tok_lst)
             continue;
         }
 
-        // Other tokens, do nothing
         tok_lst = tok_lst->next;
     }
     return groups;
