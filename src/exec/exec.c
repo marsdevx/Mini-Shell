@@ -6,13 +6,12 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 19:54:55 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 19:59:44 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
 
-/* Convert linked list of arguments to argv array */
 char **group_to_argv(t_group *grp)
 {
     int count = count_args(grp->argv);
@@ -40,7 +39,6 @@ char **group_to_argv(t_group *grp)
     return argv;
 }
 
-/* Count arguments in list */
 int count_args(t_list *args)
 {
     int count = 0;
@@ -52,7 +50,6 @@ int count_args(t_list *args)
     return count;
 }
 
-/* Free argv array */
 void free_argv(char **argv)
 {
     if (!argv)
@@ -62,19 +59,16 @@ void free_argv(char **argv)
     free(argv);
 }
 
-/* Execute all command groups */
 int execute_commands(t_list *groups, char **envp, t_info *info)
 {
     t_exec_ctx ctx;
     
-    /* Initialize execution context */
     ctx.stdin_backup = dup(STDIN_FILENO);
     ctx.stdout_backup = dup(STDOUT_FILENO);
     ctx.last_exit_status = info->last_exit_status;
     ctx.envp = envp;
     ctx.info = info;
     
-    /* Handle empty command (just pressing enter) */
     if (!groups)
     {
         close(ctx.stdin_backup);
@@ -82,7 +76,6 @@ int execute_commands(t_list *groups, char **envp, t_info *info)
         return info->last_exit_status;
     }
     
-    /* Check if we have pipes by counting groups */
     int group_count = 0;
     t_list *tmp = groups;
     while (tmp)
@@ -91,26 +84,21 @@ int execute_commands(t_list *groups, char **envp, t_info *info)
         tmp = tmp->next;
     }
     
-    /* If multiple groups, use pipeline execution */
     if (group_count > 1)
     {
         ctx.last_exit_status = execute_pipeline(groups, &ctx);
     }
     else if (groups)
     {
-        /* Single command execution */
         t_group *grp = (t_group *)groups->content;
         ctx.last_exit_status = execute_single_command(grp, &ctx);
     }
     
-    /* Clean up */
     close(ctx.stdin_backup);
     close(ctx.stdout_backup);
     
-    /* Update info with last exit status */
     info->last_exit_status = ctx.last_exit_status;
     
-    /* Update $? environment variable */
     char exit_str[16];
     snprintf(exit_str, sizeof(exit_str), "%d", ctx.last_exit_status);
     setenv("?", exit_str, 1);
@@ -118,18 +106,15 @@ int execute_commands(t_list *groups, char **envp, t_info *info)
     return ctx.last_exit_status;
 }
 
-/* Execute a single command group */
 int execute_single_command(t_group *grp, t_exec_ctx *ctx)
 {
     if (!grp || !grp->argv)
         return 0;
     
-    /* Convert group to argv */
     char **argv = group_to_argv(grp);
     if (!argv)
         return 1;
     
-    /* Skip if empty command */
     if (!argv[0])
     {
         free_argv(argv);
@@ -138,39 +123,33 @@ int execute_single_command(t_group *grp, t_exec_ctx *ctx)
     
     int status = 0;
     
-    /* Backup standard file descriptors */
     int stdin_temp = dup(STDIN_FILENO);
     int stdout_temp = dup(STDOUT_FILENO);
     
-    /* Setup redirections */
     if (setup_redirections(&argv) < 0)
     {
         status = 1;
         goto cleanup;
     }
     
-    /* Check if command exists after redirections are removed */
     if (!argv[0])
     {
         status = 0;
         goto cleanup;
     }
     
-    /* Handle empty command that expands to nothing (like $EMPTY) */
     if (strlen(argv[0]) == 0)
     {
         status = 0;
         goto cleanup;
     }
     
-    /* Execute built-in or external command */
     if (is_builtin(argv[0]))
         status = execute_builtin(argv, ctx);
     else
         status = execute_external(argv, ctx);
     
 cleanup:
-    /* Restore standard file descriptors */
     dup2(stdin_temp, STDIN_FILENO);
     dup2(stdout_temp, STDOUT_FILENO);
     close(stdin_temp);

@@ -6,13 +6,13 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 19:53:55 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 20:02:44 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
 
-/* Remove element at index from argv array */
+
 static void remove_argv_element(char **argv, int index)
 {
     free(argv[index]);
@@ -23,7 +23,7 @@ static void remove_argv_element(char **argv, int index)
     }
 }
 
-/* Setup all redirections for a command */
+
 int setup_redirections(char ***argv_ptr)
 {
     char **argv = *argv_ptr;
@@ -44,7 +44,7 @@ int setup_redirections(char ***argv_ptr)
             if (handle_input_redirect(argv[i + 1]) < 0)
             {
                 last_error = -1;
-                /* Continue processing to check all redirections */
+
             }
             remove_argv_element(argv, i);
             remove_argv_element(argv, i);
@@ -60,7 +60,7 @@ int setup_redirections(char ***argv_ptr)
             if (handle_output_redirect(argv[i + 1]) < 0)
             {
                 last_error = -1;
-                /* Continue processing to check all redirections */
+
             }
             remove_argv_element(argv, i);
             remove_argv_element(argv, i);
@@ -76,7 +76,7 @@ int setup_redirections(char ***argv_ptr)
             if (handle_append_redirect(argv[i + 1]) < 0)
             {
                 last_error = -1;
-                /* Continue processing to check all redirections */
+
             }
             remove_argv_element(argv, i);
             remove_argv_element(argv, i);
@@ -92,7 +92,7 @@ int setup_redirections(char ***argv_ptr)
             if (handle_heredoc(argv[i + 1]) < 0)
             {
                 last_error = -1;
-                /* Continue processing to check all redirections */
+
             }
             remove_argv_element(argv, i);
             remove_argv_element(argv, i);
@@ -106,7 +106,7 @@ int setup_redirections(char ***argv_ptr)
     return last_error;
 }
 
-/* Handle input redirection */
+
 int handle_input_redirect(const char *filename)
 {
     int fd = open(filename, O_RDONLY);
@@ -127,7 +127,7 @@ int handle_input_redirect(const char *filename)
     return 0;
 }
 
-/* Handle output redirection */
+
 int handle_output_redirect(const char *filename)
 {
     int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -148,7 +148,7 @@ int handle_output_redirect(const char *filename)
     return 0;
 }
 
-/* Handle append redirection */
+
 int handle_append_redirect(const char *filename)
 {
     int fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
@@ -169,7 +169,7 @@ int handle_append_redirect(const char *filename)
     return 0;
 }
 
-/* Handle heredoc */
+
 int handle_heredoc(const char *delimiter)
 {
     int pipefd[2];
@@ -190,7 +190,7 @@ int handle_heredoc(const char *delimiter)
     }
     else if (pid == 0)
     {
-        /* Child: read lines and write to pipe */
+
         close(pipefd[0]);
         
         char *line;
@@ -219,7 +219,7 @@ int handle_heredoc(const char *delimiter)
     }
     else
     {
-        /* Parent: redirect stdin to pipe */
+
         close(pipefd[1]);
         
         int status;

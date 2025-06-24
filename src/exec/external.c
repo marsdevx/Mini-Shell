@@ -6,13 +6,12 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 19:54:07 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 20:00:18 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
 
-/* Execute external command */
 int execute_external(char **args, t_exec_ctx *ctx)
 {
     char *cmd_path = resolve_command_path(args[0]);
@@ -22,7 +21,6 @@ int execute_external(char **args, t_exec_ctx *ctx)
         return 127;
     }
     
-    /* Check if file exists but is a directory */
     struct stat st;
     if (stat(cmd_path, &st) == 0 && S_ISDIR(st.st_mode))
     {
@@ -31,7 +29,6 @@ int execute_external(char **args, t_exec_ctx *ctx)
         return 126;
     }
     
-    /* Check if file exists but is not executable */
     if (access(cmd_path, X_OK) != 0 && access(cmd_path, F_OK) == 0)
     {
         fprintf(stderr, "bash: %s: Permission denied\n", args[0]);
@@ -48,25 +45,21 @@ int execute_external(char **args, t_exec_ctx *ctx)
     }
     else if (pid == 0)
     {
-        /* Child process */
-        
-        /* Reset signal handlers */
         signal(SIGINT, SIG_DFL);
         signal(SIGQUIT, SIG_DFL);
         
-        /* Execute command */
         execve(cmd_path, args, ctx->envp);
         
-        /* If we get here, execve failed */
+
         perror(args[0]);
-        exit(126); /* Cannot execute */
+        exit(126);
     }
     else
     {
-        /* Parent process */
+
         int status;
         
-        /* Wait for child */
+
         if (waitpid(pid, &status, 0) < 0)
         {
             perror("waitpid");
@@ -76,7 +69,7 @@ int execute_external(char **args, t_exec_ctx *ctx)
         
         free(cmd_path);
         
-        /* Handle exit status */
+
         if (WIFEXITED(status))
             return WEXITSTATUS(status);
         else if (WIFSIGNALED(status))
