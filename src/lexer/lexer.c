@@ -1,48 +1,60 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
+/*   Updated: 2025/06/24 19:52:14 by marksylaiev      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../init/header.h"
 
-// Check if quotes are correct
-int quotes_check(char *input)
+int	quotes_check(char *input)
 {
-    int i = 0;
-    int in_single_quote = 0;
-    int in_double_quote = 0;
+	int	i;
+	int	in_single_quote;
+	int	in_double_quote;
 
-    while (input[i])
-    {
-        if (input[i] == '\'' && !in_double_quote)
-            in_single_quote = !in_single_quote;
-        else if (input[i] == '"' && !in_single_quote)
-            in_double_quote = !in_double_quote;
-        i++;
-    }
-    if (in_single_quote || in_double_quote)
-    {
-        printf("Error: Unmatched quotes\n");
-        return 0;
-    }
-    return 1;
+	i = 0;
+	in_single_quote = 0;
+	in_double_quote = 0;
+	while (input[i])
+	{
+		if (input[i] == '\'' && !in_double_quote)
+			in_single_quote = !in_single_quote;
+		else if (input[i] == '"' && !in_single_quote)
+			in_double_quote = !in_double_quote;
+		i++;
+	}
+	if (in_single_quote || in_double_quote)
+	{
+		printf("Error: Unmatched quotes\n");
+		return (0);
+	}
+	return (1);
 }
 
-// Free
-void free_token(t_token *token)
+void	free_token(t_token *token)
 {
-    if (token)
-    {
-        if (token->value)
-            free(token->value);
-        free(token);
-    }
+	if (token)
+	{
+		if (token->value)
+			free(token->value);
+		free(token);
+	}
 }
 
-void cleanup_tokens(t_list **tokens)
+void	cleanup_tokens(t_list **tokens)
 {
-    if (tokens && *tokens)
-    {
-        ft_free_tokens(tokens);
-    }
+	if (tokens && *tokens)
+	{
+		ft_free_tokens(tokens);
+	}
 }
 
-// Lexer
 t_list *lexer(char *input)
 {
     if (!quotes_check(input))
@@ -53,7 +65,6 @@ t_list *lexer(char *input)
 
     while (*ptr)
     {
-        // allocate token
         char *start = ptr;
         t_token *token = malloc(sizeof(t_token));
         if (!token)
@@ -65,7 +76,6 @@ t_list *lexer(char *input)
         token->value = NULL;
         token->value_len = 0;
 
-        // Type of token
         if (*ptr == ' ' || *ptr == '\t')
         {
             while (*ptr == ' ' || *ptr == '\t')
@@ -222,7 +232,6 @@ t_list *lexer(char *input)
             token->value_len = len;
         }
 
-        // Input data
         t_list *new_node = ft_lstnew(token);
         if (!new_node)
         {
