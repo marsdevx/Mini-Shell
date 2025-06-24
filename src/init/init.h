@@ -1,63 +1,63 @@
 #ifndef INIT_H
 # define INIT_H
 
-/* Enum for token types */
 typedef enum e_type
 {
-    WORD,           // Regular words
-    FIELD,          // Quoted fields (e.g., 'text')
-    EXP_FIELD,      // Expandable fields (e.g., "text")
-    SEP,            // Separators (spaces/tabs)
-    PIPE,           // Pipe symbol (|)
-    REDIRECT_IN,    // Input redirection (<)
-    REDIRECT_OUT,   // Output redirection (>)
-    REDIRECT_APPEND,// Append redirection (>>)
-    HEREDOC         // Heredoc redirection (<<)
-} e_type;
+	WORD,
+	FIELD,
+	EXP_FIELD,
+	SEP,
+	PIPE,
+	REDIRECT_IN,
+	REDIRECT_OUT,
+	REDIRECT_APPEND,
+	HEREDOC
+}					e_type;
 
-/* Structure for a token */
 typedef struct s_token
 {
-    e_type type;      // Token type
-    char *value;      // Token value as a string
-    int   value_len;  // Length of the value
-} t_token;
+	e_type			type;
+	char			*value;
+	int				value_len;
+}					t_token;
 
 typedef struct s_list
 {
-  void          *content;
-  struct s_list *next;
-} t_list;
+	void			*content;
+	struct s_list	*next;
+}					t_list;
 
-typedef struct s_info {
-    int exit_f;
-    int last_exit_status;
-} t_info;
+typedef struct s_info
+{
+	int				exit_f;
+	int				last_exit_status;
+}					t_info;
 
-typedef struct s_command { 
-    char *arg; 
-} t_command;
+typedef struct s_command
+{
+	char			*arg;
+}					t_command;
 
-typedef struct s_group { 
-    t_list *argv; 
-} t_group;
+typedef struct s_group
+{
+	t_list			*argv;
+}					t_group;
 
-/* Execution context structure */
-typedef struct s_exec_ctx {
-    int     stdin_backup;
-    int     stdout_backup;
-    int     last_exit_status;
-    char    **envp;
-    t_info  *info;
-} t_exec_ctx;
+typedef struct s_exec_ctx
+{
+	int				stdin_backup;
+	int				stdout_backup;
+	int				last_exit_status;
+	char			**envp;
+	t_info			*info;
+}					t_exec_ctx;
 
-/* Built-in function prototype */
-typedef int (*t_builtin_func)(char **args, t_exec_ctx *ctx);
+typedef int			(*t_builtin_func)(char **args, t_exec_ctx *ctx);
 
-/* Built-in structure */
-typedef struct s_builtin {
-    char            *name;
-    t_builtin_func  func;
-} t_builtin;
+typedef struct s_builtin
+{
+	char			*name;
+	t_builtin_func	func;
+}					t_builtin;
 
 #endif
