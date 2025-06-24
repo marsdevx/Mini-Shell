@@ -24,11 +24,11 @@ typedef enum e_type
 	REDIRECT_OUT,
 	REDIRECT_APPEND,
 	HEREDOC
-}					e_type;
+}					t_e_type;
 
 typedef struct s_token
 {
-	e_type			type;
+	t_e_type		type;
 	char			*value;
 	int				value_len;
 }					t_token;

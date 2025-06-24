@@ -6,19 +6,19 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 20:24:50 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 20:32:25 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
 
-static int	is_redirect(e_type t)
+static int	is_redirect(t_e_type t)
 {
 	return (t == REDIRECT_IN || t == REDIRECT_OUT || t == REDIRECT_APPEND
 		|| t == HEREDOC);
 }
 
-static int	is_text(e_type t)
+static int	is_text(t_e_type t)
 {
 	return (t == WORD || t == FIELD || t == EXP_FIELD);
 }
