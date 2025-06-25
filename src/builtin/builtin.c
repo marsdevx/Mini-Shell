@@ -6,11 +6,11 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 22:01:33 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 22:15:20 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../init/header.h"
+#include "../header.h"
 
 static const t_builtin	*get_builtin_table(void)
 {

@@ -6,11 +6,11 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 22:03:26 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 22:15:29 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../init/header.h"
+#include "../header.h"
 
 int ft_setenv(const char *name, const char *value, int overwrite)
 {
