@@ -27,6 +27,7 @@
 # include <fcntl.h>
 # include <errno.h>
 
+# include "../../libs/libft/libft.h"
 # include "../builtin/builtin.h"
 # include "../exec/exec.h"
 # include "../lexer/lexer.h"
