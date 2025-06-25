@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:31:03 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:41:12 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ static char	*expand_word_env(const char *src)
 					}
 					out = new_out;
 				}
-				strcpy(out + len, val);
+				ft_strcpy(out + len, val);
 				len += ft_strlen(val);
 			}
 			else
@@ -190,7 +190,7 @@ static char	*expand_word_env(const char *src)
 					}
 					out = new_out;
 				}
-				strcpy(out + len, val);
+				ft_strcpy(out + len, val);
 				len += ft_strlen(val);
 			}
 		}
