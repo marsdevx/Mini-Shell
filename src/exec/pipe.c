@@ -3,14 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   pipe.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 21:13:31 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 17:34:29 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
+
+extern t_list	*g_tokens;
+extern t_list	*g_groups;
+extern void	cleanup_global_memory(void);
 
 int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 {
@@ -128,11 +132,21 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 
 			if (!argv[0] || strlen(argv[0]) == 0)
 			{
+				free_argv(argv);
+				free(pipes);
+				free(pids);
+				cleanup_global_memory();
 				exit(0);
 			}
 
 			if (redir_status < 0)
+			{
+				free_argv(argv);
+				free(pipes);
+				free(pids);
+				cleanup_global_memory();
 				exit(1);
+			}
 
 			if (is_builtin(argv[0]))
 			{
@@ -142,6 +156,10 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 				child_ctx.info = &child_info;
 
 				int status = execute_builtin(argv, &child_ctx);
+				free_argv(argv);
+				free(pipes);
+				free(pids);
+				cleanup_global_memory();
 				exit(status);
 			}
 			else
@@ -150,6 +168,10 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 				if (!cmd_path)
 				{
 					fprintf(stderr, "bash: %s: command not found\n", argv[0]);
+					free_argv(argv);
+					free(pipes);
+					free(pids);
+					cleanup_global_memory();
 					exit(127);
 				}
 
@@ -158,6 +180,10 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 				{
 					fprintf(stderr, "bash: %s: Is a directory\n", argv[0]);
 					free(cmd_path);
+					free_argv(argv);
+					free(pipes);
+					free(pids);
+					cleanup_global_memory();
 					exit(126);
 				}
 
@@ -165,11 +191,20 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 				{
 					fprintf(stderr, "bash: %s: Permission denied\n", argv[0]);
 					free(cmd_path);
+					free_argv(argv);
+					free(pipes);
+					free(pids);
+					cleanup_global_memory();
 					exit(126);
 				}
 
 				execve(cmd_path, argv, ctx->envp);
 				perror(argv[0]);
+				free(cmd_path);
+				free_argv(argv);
+				free(pipes);
+				free(pids);
+				cleanup_global_memory();
 				exit(126);
 			}
 		}

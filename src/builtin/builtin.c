@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 17:13:46 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 20:24:20 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,7 +241,10 @@ int	builtin_exit(char **args, t_exec_ctx *ctx)
 	printf("exit\n");
 
 	if (args[1] && args[2])
+	{
 		fprintf(stderr, "bash: exit: too many arguments\n");
+		return (1);
+	}
 
 	if (args[1])
 	{
