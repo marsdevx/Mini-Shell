@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:41:12 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:47:40 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ static char	*expand_word_env(const char *src)
 
 	while (*p)
 	{
-		if (*p == '$' && (isalpha((unsigned char)p[1]) || p[1] == '_'
+		if (*p == '$' && (ft_isalpha((unsigned char)p[1]) || p[1] == '_'
 				|| p[1] == '?'))
 		{
 			const char *v = ++p;
@@ -165,7 +165,7 @@ static char	*expand_word_env(const char *src)
 			}
 			else
 			{
-				while (isalnum((unsigned char)*p) || *p == '_')
+				while (ft_isalnum((unsigned char)*p) || *p == '_')
 					++p;
 				size_t vlen = p - v;
 				char var[256];
@@ -194,7 +194,7 @@ static char	*expand_word_env(const char *src)
 				len += ft_strlen(val);
 			}
 		}
-		else if (*p == '$' && !isalpha((unsigned char)p[1]) && p[1] != '_'
+		else if (*p == '$' && !ft_isalpha((unsigned char)p[1]) && p[1] != '_'
 			&& p[1] != '?')
 		{
 			if (len + 2 > cap)
