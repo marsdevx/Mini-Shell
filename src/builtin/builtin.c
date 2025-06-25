@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:41:55 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:43:19 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,7 +282,7 @@ int	builtin_exit(char **args, t_exec_ctx *ctx)
 	if (args[1])
 	{
 		char *endptr;
-		long val = strtol(args[1], &endptr, 10);
+		long val = ft_strtol(args[1], &endptr, 10);
 
 		if (*endptr != '\0')
 		{
