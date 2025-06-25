@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:36:00 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:41:58 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ char	*ft_strndup(const char *s, size_t n)
 	dup = malloc(n + 1);
 	if (!dup)
 		return (NULL);
-	strncpy(dup, s, n);
+	ft_strncpy(dup, s, n);
 	dup[n] = '\0';
 	return (dup);
 }
