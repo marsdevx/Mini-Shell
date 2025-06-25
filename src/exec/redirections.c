@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:32:25 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:40:02 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ int	setup_redirections(char ***argv_ptr)
 	while (argv[i])
 	{
 		handled = 0;
-		if (strcmp(argv[i], "<") == 0)
+		if (ft_strcmp(argv[i], "<") == 0)
 		{
 			if (!argv[i + 1])
 			{
@@ -50,7 +50,7 @@ int	setup_redirections(char ***argv_ptr)
 			remove_argv_element(argv, i);
 			handled = 1;
 		}
-		else if (strcmp(argv[i], ">") == 0)
+		else if (ft_strcmp(argv[i], ">") == 0)
 		{
 			if (!argv[i + 1])
 			{
@@ -65,7 +65,7 @@ int	setup_redirections(char ***argv_ptr)
 			remove_argv_element(argv, i);
 			handled = 1;
 		}
-		else if (strcmp(argv[i], ">>") == 0)
+		else if (ft_strcmp(argv[i], ">>") == 0)
 		{
 			if (!argv[i + 1])
 			{
@@ -80,7 +80,7 @@ int	setup_redirections(char ***argv_ptr)
 			remove_argv_element(argv, i);
 			handled = 1;
 		}
-		else if (strcmp(argv[i], "<<") == 0)
+		else if (ft_strcmp(argv[i], "<<") == 0)
 		{
 			if (!argv[i + 1])
 			{
