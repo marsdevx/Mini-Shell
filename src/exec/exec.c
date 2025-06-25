@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 22:15:41 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:31:23 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ char	**group_to_argv(t_group *grp)
 	while (current)
 	{
 		cmd = (t_command *)current->content;
-		argv[i] = strdup(cmd->arg);
+		argv[i] = ft_strdup(cmd->arg);
 		if (!argv[i])
 		{
 			while (--i >= 0)
@@ -139,7 +139,7 @@ int	execute_single_command(t_group *grp, t_exec_ctx *ctx)
 		status = 0;
 		goto cleanup;
 	}
-	if (strlen(argv[0]) == 0)
+	if (ft_strlen(argv[0]) == 0)
 	{
 		status = 0;
 		goto cleanup;

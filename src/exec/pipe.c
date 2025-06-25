@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 22:15:23 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:31:16 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 
 			int redir_status = setup_redirections(&argv);
 
-			if (!argv[0] || strlen(argv[0]) == 0)
+			if (!argv[0] || ft_strlen(argv[0]) == 0)
 			{
 				exit(0);
 			}

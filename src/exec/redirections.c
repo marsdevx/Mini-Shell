@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 22:15:31 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:32:25 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,19 +186,19 @@ int	handle_heredoc(const char *delimiter)
 	else if (pid == 0)
 	{
 		close(pipefd[0]);
-		delim_len = strlen(delimiter);
+		delim_len = ft_strlen(delimiter);
 		while (1)
 		{
 			line = readline("> ");
 			if (!line)
 				break ;
-			if (strncmp(line, delimiter, delim_len) == 0
+			if (ft_strncmp(line, delimiter, delim_len) == 0
 				&& line[delim_len] == '\0')
 			{
 				free(line);
 				break ;
 			}
-			write(pipefd[1], line, strlen(line));
+			write(pipefd[1], line, ft_strlen(line));
 			write(pipefd[1], "\n", 1);
 			free(line);
 		}
