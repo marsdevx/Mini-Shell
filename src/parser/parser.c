@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:47:40 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:50:07 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ char *ft_realloc(char *ptr, size_t new_size)
         len = ft_strlen(ptr);
         if (len >= new_size)
             len = new_size - 1;
-        memcpy(new_buf, ptr, len);
+        ft_memcpy(new_buf, ptr, len);
         free(ptr);
     }
     else
@@ -171,7 +171,7 @@ static char	*expand_word_env(const char *src)
 				char var[256];
 				if (vlen >= sizeof var)
 					vlen = sizeof var - 1;
-				memcpy(var, v, vlen);
+				ft_memcpy(var, v, vlen);
 				var[vlen] = '\0';
 
 				const char *val = getenv(var);
@@ -348,7 +348,7 @@ t_list	*tokens_to_groups(t_list *tok_lst)
 					return (NULL);
 				}
 				arg = tmp;
-				memcpy(arg + len, piece, plen);
+				ft_memcpy(arg + len, piece, plen);
 				len += plen;
 				arg[len] = '\0';
 				free(piece);
