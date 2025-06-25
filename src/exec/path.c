@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:41:07 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:42:40 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,12 +57,12 @@ char	*resolve_command_path(const char *cmd)
 	path_copy = ft_strdup(path_env);
 	if (!path_copy)
 		return (NULL);
-	dir = strtok(path_copy, ":");
+	dir = ft_strtok(path_copy, ":");
 	result = NULL;
 	while (dir && !result)
 	{
 		result = try_path(dir, cmd);
-		dir = strtok(NULL, ":");
+		dir = ft_strtok(NULL, ":");
 	}
 	free(path_copy);
 	return (result);
