@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   header.h                                           :+:      :+:    :+:   */
+/*   reader.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 18:33:23 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/24 19:27:40 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,5 @@
 # include "../parser/parser.h"
 # include "../reader/reader.h"
 # include "../utils/utils.h"
-extern t_list	*g_tokens;
-extern t_list	*g_groups;
-extern void	cleanup_global_memory(void);
-int		init_env(char **envp);
-void	cleanup_env(void);
-char	**get_env(void);
-int		ft_setenv(const char *name, const char *value, int overwrite);
-int		ft_unsetenv(const char *name);
-void	*ft_realloc(void *ptr, size_t old_size, size_t new_size);
 
 #endif
