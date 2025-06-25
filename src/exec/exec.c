@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 20:24:28 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 18:49:48 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,9 +93,7 @@ int	execute_commands(t_list *groups, char **envp, t_info *info)
 		tmp = tmp->next;
 	}
 	if (group_count > 1)
-	{
 		ctx.last_exit_status = execute_pipeline(groups, &ctx);
-	}
 	else if (groups)
 	{
 		grp = (t_group *)groups->content;
@@ -105,10 +103,9 @@ int	execute_commands(t_list *groups, char **envp, t_info *info)
 	close(ctx.stdout_backup);
 	info->last_exit_status = ctx.last_exit_status;
 	snprintf(exit_str, sizeof(exit_str), "%d", ctx.last_exit_status);
-	setenv("?", exit_str, 1);
+	ft_setenv("?", exit_str, 1);
 	return (ctx.last_exit_status);
 }
-
 int	execute_single_command(t_group *grp, t_exec_ctx *ctx)
 {
 	char	**argv;

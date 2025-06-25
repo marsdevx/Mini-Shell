@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 17:34:12 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/25 18:39:11 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void	process_input(char *line, t_info *info, char **envp)
 	tokens = lexer(line);
 	if (!tokens)
 	{
-		setenv("?", "2", 1);
+		ft_setenv("?", "2", 1);
 		info->last_exit_status = 2;
 		return ;
 	}
@@ -52,14 +52,14 @@ void	process_input(char *line, t_info *info, char **envp)
 		g_groups = groups;
 		exit_status = execute_commands(groups, envp, info);
 		snprintf(exit_str, sizeof(exit_str), "%d", exit_status);
-		setenv("?", exit_str, 1);
+		ft_setenv("?", exit_str, 1);
 		info->last_exit_status = exit_status;
 		free_groups(&groups);
 		g_groups = NULL;
 	}
 	else
 	{
-		setenv("?", "2", 1);
+		ft_setenv("?", "2", 1);
 		info->last_exit_status = 2;
 	}
 	ft_free_tokens(&tokens);
@@ -74,21 +74,24 @@ int	main(int argc, char *argv[], char *envp[])
 
 	(void)argc;
 	(void)argv;
+	if (init_env(envp) != 0)
+		return (EXIT_FAILURE);
 	if (ft_init(&info) != 0)
 	{
+		cleanup_env();
 		return (EXIT_FAILURE);
 	}
-	setenv("?", "0", 1);
+	ft_setenv("?", "0", 1);
 	if (!getenv("USER"))
 	{
 		user = getenv("LOGNAME");
 		if (user)
-			setenv("USER", user, 1);
+			ft_setenv("USER", user, 1);
 		else
-			setenv("USER", "user", 1);
+			ft_setenv("USER", "user", 1);
 	}
 	if (!getenv("HOME"))
-		setenv("HOME", "/home/user", 1);
+		ft_setenv("HOME", "/home/user", 1);
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_IGN);
 	while (info.exit_f)
@@ -100,11 +103,10 @@ int	main(int argc, char *argv[], char *envp[])
 			break ;
 		}
 		if (*line)
-		{
-			process_input(line, &info, envp);
-		}
+			process_input(line, &info, get_env());
 		free(line);
 	}
 	cleanup_global_memory();
+	cleanup_env();
 	return (info.last_exit_status);
 }
