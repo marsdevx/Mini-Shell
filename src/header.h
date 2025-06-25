@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 22:14:13 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 23:36:37 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <errno.h>
+#include <stddef.h>
 
 // Local Libs
 # include "../../libs/libft/libft.h"
@@ -136,5 +137,11 @@ void	ft_lstadd_back(t_list **lst, t_list *new);
 void	ft_free_tokens(t_list **tokens);
 char	*ft_strndup(const char *s, size_t n);
 int ft_setenv(const char *name, const char *value, int overwrite);
+char *ft_strcpy(char *dest, const char *src);
+char *ft_strncpy(char *dest, const char *src, size_t n);
+int ft_strcmp(const char *s1, const char *s2);
+char *ft_strcat(char *dest, const char *src);
+char *ft_strtok(char *str, const char *delim);
+long ft_strtol(const char *str, char **endptr, int base);
 
 #endif
