@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 17:13:46 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 21:51:55 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,13 +224,49 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 	return (ret);
 }
 
+int ft_unsetenv(const char *name)
+{
+		extern char **environ;
+    size_t  name_len;
+    int     i, j, count;
+    char  **new_env;
+
+    if (!name || !*name)
+        return 0;
+
+    name_len = ft_strlen(name);
+    for (count = 0; environ[count]; count++)
+        ;
+
+    new_env = malloc(sizeof(char *) * (count + 1));
+    if (!new_env)
+        return -1;
+
+    for (i = 0, j = 0; environ[i]; i++)
+    {
+        if (ft_strncmp(environ[i], name, name_len) == 0
+            && environ[i][name_len] == '=')
+        {
+            free(environ[i]);
+        }
+        else
+        {
+            new_env[j++] = environ[i];
+        }
+    }
+    new_env[j] = NULL;
+
+    environ = new_env;
+    return 0;
+}
+
 int	builtin_unset(char **args, t_exec_ctx *ctx)
 {
 	(void)ctx;
 	if (!args[1])
 		return (0);
 	for (int i = 1; args[i]; i++)
-		unsetenv(args[i]);
+		ft_unsetenv(args[i]);
 	return (0);
 }
 
