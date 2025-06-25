@@ -6,43 +6,11 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 20:20:43 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 20:29:02 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
-
-char *ft_realloc(char *ptr, size_t new_size)
-{
-    char    *new_buf;
-    size_t  len;
-
-    if (new_size == 0)
-    {
-        free(ptr);
-        return NULL;
-    }
-
-    new_buf = malloc(new_size);
-    if (!new_buf)
-        return NULL;
-
-    if (ptr)
-    {
-        len = strlen(ptr);
-        if (len >= new_size)
-            len = new_size - 1;
-        memcpy(new_buf, ptr, len);
-        free(ptr);
-    }
-    else
-    {
-        len = 0;
-    }
-
-    new_buf[len] = '\0';
-    return new_buf;
-}
 
 static int	is_redirect(t_e_type t)
 {
@@ -152,7 +120,7 @@ static char	*expand_word_env(const char *src)
 				if (need > cap)
 				{
 					cap = need * 2;
-					char *new_out = ft_realloc(out, cap);
+					char *new_out = realloc(out, cap);
 					if (!new_out)
 					{
 						free(out);
@@ -182,7 +150,7 @@ static char	*expand_word_env(const char *src)
 				if (need > cap)
 				{
 					cap = need * 2;
-					char *new_out = ft_realloc(out, cap);
+					char *new_out = realloc(out, cap);
 					if (!new_out)
 					{
 						free(out);
@@ -200,7 +168,7 @@ static char	*expand_word_env(const char *src)
 			if (len + 2 > cap)
 			{
 				cap *= 2;
-				char *new_out = ft_realloc(out, cap);
+				char *new_out = realloc(out, cap);
 				if (!new_out)
 				{
 					free(out);
@@ -216,7 +184,7 @@ static char	*expand_word_env(const char *src)
 			if (len + 2 > cap)
 			{
 				cap *= 2;
-				char *new_out = ft_realloc(out, cap);
+				char *new_out = realloc(out, cap);
 				if (!new_out)
 				{
 					free(out);
@@ -339,7 +307,7 @@ t_list	*tokens_to_groups(t_list *tok_lst)
 				}
 
 				size_t plen = strlen(piece);
-				char *tmp = ft_realloc(arg, len + plen + 1);
+				char *tmp = realloc(arg, len + plen + 1);
 				if (!tmp)
 				{
 					free_groups(&groups);
