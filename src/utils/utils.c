@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 20:24:55 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/26 16:43:00 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,19 @@ void	ft_free_tokens(t_list **tokens)
 	t_list	*next;
 	t_token	*token;
 
+	if (!tokens || !*tokens)
+		return ;
 	current = *tokens;
 	while (current)
 	{
 		next = current->next;
 		token = (t_token *)current->content;
-		free(token->value);
-		free(token);
+		if (token)
+		{
+			if (token->value)
+				free(token->value);
+			free(token);
+		}
 		free(current);
 		current = next;
 	}
@@ -63,11 +69,19 @@ void	ft_free_tokens(t_list **tokens)
 char	*ft_strndup(const char *s, size_t n)
 {
 	char	*dup;
+	size_t	i;
 
+	if (!s)
+		return (NULL);
 	dup = malloc(n + 1);
 	if (!dup)
 		return (NULL);
-	strncpy(dup, s, n);
-	dup[n] = '\0';
+	i = 0;
+	while (i < n && s[i])
+	{
+		dup[i] = s[i];
+		i++;
+	}
+	dup[i] = '\0';
 	return (dup);
 }
