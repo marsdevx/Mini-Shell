@@ -10,34 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../init/header.h"
+#ifndef EXEC_H
+# define EXEC_H
 
-char	*ft_readline(const char *prompt)
-{
-	char	*line;
+# include "../init/init.h"
 
-	line = readline(prompt);
-	if (line && *line)
-	{
-		add_history(line);
-	}
-	return (line);
-}
+int		execute_commands(t_list *groups, char **envp, t_info *info);
+int		execute_single_command(t_group *grp, t_exec_ctx *ctx);
+int		execute_external(char **args, t_exec_ctx *ctx);
+int		execute_pipeline(t_list *groups, t_exec_ctx *ctx);
+char	**group_to_argv(t_group *grp);
+void	free_argv(char **argv);
+char	*resolve_command_path(const char *cmd);
+int		setup_redirections(char ***args);
+int		handle_input_redirect(const char *filename);
+int		handle_output_redirect(const char *filename);
+int		handle_append_redirect(const char *filename);
+int		handle_heredoc(const char *delimiter);
+int		count_args(t_list *args);
 
-int	ft_init(t_info *info)
-{
-	info->exit_f = 1;
-	info->last_exit_status = 0;
-	return (0);
-}
-
-void	handle_sigint(int sig)
-{
-	if (sig == SIGINT)
-	{
-		printf("\n");
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-}
+#endif

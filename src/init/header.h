@@ -10,34 +10,28 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../init/header.h"
+#ifndef HEADER_H
+# define HEADER_H
 
-char	*ft_readline(const char *prompt)
-{
-	char	*line;
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <ctype.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+# include <signal.h>
+# include <sys/wait.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <errno.h>
 
-	line = readline(prompt);
-	if (line && *line)
-	{
-		add_history(line);
-	}
-	return (line);
-}
+# include "../builtin/builtin.h"
+# include "../exec/exec.h"
+# include "../lexer/lexer.h"
+# include "../parser/parser.h"
+# include "../reader/reader.h"
+# include "../utils/utils.h"
 
-int	ft_init(t_info *info)
-{
-	info->exit_f = 1;
-	info->last_exit_status = 0;
-	return (0);
-}
-
-void	handle_sigint(int sig)
-{
-	if (sig == SIGINT)
-	{
-		printf("\n");
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-}
+#endif

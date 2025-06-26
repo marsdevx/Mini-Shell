@@ -6,43 +6,11 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:50:07 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 21:09:03 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../header.h"
-
-char *ft_realloc(char *ptr, size_t new_size)
-{
-    char    *new_buf;
-    size_t  len;
-
-    if (new_size == 0)
-    {
-        free(ptr);
-        return NULL;
-    }
-
-    new_buf = malloc(new_size);
-    if (!new_buf)
-        return NULL;
-
-    if (ptr)
-    {
-        len = ft_strlen(ptr);
-        if (len >= new_size)
-            len = new_size - 1;
-        ft_memcpy(new_buf, ptr, len);
-        free(ptr);
-    }
-    else
-    {
-        len = 0;
-    }
-
-    new_buf[len] = '\0';
-    return new_buf;
-}
+#include "../init/header.h"
 
 static int	is_redirect(t_e_type t)
 {
@@ -62,7 +30,7 @@ t_command	*new_command(const char *arg)
 	c = malloc(sizeof *c);
 	if (!c)
 		return (NULL);
-	c->arg = ft_strdup(arg);
+	c->arg = strdup(arg);
 	if (!c->arg)
 	{
 		free(c);
@@ -128,7 +96,7 @@ void	free_groups(t_list **groups)
 static char	*expand_word_env(const char *src)
 {
 	const char *p = src;
-	size_t cap = ft_strlen(src) + 256;
+	size_t cap = strlen(src) + 256;
 	size_t len = 0;
 	char *out = malloc(cap);
 	if (!out)
@@ -136,7 +104,7 @@ static char	*expand_word_env(const char *src)
 
 	while (*p)
 	{
-		if (*p == '$' && (ft_isalpha((unsigned char)p[1]) || p[1] == '_'
+		if (*p == '$' && (isalpha((unsigned char)p[1]) || p[1] == '_'
 				|| p[1] == '?'))
 		{
 			const char *v = ++p;
@@ -148,11 +116,11 @@ static char	*expand_word_env(const char *src)
 				if (!val)
 					val = "0";
 
-				size_t need = len + ft_strlen(val) + 1;
+				size_t need = len + strlen(val) + 1;
 				if (need > cap)
 				{
 					cap = need * 2;
-					char *new_out = ft_realloc(out, cap);
+					char *new_out = realloc(out, cap);
 					if (!new_out)
 					{
 						free(out);
@@ -160,29 +128,29 @@ static char	*expand_word_env(const char *src)
 					}
 					out = new_out;
 				}
-				ft_strcpy(out + len, val);
-				len += ft_strlen(val);
+				strcpy(out + len, val);
+				len += strlen(val);
 			}
 			else
 			{
-				while (ft_isalnum((unsigned char)*p) || *p == '_')
+				while (isalnum((unsigned char)*p) || *p == '_')
 					++p;
 				size_t vlen = p - v;
 				char var[256];
 				if (vlen >= sizeof var)
 					vlen = sizeof var - 1;
-				ft_memcpy(var, v, vlen);
+				memcpy(var, v, vlen);
 				var[vlen] = '\0';
 
 				const char *val = getenv(var);
 				if (!val)
 					val = "";
 
-				size_t need = len + ft_strlen(val) + 1;
+				size_t need = len + strlen(val) + 1;
 				if (need > cap)
 				{
 					cap = need * 2;
-					char *new_out = ft_realloc(out, cap);
+					char *new_out = realloc(out, cap);
 					if (!new_out)
 					{
 						free(out);
@@ -190,17 +158,17 @@ static char	*expand_word_env(const char *src)
 					}
 					out = new_out;
 				}
-				ft_strcpy(out + len, val);
-				len += ft_strlen(val);
+				strcpy(out + len, val);
+				len += strlen(val);
 			}
 		}
-		else if (*p == '$' && !ft_isalpha((unsigned char)p[1]) && p[1] != '_'
+		else if (*p == '$' && !isalpha((unsigned char)p[1]) && p[1] != '_'
 			&& p[1] != '?')
 		{
 			if (len + 2 > cap)
 			{
 				cap *= 2;
-				char *new_out = ft_realloc(out, cap);
+				char *new_out = realloc(out, cap);
 				if (!new_out)
 				{
 					free(out);
@@ -216,7 +184,7 @@ static char	*expand_word_env(const char *src)
 			if (len + 2 > cap)
 			{
 				cap *= 2;
-				char *new_out = ft_realloc(out, cap);
+				char *new_out = realloc(out, cap);
 				if (!new_out)
 				{
 					free(out);
@@ -329,7 +297,7 @@ t_list	*tokens_to_groups(t_list *tok_lst)
 				if (tk2->type == EXP_FIELD || tk2->type == WORD)
 					piece = expand_word_env(tk2->value);
 				else
-					piece = ft_strdup(tk2->value);
+					piece = strdup(tk2->value);
 
 				if (!piece)
 				{
@@ -338,8 +306,8 @@ t_list	*tokens_to_groups(t_list *tok_lst)
 					return (NULL);
 				}
 
-				size_t plen = ft_strlen(piece);
-				char *tmp = ft_realloc(arg, len + plen + 1);
+				size_t plen = strlen(piece);
+				char *tmp = realloc(arg, len + plen + 1);
 				if (!tmp)
 				{
 					free_groups(&groups);
@@ -348,14 +316,14 @@ t_list	*tokens_to_groups(t_list *tok_lst)
 					return (NULL);
 				}
 				arg = tmp;
-				ft_memcpy(arg + len, piece, plen);
+				memcpy(arg + len, piece, plen);
 				len += plen;
 				arg[len] = '\0';
 				free(piece);
 				scan = scan->next;
 			}
 
-			if (ft_strlen(arg) > 0 || ((t_group *)groups->content)->argv == NULL)
+			if (strlen(arg) > 0 || ((t_group *)groups->content)->argv == NULL)
 			{
 				if (!add_argument(cur, arg))
 				{

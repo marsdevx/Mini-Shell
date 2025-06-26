@@ -10,34 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../init/header.h"
+#ifndef PARSER_H
+# define PARSER_H
 
-char	*ft_readline(const char *prompt)
-{
-	char	*line;
+# include "../init/init.h"
 
-	line = readline(prompt);
-	if (line && *line)
-	{
-		add_history(line);
-	}
-	return (line);
-}
+t_list	*parser(t_list *tokens);
+void	free_groups(t_list **groups);
 
-int	ft_init(t_info *info)
-{
-	info->exit_f = 1;
-	info->last_exit_status = 0;
-	return (0);
-}
-
-void	handle_sigint(int sig)
-{
-	if (sig == SIGINT)
-	{
-		printf("\n");
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-}
+#endif

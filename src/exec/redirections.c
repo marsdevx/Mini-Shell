@@ -6,11 +6,11 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:40:02 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/24 20:55:39 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../header.h"
+#include "../init/header.h"
 
 static void	remove_argv_element(char **argv, int index)
 {
@@ -35,7 +35,7 @@ int	setup_redirections(char ***argv_ptr)
 	while (argv[i])
 	{
 		handled = 0;
-		if (ft_strcmp(argv[i], "<") == 0)
+		if (strcmp(argv[i], "<") == 0)
 		{
 			if (!argv[i + 1])
 			{
@@ -50,7 +50,7 @@ int	setup_redirections(char ***argv_ptr)
 			remove_argv_element(argv, i);
 			handled = 1;
 		}
-		else if (ft_strcmp(argv[i], ">") == 0)
+		else if (strcmp(argv[i], ">") == 0)
 		{
 			if (!argv[i + 1])
 			{
@@ -65,7 +65,7 @@ int	setup_redirections(char ***argv_ptr)
 			remove_argv_element(argv, i);
 			handled = 1;
 		}
-		else if (ft_strcmp(argv[i], ">>") == 0)
+		else if (strcmp(argv[i], ">>") == 0)
 		{
 			if (!argv[i + 1])
 			{
@@ -80,7 +80,7 @@ int	setup_redirections(char ***argv_ptr)
 			remove_argv_element(argv, i);
 			handled = 1;
 		}
-		else if (ft_strcmp(argv[i], "<<") == 0)
+		else if (strcmp(argv[i], "<<") == 0)
 		{
 			if (!argv[i + 1])
 			{
@@ -186,19 +186,19 @@ int	handle_heredoc(const char *delimiter)
 	else if (pid == 0)
 	{
 		close(pipefd[0]);
-		delim_len = ft_strlen(delimiter);
+		delim_len = strlen(delimiter);
 		while (1)
 		{
 			line = readline("> ");
 			if (!line)
 				break ;
-			if (ft_strncmp(line, delimiter, delim_len) == 0
+			if (strncmp(line, delimiter, delim_len) == 0
 				&& line[delim_len] == '\0')
 			{
 				free(line);
 				break ;
 			}
-			write(pipefd[1], line, ft_strlen(line));
+			write(pipefd[1], line, strlen(line));
 			write(pipefd[1], "\n", 1);
 			free(line);
 		}

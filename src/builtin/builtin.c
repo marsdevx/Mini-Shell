@@ -6,11 +6,11 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 15:57:03 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/25 17:13:46 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../header.h"
+#include "../init/header.h"
 
 static const t_builtin	*get_builtin_table(void)
 {
@@ -28,7 +28,7 @@ int	is_builtin(const char *cmd)
 
 	for (int i = 0; builtins[i].name; i++)
 	{
-		if (ft_strcmp(cmd, builtins[i].name) == 0)
+		if (strcmp(cmd, builtins[i].name) == 0)
 			return (1);
 	}
 	return (0);
@@ -41,7 +41,7 @@ int	execute_builtin(char **args, t_exec_ctx *ctx)
 
 	for (int i = 0; builtins[i].name; i++)
 	{
-		if (ft_strcmp(args[0], builtins[i].name) == 0)
+		if (strcmp(args[0], builtins[i].name) == 0)
 		{
 			status = builtins[i].func(args, ctx);
 			ctx->last_exit_status = status;
@@ -55,11 +55,11 @@ static int	is_valid_identifier(const char *str)
 {
 	if (!str || !*str)
 		return (0);
-	if (!ft_isalpha((unsigned char)*str) && *str != '_')
+	if (!isalpha((unsigned char)*str) && *str != '_')
 		return (0);
 	for (const char *p = str + 1; *p; p++)
 	{
-		if (!ft_isalnum((unsigned char)*p) && *p != '_')
+		if (!isalnum((unsigned char)*p) && *p != '_')
 			return (0);
 	}
 	return (1);
@@ -85,7 +85,7 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 			return (1);
 		}
 	}
-	else if (ft_strcmp(args[1], "-") == 0)
+	else if (strcmp(args[1], "-") == 0)
 	{
 		path = getenv("OLDPWD");
 		if (!path)
@@ -119,7 +119,7 @@ int	builtin_echo(char **args, t_exec_ctx *ctx)
 	(void)ctx;
 	i = 1;
 	newline = 1;
-	while (args[i] && ft_strcmp(args[i], "-n") == 0)
+	while (args[i] && strcmp(args[i], "-n") == 0)
 	{
 		newline = 0;
 		i++;
@@ -186,7 +186,7 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 	}
 	for (int i = 1; args[i]; i++)
 	{
-		equals = ft_strchr(args[i], '=');
+		equals = strchr(args[i], '=');
 		if (equals)
 		{
 			*equals = '\0';
@@ -202,7 +202,7 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 			var_name = malloc(equals - args[i] + 1);
 			if (!var_name)
 				return (1);
-			ft_strncpy(var_name, args[i], equals - args[i]);
+			strncpy(var_name, args[i], equals - args[i]);
 			var_name[equals - args[i]] = '\0';
 			setenv(var_name, equals + 1, 1);
 			free(var_name);
@@ -224,49 +224,13 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 	return (ret);
 }
 
-int ft_unsetenv(const char *name)
-{
-		extern char **environ;
-    size_t  name_len;
-    int     i, j, count;
-    char  **new_env;
-
-    if (!name || !*name)
-        return 0;
-
-    name_len = ft_strlen(name);
-    for (count = 0; environ[count]; count++)
-        ;
-
-    new_env = malloc(sizeof(char *) * (count + 1));
-    if (!new_env)
-        return -1;
-
-    for (i = 0, j = 0; environ[i]; i++)
-    {
-        if (ft_strncmp(environ[i], name, name_len) == 0
-            && environ[i][name_len] == '=')
-        {
-            free(environ[i]);
-        }
-        else
-        {
-            new_env[j++] = environ[i];
-        }
-    }
-    new_env[j] = NULL;
-
-    environ = new_env;
-    return 0;
-}
-
 int	builtin_unset(char **args, t_exec_ctx *ctx)
 {
 	(void)ctx;
 	if (!args[1])
 		return (0);
 	for (int i = 1; args[i]; i++)
-		ft_unsetenv(args[i]);
+		unsetenv(args[i]);
 	return (0);
 }
 
@@ -282,7 +246,7 @@ int	builtin_exit(char **args, t_exec_ctx *ctx)
 	if (args[1])
 	{
 		char *endptr;
-		long val = ft_strtol(args[1], &endptr, 10);
+		long val = strtol(args[1], &endptr, 10);
 
 		if (*endptr != '\0')
 		{

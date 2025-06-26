@@ -10,34 +10,66 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../init/header.h"
+#ifndef INIT_H
+# define INIT_H
 
-char	*ft_readline(const char *prompt)
+typedef enum e_type
 {
-	char	*line;
+	WORD,
+	FIELD,
+	EXP_FIELD,
+	SEP,
+	PIPE,
+	REDIRECT_IN,
+	REDIRECT_OUT,
+	REDIRECT_APPEND,
+	HEREDOC
+}					t_e_type;
 
-	line = readline(prompt);
-	if (line && *line)
-	{
-		add_history(line);
-	}
-	return (line);
-}
-
-int	ft_init(t_info *info)
+typedef struct s_token
 {
-	info->exit_f = 1;
-	info->last_exit_status = 0;
-	return (0);
-}
+	t_e_type		type;
+	char			*value;
+	int				value_len;
+}					t_token;
 
-void	handle_sigint(int sig)
+typedef struct s_list
 {
-	if (sig == SIGINT)
-	{
-		printf("\n");
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-}
+	void			*content;
+	struct s_list	*next;
+}					t_list;
+
+typedef struct s_info
+{
+	int				exit_f;
+	int				last_exit_status;
+}					t_info;
+
+typedef struct s_command
+{
+	char			*arg;
+}					t_command;
+
+typedef struct s_group
+{
+	t_list			*argv;
+}					t_group;
+
+typedef struct s_exec_ctx
+{
+	int				stdin_backup;
+	int				stdout_backup;
+	int				last_exit_status;
+	char			**envp;
+	t_info			*info;
+}					t_exec_ctx;
+
+typedef int			(*t_builtin_func)(char **args, t_exec_ctx *ctx);
+
+typedef struct s_builtin
+{
+	char			*name;
+	t_builtin_func	func;
+}					t_builtin;
+
+#endif
