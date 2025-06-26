@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:26:37 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:28:49 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,4 +150,22 @@ char	*ft_strcpy(char *dst, const char *src)
 	}
 	dst[i] = '\0';
 	return (dst);
+}
+
+char	*ft_strcat(char *s1, const char *s2)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (s1[i] != '\0')
+		i++;
+	while (s2[j] != '\0')
+	{
+		s1[i + j] = s2[j];
+		j++;
+	}
+	s1[i + j] = '\0';
+	return (s1);
 }

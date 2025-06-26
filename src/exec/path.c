@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:26:00 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:29:07 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ static char	*try_path(const char *dir, const char *cmd)
 		return (NULL);
 	ft_strcpy(full_path, dir);
 	if (dir_len > 0 && dir[dir_len - 1] != '/')
-		strcat(full_path, "/");
-	strcat(full_path, cmd);
+		ft_strcat(full_path, "/");
+	ft_strcat(full_path, cmd);
 	if (access(full_path, X_OK) == 0)
 		return (full_path);
 	free(full_path);
