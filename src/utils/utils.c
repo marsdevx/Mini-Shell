@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 17:43:22 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:01:25 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,4 +105,17 @@ int ft_strcmp(const char *s1, const char *s2)
     
     // Return difference of characters (unsigned char cast prevents sign issues)
     return ((unsigned char)*s1 - (unsigned char)*s2);
+}
+
+void	write_error(const char *msg)
+{
+	write(STDERR_FILENO, msg, ft_strlen(msg));
+}
+
+// Helper function to write error with variable part
+void	write_error_with_arg(const char *prefix, const char *arg, const char *suffix)
+{
+	write(STDERR_FILENO, prefix, ft_strlen(prefix));
+	write(STDERR_FILENO, arg, ft_strlen(arg));
+	write(STDERR_FILENO, suffix, ft_strlen(suffix));
 }

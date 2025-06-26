@@ -6,11 +6,13 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 17:52:52 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:01:28 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
+
+// Helper function to write error messages to stderr
 
 static const t_builtin	*get_builtin_table(void)
 {
@@ -73,7 +75,7 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 	(void)ctx;
 	if (args[1] && args[2])
 	{
-		fprintf(stderr, "bash: cd: too many arguments\n");
+		write_error("bash: cd: too many arguments\n");
 		return (1);
 	}
 	if (!args[1])
@@ -81,7 +83,7 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 		path = getenv("HOME");
 		if (!path)
 		{
-			fprintf(stderr, "bash: cd: HOME not set\n");
+			write_error("bash: cd: HOME not set\n");
 			return (1);
 		}
 	}
@@ -90,7 +92,7 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 		path = getenv("OLDPWD");
 		if (!path)
 		{
-			fprintf(stderr, "bash: cd: OLDPWD not set\n");
+			write_error("bash: cd: OLDPWD not set\n");
 			return (1);
 		}
 		printf("%s\n", path);
@@ -103,7 +105,7 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 		setenv("OLDPWD", cwd, 1);
 	if (chdir(path) != 0)
 	{
-		fprintf(stderr, "bash: cd: %s: No such file or directory\n", path);
+		write_error_with_arg("bash: cd: ", path, ": No such file or directory\n");
 		return (1);
 	}
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
@@ -192,8 +194,7 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 			*equals = '\0';
 			if (!is_valid_identifier(args[i]))
 			{
-				fprintf(stderr, "bash: export: `%s': not a valid identifier\n",
-					args[i]);
+				write_error_with_arg("bash: export: `", args[i], "': not a valid identifier\n");
 				*equals = '=';
 				ret = 1;
 				continue ;
@@ -211,8 +212,7 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 		{
 			if (!is_valid_identifier(args[i]))
 			{
-				fprintf(stderr, "bash: export: `%s': not a valid identifier\n",
-					args[i]);
+				write_error_with_arg("bash: export: `", args[i], "': not a valid identifier\n");
 				ret = 1;
 				continue ;
 			}
@@ -241,7 +241,7 @@ int	builtin_exit(char **args, t_exec_ctx *ctx)
 	printf("exit\n");
 
 	if (args[1] && args[2])
-		fprintf(stderr, "bash: exit: too many arguments\n");
+		write_error("bash: exit: too many arguments\n");
 
 	if (args[1])
 	{
@@ -250,8 +250,7 @@ int	builtin_exit(char **args, t_exec_ctx *ctx)
 
 		if (*endptr != '\0')
 		{
-			fprintf(stderr, "bash: exit: %s: numeric argument required\n",
-				args[1]);
+			write_error_with_arg("bash: exit: ", args[1], ": numeric argument required\n");
 			exit_code = 2;
 		}
 		else

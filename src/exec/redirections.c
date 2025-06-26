@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 17:44:40 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:06:43 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int	setup_redirections(char ***argv_ptr)
 		{
 			if (!argv[i + 1])
 			{
-				fprintf(stderr, "syntax error: expected filename after '<'\n");
+				write_error("syntax error: expected filename after '<'\n");
 				return (-1);
 			}
 			if (handle_input_redirect(argv[i + 1]) < 0)
@@ -54,7 +54,7 @@ int	setup_redirections(char ***argv_ptr)
 		{
 			if (!argv[i + 1])
 			{
-				fprintf(stderr, "syntax error: expected filename after '>'\n");
+				write_error("syntax error: expected filename after '>'\n");
 				return (-1);
 			}
 			if (handle_output_redirect(argv[i + 1]) < 0)
@@ -69,7 +69,7 @@ int	setup_redirections(char ***argv_ptr)
 		{
 			if (!argv[i + 1])
 			{
-				fprintf(stderr, "syntax error: expected filename after '>>'\n");
+				write_error("syntax error: expected filename after '>>'\n");
 				return (-1);
 			}
 			if (handle_append_redirect(argv[i + 1]) < 0)
@@ -84,8 +84,7 @@ int	setup_redirections(char ***argv_ptr)
 		{
 			if (!argv[i + 1])
 			{
-				fprintf(stderr,
-					"syntax error: expected delimiter after '<<'\n");
+				write_error("syntax error: expected delimiter after '<<'\n");
 				return (-1);
 			}
 			if (handle_heredoc(argv[i + 1]) < 0)
@@ -109,7 +108,9 @@ int	handle_input_redirect(const char *filename)
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 	{
-		fprintf(stderr, "bash: %s: %s\n", filename, strerror(errno));
+		write_error_with_arg("bash: ", filename, ": ");
+		write_error(strerror(errno));
+		write_error("\n");
 		return (-1);
 	}
 	if (dup2(fd, STDIN_FILENO) < 0)
@@ -129,7 +130,9 @@ int	handle_output_redirect(const char *filename)
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
 	{
-		fprintf(stderr, "bash: %s: %s\n", filename, strerror(errno));
+		write_error_with_arg("bash: ", filename, ": ");
+		write_error(strerror(errno));
+		write_error("\n");
 		return (-1);
 	}
 	if (dup2(fd, STDOUT_FILENO) < 0)
@@ -149,7 +152,9 @@ int	handle_append_redirect(const char *filename)
 	fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0)
 	{
-		fprintf(stderr, "bash: %s: %s\n", filename, strerror(errno));
+		write_error_with_arg("bash: ", filename, ": ");
+		write_error(strerror(errno));
+		write_error("\n");
 		return (-1);
 	}
 	if (dup2(fd, STDOUT_FILENO) < 0)

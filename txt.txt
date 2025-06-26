@@ -1,0 +1,10 @@
+libs
+Makefile
+minishell
+minishell_tester-main
+obj
+sdgs
+src
+s.s
+temp
+txt.txt
