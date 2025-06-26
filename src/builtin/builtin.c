@@ -6,13 +6,11 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 20:06:06 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 20:47:32 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
-
-// Helper function to write error messages to stderr
 
 static const t_builtin	*get_builtin_table(void)
 {
@@ -72,7 +70,6 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 	char	*path;
 	char	cwd[1024];
 
-	(void)ctx;
 	if (args[1] && args[2])
 	{
 		write_error("bash: cd: too many arguments\n");
@@ -80,7 +77,7 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 	}
 	if (!args[1])
 	{
-		path = getenv("HOME");
+		path = get_env_value(ctx->info->env, "HOME");
 		if (!path)
 		{
 			write_error("bash: cd: HOME not set\n");
@@ -89,7 +86,7 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 	}
 	else if (ft_strcmp(args[1], "-") == 0)
 	{
-		path = getenv("OLDPWD");
+		path = get_env_value(ctx->info->env, "OLDPWD");
 		if (!path)
 		{
 			write_error("bash: cd: OLDPWD not set\n");
@@ -102,14 +99,14 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 		path = args[1];
 	}
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
-		setenv("OLDPWD", cwd, 1);
+		ctx->info->env = set_env_var(ctx->info->env, "OLDPWD", cwd, 1);
 	if (chdir(path) != 0)
 	{
 		write_error_with_arg("bash: cd: ", path, ": No such file or directory\n");
 		return (1);
 	}
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
-		setenv("PWD", cwd, 1);
+		ctx->info->env = set_env_var(ctx->info->env, "PWD", cwd, 1);
 	return (0);
 }
 
@@ -160,32 +157,38 @@ int	builtin_pwd(char **args, t_exec_ctx *ctx)
 
 int	builtin_env(char **args, t_exec_ctx *ctx)
 {
-	extern char	**environ;
+	int i;
 
 	(void)args;
-	(void)ctx;
-	for (int i = 0; environ[i]; i++)
-		printf("%s\n", environ[i]);
+	i = 0;
+	while (ctx->info->env[i])
+	{
+		printf("%s\n", ctx->info->env[i]);
+		i++;
+	}
 	return (0);
 }
 
 int	builtin_export(char **args, t_exec_ctx *ctx)
 {
 	int			ret;
-	extern char	**environ;
 	char		*equals;
 	char		*var_name;
 	char		*value;
+	int			i;
 
-	(void)ctx;
 	ret = 0;
 	if (!args[1])
 	{
-		for (int i = 0; environ[i]; i++)
-			printf("declare -x %s\n", environ[i]);
+		i = 0;
+		while (ctx->info->env[i])
+		{
+			printf("declare -x %s\n", ctx->info->env[i]);
+			i++;
+		}
 		return (0);
 	}
-	for (int i = 1; args[i]; i++)
+	for (i = 1; args[i]; i++)
 	{
 		equals = ft_strchr(args[i], '=');
 		if (equals)
@@ -204,7 +207,7 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 				return (1);
 			ft_strncpy(var_name, args[i], equals - args[i]);
 			var_name[equals - args[i]] = '\0';
-			setenv(var_name, equals + 1, 1);
+			ctx->info->env = set_env_var(ctx->info->env, var_name, equals + 1, 1);
 			free(var_name);
 		}
 		else
@@ -215,9 +218,9 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 				ret = 1;
 				continue ;
 			}
-			value = getenv(args[i]);
+			value = get_env_value(ctx->info->env, args[i]);
 			if (value)
-				setenv(args[i], value, 1);
+				ctx->info->env = set_env_var(ctx->info->env, args[i], value, 1);
 		}
 	}
 	return (ret);
@@ -225,15 +228,6 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 
 int builtin_unset(char **args, t_exec_ctx *ctx)
 {
-    extern char **environ;
-    char **src;
-    char **dst;
-    int skip;
-
-	size_t arg_len;
-    
-    (void)ctx;
-    
     if (!args[1])
         return (0);
     
@@ -243,33 +237,7 @@ int builtin_unset(char **args, t_exec_ctx *ctx)
         if (!is_valid_identifier(args[i]))
             continue;
             
-        src = environ;
-        dst = environ;
-        
-        // Compact the environment array by removing matching entries
-        while (*src)
-        {
-            skip = 0;
-            arg_len = ft_strlen(args[i]);
-            
-            // Check if this environment variable matches
-            if (ft_strncmp(*src, args[i], arg_len) == 0 &&
-                ((*src)[arg_len] == '=' || (*src)[arg_len] == '\0'))
-            {
-                skip = 1;
-            }
-            
-            if (!skip)
-            {
-                if (src != dst)
-                    *dst = *src;
-                dst++;
-            }
-            src++;
-        }
-        
-        // Null terminate the compacted array
-        *dst = NULL;
+        ctx->info->env = unset_env_var(ctx->info->env, args[i]);
     }
     
     return (0);
@@ -310,7 +278,6 @@ int is_valid_number(char *str)
     return (1);
 }
 
-
 int builtin_exit(char **args, t_exec_ctx *ctx)
 {
     int exit_code = ctx->last_exit_status;
@@ -335,4 +302,3 @@ int builtin_exit(char **args, t_exec_ctx *ctx)
     ctx->info->last_exit_status = exit_code;
     return (exit_code);
 }
-

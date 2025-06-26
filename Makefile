@@ -7,7 +7,7 @@ OBJDIR = obj
 LIBFTDIR = libs/libft
 
 SRC_BUILTIN = builtin/builtin.c
-SRC_EXEC = exec/exec.c exec/external.c exec/path.c exec/redirections.c exec/pipe.c
+SRC_EXEC = exec/exec.c exec/external.c exec/path.c exec/redirections.c exec/pipe.c exec/env_utils.c
 SRC_INIT = init/main.c
 SRC_LEXER = lexer/lexer.c 
 SRC_PARSER = parser/parser.c

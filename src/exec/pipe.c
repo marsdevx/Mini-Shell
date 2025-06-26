@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:48:07 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 20:48:06 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 			}
 			else
 			{
-				char *cmd_path = resolve_command_path(argv[0]);
+				char *cmd_path = resolve_command_path(argv[0], ctx->info->env);
 				if (!cmd_path)
 				{
 					write_error_with_arg("bash: ", argv[0], ": command not found\n");
@@ -168,7 +168,7 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 					exit(126);
 				}
 
-				execve(cmd_path, argv, ctx->envp);
+				execve(cmd_path, argv, ctx->info->env);
 				perror(argv[0]);
 				exit(126);
 			}

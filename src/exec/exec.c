@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:58:12 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 20:46:43 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	free_argv(char **argv)
 	free(argv);
 }
 
-int	execute_commands(t_list *groups, char **envp, t_info *info)
+int	execute_commands(t_list *groups, t_info *info)
 {
 	t_exec_ctx	ctx;
 	int			group_count;
@@ -77,14 +77,15 @@ int	execute_commands(t_list *groups, char **envp, t_info *info)
 	ctx.stdin_backup = dup(STDIN_FILENO);
 	ctx.stdout_backup = dup(STDOUT_FILENO);
 	ctx.last_exit_status = info->last_exit_status;
-	ctx.envp = envp;
 	ctx.info = info;
+	
 	if (!groups)
 	{
 		close(ctx.stdin_backup);
 		close(ctx.stdout_backup);
 		return (info->last_exit_status);
 	}
+	
 	group_count = 0;
 	tmp = groups;
 	while (tmp)
@@ -92,6 +93,7 @@ int	execute_commands(t_list *groups, char **envp, t_info *info)
 		group_count++;
 		tmp = tmp->next;
 	}
+	
 	if (group_count > 1)
 	{
 		ctx.last_exit_status = execute_pipeline(groups, &ctx);
@@ -101,15 +103,18 @@ int	execute_commands(t_list *groups, char **envp, t_info *info)
 		grp = (t_group *)groups->content;
 		ctx.last_exit_status = execute_single_command(grp, &ctx);
 	}
+	
 	close(ctx.stdin_backup);
 	close(ctx.stdout_backup);
 	info->last_exit_status = ctx.last_exit_status;
+	
 	exit_str = ft_itoa(ctx.last_exit_status);
 	if (exit_str)
 	{
-		setenv("?", exit_str, 1);
+		info->env = set_env_var(info->env, "?", exit_str, 1);
 		free(exit_str);
 	}
+	
 	return (ctx.last_exit_status);
 }
 

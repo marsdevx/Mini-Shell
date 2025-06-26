@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:08:40 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 20:47:05 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	execute_external(char **args, t_exec_ctx *ctx)
 	pid_t		pid;
 	int			status;
 
-	cmd_path = resolve_command_path(args[0]);
+	cmd_path = resolve_command_path(args[0], ctx->info->env);
 	if (!cmd_path)
 	{
 		write_error_with_arg("bash: ", args[0], ": command not found\n");
@@ -48,7 +48,7 @@ int	execute_external(char **args, t_exec_ctx *ctx)
 	{
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
-		execve(cmd_path, args, ctx->envp);
+		execve(cmd_path, args, ctx->info->env);
 		perror(args[0]);
 		exit(126);
 	}

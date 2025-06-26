@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:28:55 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 20:51:00 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,10 @@ typedef struct s_list
 
 typedef struct s_info
 {
-	int				exit_f;
-	int				last_exit_status;
-}					t_info;
+    int     exit_f;
+    int     last_exit_status;
+    char    **env;  // Add this line to store environment
+}   t_info;
 
 typedef struct s_command
 {
@@ -77,12 +78,12 @@ typedef struct s_group
 
 typedef struct s_exec_ctx
 {
-	int				stdin_backup;
-	int				stdout_backup;
-	int				last_exit_status;
-	char			**envp;
-	t_info			*info;
-}					t_exec_ctx;
+    int     stdin_backup;
+    int     stdout_backup;
+    int     last_exit_status;
+    char    **envp;  // Remove this - will use info->env instead
+    t_info  *info;
+}   t_exec_ctx;
 
 typedef int			(*t_builtin_func)(char **args, t_exec_ctx *ctx);
 
@@ -104,13 +105,13 @@ int	builtin_env(char **args, t_exec_ctx *ctx);
 int	builtin_exit(char **args, t_exec_ctx *ctx);
 
 // exec.h
-int		execute_commands(t_list *groups, char **envp, t_info *info);
+int	execute_commands(t_list *groups, t_info *info);
 int		execute_single_command(t_group *grp, t_exec_ctx *ctx);
 int		execute_external(char **args, t_exec_ctx *ctx);
 int		execute_pipeline(t_list *groups, t_exec_ctx *ctx);
 char	**group_to_argv(t_group *grp);
 void	free_argv(char **argv);
-char	*resolve_command_path(const char *cmd);
+char	*resolve_command_path(const char *cmd, char **env);
 int		setup_redirections(char ***args);
 int		handle_input_redirect(const char *filename);
 int		handle_output_redirect(const char *filename);
@@ -123,7 +124,7 @@ int		quotes_check(char *input);
 t_list	*lexer(char *input);
 
 // parser.h
-t_list	*parser(t_list *tokens);
+t_list	*parser(t_list *tokens, char **env);
 void	free_groups(t_list **groups);
 
 // reader.h
@@ -142,6 +143,11 @@ void	write_error_with_arg(const char *prefix, const char *arg, const char *suffi
 char	*ft_strncpy(char *dest, const char *src, size_t n);
 char	*ft_strcpy(char *dst, const char *src);
 char	*ft_strcat(char *s1, const char *s2);
+char    **init_env_copy(char **envp);
+void    free_env_copy(char **env);
+char    **set_env_var(char **env, const char *name, const char *value, int overwrite);
+char    **unset_env_var(char **env, const char *name);
+char    *get_env_value(char **env, const char *name);
 
 
 #endif

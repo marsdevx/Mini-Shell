@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 16:52:55 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 20:47:44 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,19 +100,19 @@ void	free_groups(t_list **groups)
 	}
 }
 
-static char	*expand_env_var(const char *var_name)
+static char	*expand_env_var(const char *var_name, char **env)
 {
 	const char	*val;
 
 	if (ft_strncmp(var_name, "?", 2) == 0)
 	{
-		val = getenv("?");
+		val = get_env_value(env, "?");
 		if (!val)
 			val = "0";
 	}
 	else
 	{
-		val = getenv(var_name);
+		val = get_env_value(env, var_name);
 		if (!val)
 			val = "";
 	}
@@ -173,7 +173,7 @@ static char	*join_strings(char *s1, char *s2)
 	return (result);
 }
 
-static char	*expand_word_env(const char *src)
+static char	*expand_word_env(const char *src, char **env)
 {
 	const char	*p;
 	char		*result;
@@ -198,7 +198,7 @@ static char	*expand_word_env(const char *src)
 				free(result);
 				return (NULL);
 			}
-			var_value = expand_env_var(var_name);
+			var_value = expand_env_var(var_name, env);
 			free(var_name);
 			if (!var_value)
 			{
@@ -284,7 +284,7 @@ static int	handle_redirect(t_token *tk, t_list *tok_lst, t_group **cur, t_list *
 	return (add_argument(*cur, tk->value));
 }
 
-static char	*concatenate_text_tokens(t_list **scan)
+static char	*concatenate_text_tokens(t_list **scan, char **env)
 {
 	char	*arg;
 	char	*piece;
@@ -298,7 +298,7 @@ static char	*concatenate_text_tokens(t_list **scan)
 	{
 		tk2 = (*scan)->content;
 		if (tk2->type == EXP_FIELD || tk2->type == WORD)
-			piece = expand_word_env(tk2->value);
+			piece = expand_word_env(tk2->value, env);
 		else
 			piece = ft_strdup(tk2->value);
 		if (!piece)
@@ -317,7 +317,7 @@ static char	*concatenate_text_tokens(t_list **scan)
 	return (arg);
 }
 
-static int	handle_text(t_list **tok_lst, t_group **cur, t_list **groups)
+static int	handle_text(t_list **tok_lst, t_group **cur, t_list **groups, char **env)
 {
 	char	*arg;
 	t_list	*scan;
@@ -337,7 +337,7 @@ static int	handle_text(t_list **tok_lst, t_group **cur, t_list **groups)
 		ft_lstadd_back(groups, group_node);
 	}
 	scan = *tok_lst;
-	arg = concatenate_text_tokens(&scan);
+	arg = concatenate_text_tokens(&scan, env);
 	if (!arg)
 		return (0);
 	if (ft_strlen(arg) > 0 || (*groups && ((t_group *)(*groups)->content)->argv == NULL))
@@ -353,7 +353,7 @@ static int	handle_text(t_list **tok_lst, t_group **cur, t_list **groups)
 	return (1);
 }
 
-t_list	*tokens_to_groups(t_list *tok_lst)
+t_list	*tokens_to_groups(t_list *tok_lst, char **env)
 {
 	t_list	*groups;
 	t_group	*cur;
@@ -384,7 +384,7 @@ t_list	*tokens_to_groups(t_list *tok_lst)
 		}
 		else if (is_text(tk->type))
 		{
-			if (!handle_text(&tok_lst, &cur, &groups))
+			if (!handle_text(&tok_lst, &cur, &groups, env))
 			{
 				free_groups(&groups);
 				return (NULL);
@@ -396,13 +396,13 @@ t_list	*tokens_to_groups(t_list *tok_lst)
 	return (groups);
 }
 
-t_list	*parser(t_list *tokens)
+t_list	*parser(t_list *tokens, char **env)
 {
 	t_list	*groups;
 
 	if (!tokens)
 		return (NULL);
-	groups = tokens_to_groups(tokens);
+	groups = tokens_to_groups(tokens, env);
 	if (!groups)
 		return (NULL);
 	return (groups);

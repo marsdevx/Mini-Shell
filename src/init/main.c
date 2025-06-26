@@ -6,13 +6,13 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:55:59 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 20:47:54 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
 
-void	process_input(char *line, t_info *info, char **envp)
+void	process_input(char *line, t_info *info)
 {
 	t_list	*tokens;
 	t_list	*groups;
@@ -24,18 +24,18 @@ void	process_input(char *line, t_info *info, char **envp)
 	tokens = lexer(line);
 	if (!tokens)
 	{
-		setenv("?", "2", 1);
+		info->env = set_env_var(info->env, "?", "2", 1);
 		info->last_exit_status = 2;
 		return ;
 	}
-	groups = parser(tokens);
+	groups = parser(tokens, info->env);
 	if (groups)
 	{
-		exit_status = execute_commands(groups, envp, info);
+		exit_status = execute_commands(groups, info);
 		exit_str = ft_itoa(exit_status);
 		if (exit_str)
 		{
-			setenv("?", exit_str, 1);
+			info->env = set_env_var(info->env, "?", exit_str, 1);
 			free(exit_str);
 		}
 		info->last_exit_status = exit_status;
@@ -43,7 +43,7 @@ void	process_input(char *line, t_info *info, char **envp)
 	}
 	else
 	{
-		setenv("?", "2", 1);
+		info->env = set_env_var(info->env, "?", "2", 1);
 		info->last_exit_status = 2;
 	}
 	ft_free_tokens(&tokens);
@@ -57,23 +57,34 @@ int	main(int argc, char *argv[], char *envp[])
 
 	(void)argc;
 	(void)argv;
+	
+	// Initialize info structure
 	if (ft_init(&info) != 0)
-	{
 		return (EXIT_FAILURE);
-	}
-	setenv("?", "0", 1);
-	if (!getenv("USER"))
+	
+	// Initialize environment copy
+	info.env = init_env_copy(envp);
+	if (!info.env)
+		return (EXIT_FAILURE);
+	
+	// Set initial environment variables
+	info.env = set_env_var(info.env, "?", "0", 1);
+	
+	if (!get_env_value(info.env, "USER"))
 	{
-		user = getenv("LOGNAME");
+		user = get_env_value(info.env, "LOGNAME");
 		if (user)
-			setenv("USER", user, 1);
+			info.env = set_env_var(info.env, "USER", user, 1);
 		else
-			setenv("USER", "user", 1);
+			info.env = set_env_var(info.env, "USER", "user", 1);
 	}
-	if (!getenv("HOME"))
-		setenv("HOME", "/home/user", 1);
+	
+	if (!get_env_value(info.env, "HOME"))
+		info.env = set_env_var(info.env, "HOME", "/home/user", 1);
+	
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_IGN);
+	
 	while (info.exit_f)
 	{
 		line = ft_readline("minishell> ");
@@ -84,9 +95,13 @@ int	main(int argc, char *argv[], char *envp[])
 		}
 		if (*line)
 		{
-			process_input(line, &info, envp);
+			process_input(line, &info);
 		}
 		free(line);
 	}
+	
+	// Clean up environment
+	free_env_copy(info.env);
+	
 	return (info.last_exit_status);
 }
