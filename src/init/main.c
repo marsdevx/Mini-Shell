@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 19:53:43 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/26 18:55:59 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	process_input(char *line, t_info *info, char **envp)
 	t_list	*tokens;
 	t_list	*groups;
 	int		exit_status;
-	char	exit_str[16];
+	char	*exit_str;
 
 	if (!line || *line == '\0')
 		return ;
@@ -32,8 +32,12 @@ void	process_input(char *line, t_info *info, char **envp)
 	if (groups)
 	{
 		exit_status = execute_commands(groups, envp, info);
-		snprintf(exit_str, sizeof(exit_str), "%d", exit_status);
-		setenv("?", exit_str, 1);
+		exit_str = ft_itoa(exit_status);
+		if (exit_str)
+		{
+			setenv("?", exit_str, 1);
+			free(exit_str);
+		}
 		info->last_exit_status = exit_status;
 		free_groups(&groups);
 	}

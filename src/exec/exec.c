@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:48:04 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:58:12 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ int	execute_commands(t_list *groups, char **envp, t_info *info)
 	int			group_count;
 	t_list		*tmp;
 	t_group		*grp;
-	char		exit_str[16];
+	char		*exit_str;
 
 	ctx.stdin_backup = dup(STDIN_FILENO);
 	ctx.stdout_backup = dup(STDOUT_FILENO);
@@ -104,8 +104,12 @@ int	execute_commands(t_list *groups, char **envp, t_info *info)
 	close(ctx.stdin_backup);
 	close(ctx.stdout_backup);
 	info->last_exit_status = ctx.last_exit_status;
-	snprintf(exit_str, sizeof(exit_str), "%d", ctx.last_exit_status);
-	setenv("?", exit_str, 1);
+	exit_str = ft_itoa(ctx.last_exit_status);
+	if (exit_str)
+	{
+		setenv("?", exit_str, 1);
+		free(exit_str);
+	}
 	return (ctx.last_exit_status);
 }
 
