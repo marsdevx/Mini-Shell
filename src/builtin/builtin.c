@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 17:44:37 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 17:52:52 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,11 @@ static int	is_valid_identifier(const char *str)
 {
 	if (!str || !*str)
 		return (0);
-	if (!isalpha((unsigned char)*str) && *str != '_')
+	if (!ft_isalpha((unsigned char)*str) && *str != '_')
 		return (0);
 	for (const char *p = str + 1; *p; p++)
 	{
-		if (!isalnum((unsigned char)*p) && *p != '_')
+		if (!ft_isalnum((unsigned char)*p) && *p != '_')
 			return (0);
 	}
 	return (1);
