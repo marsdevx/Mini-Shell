@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:34:14 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:41:07 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,33 +233,64 @@ int	builtin_unset(char **args, t_exec_ctx *ctx)
 	return (0);
 }
 
-int	builtin_exit(char **args, t_exec_ctx *ctx)
+int is_valid_number(char *str)
 {
-	int exit_code = ctx->last_exit_status;
-
-	printf("exit\n");
-
-	if (args[1] && args[2])
-		write_error("bash: exit: too many arguments\n");
-
-	if (args[1])
-	{
-		char *endptr;
-		long val = strtol(args[1], &endptr, 10);
-
-		if (*endptr != '\0')
-		{
-			write_error_with_arg("bash: exit: ", args[1], ": numeric argument required\n");
-			exit_code = 2;
-		}
-		else
-		{
-			exit_code = ((val % 256) + 256) % 256;
-		}
-	}
-
-	ctx->info->exit_f = 0;
-	ctx->info->last_exit_status = exit_code;
-
-	return (exit_code);
+    int i = 0;
+    
+    if (!str || !*str)
+        return (0);
+    
+    // Skip leading whitespace
+    while (str[i] == ' ' || str[i] == '\t')
+        i++;
+    
+    // Handle optional sign
+    if (str[i] == '+' || str[i] == '-')
+        i++;
+    
+    // Must have at least one digit
+    if (!str[i])
+        return (0);
+    
+    // Check all remaining characters are digits
+    while (str[i])
+    {
+        if (str[i] < '0' || str[i] > '9')
+        {
+            // Skip trailing whitespace
+            while (str[i] == ' ' || str[i] == '\t')
+                i++;
+            // If we're not at end of string, it's invalid
+            return (str[i] == '\0');
+        }
+        i++;
+    }
+    return (1);
 }
+
+
+int builtin_exit(char **args, t_exec_ctx *ctx)
+{
+    int exit_code = ctx->last_exit_status;
+    
+    printf("exit\n");
+    if (args[1] && args[2])
+        write_error("bash: exit: too many arguments\n");
+    if (args[1])
+    {
+        if (!is_valid_number(args[1]))
+        {
+            write_error_with_arg("bash: exit: ", args[1], ": numeric argument required\n");
+            exit_code = 2;
+        }
+        else
+        {
+            long val = ft_atoi(args[1]);
+            exit_code = ((val % 256) + 256) % 256;
+        }
+    }
+    ctx->info->exit_f = 0;
+    ctx->info->last_exit_status = exit_code;
+    return (exit_code);
+}
+
