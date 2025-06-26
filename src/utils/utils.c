@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 17:02:46 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 17:43:22 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,4 +84,25 @@ char	*ft_strndup(const char *s, size_t n)
 	}
 	dup[i] = '\0';
 	return (dup);
+}
+
+int ft_strcmp(const char *s1, const char *s2)
+{
+    // Memory safety checks
+    if (s1 == NULL && s2 == NULL)
+        return (0);     // Both NULL, considered equal
+    if (s1 == NULL)
+        return (INT_MIN); // s1 is NULL, s2 is not
+    if (s2 == NULL)
+        return (INT_MAX); // s2 is NULL, s1 is not
+    
+    // Compare characters until difference found or end reached
+    while (*s1 && (*s1 == *s2))
+    {
+        s1++;
+        s2++;
+    }
+    
+    // Return difference of characters (unsigned char cast prevents sign issues)
+    return ((unsigned char)*s1 - (unsigned char)*s2);
 }

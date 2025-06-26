@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 17:13:46 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/26 17:44:37 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	is_builtin(const char *cmd)
 
 	for (int i = 0; builtins[i].name; i++)
 	{
-		if (strcmp(cmd, builtins[i].name) == 0)
+		if (ft_strcmp(cmd, builtins[i].name) == 0)
 			return (1);
 	}
 	return (0);
@@ -41,7 +41,7 @@ int	execute_builtin(char **args, t_exec_ctx *ctx)
 
 	for (int i = 0; builtins[i].name; i++)
 	{
-		if (strcmp(args[0], builtins[i].name) == 0)
+		if (ft_strcmp(args[0], builtins[i].name) == 0)
 		{
 			status = builtins[i].func(args, ctx);
 			ctx->last_exit_status = status;
@@ -85,7 +85,7 @@ int	builtin_cd(char **args, t_exec_ctx *ctx)
 			return (1);
 		}
 	}
-	else if (strcmp(args[1], "-") == 0)
+	else if (ft_strcmp(args[1], "-") == 0)
 	{
 		path = getenv("OLDPWD");
 		if (!path)
@@ -119,7 +119,7 @@ int	builtin_echo(char **args, t_exec_ctx *ctx)
 	(void)ctx;
 	i = 1;
 	newline = 1;
-	while (args[i] && strcmp(args[i], "-n") == 0)
+	while (args[i] && ft_strcmp(args[i], "-n") == 0)
 	{
 		newline = 0;
 		i++;
