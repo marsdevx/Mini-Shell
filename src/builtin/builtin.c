@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:41:07 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 20:06:06 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,14 +223,56 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 	return (ret);
 }
 
-int	builtin_unset(char **args, t_exec_ctx *ctx)
+int builtin_unset(char **args, t_exec_ctx *ctx)
 {
-	(void)ctx;
-	if (!args[1])
-		return (0);
-	for (int i = 1; args[i]; i++)
-		unsetenv(args[i]);
-	return (0);
+    extern char **environ;
+    char **src;
+    char **dst;
+    int skip;
+
+	size_t arg_len;
+    
+    (void)ctx;
+    
+    if (!args[1])
+        return (0);
+    
+    // Process each variable to unset
+    for (int i = 1; args[i]; i++)
+    {
+        if (!is_valid_identifier(args[i]))
+            continue;
+            
+        src = environ;
+        dst = environ;
+        
+        // Compact the environment array by removing matching entries
+        while (*src)
+        {
+            skip = 0;
+            arg_len = ft_strlen(args[i]);
+            
+            // Check if this environment variable matches
+            if (ft_strncmp(*src, args[i], arg_len) == 0 &&
+                ((*src)[arg_len] == '=' || (*src)[arg_len] == '\0'))
+            {
+                skip = 1;
+            }
+            
+            if (!skip)
+            {
+                if (src != dst)
+                    *dst = *src;
+                dst++;
+            }
+            src++;
+        }
+        
+        // Null terminate the compacted array
+        *dst = NULL;
+    }
+    
+    return (0);
 }
 
 int is_valid_number(char *str)
