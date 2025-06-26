@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:21:57 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:48:04 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,7 @@ int	execute_single_command(t_group *grp, t_exec_ctx *ctx)
 		status = 0;
 		goto cleanup;
 	}
-	if (strlen(argv[0]) == 0)
+	if (ft_strlen(argv[0]) == 0)
 	{
 		status = 0;
 		goto cleanup;

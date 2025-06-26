@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:31:12 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:48:10 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,7 @@ int	handle_heredoc(const char *delimiter)
 	else if (pid == 0)
 	{
 		close(pipefd[0]);
-		delim_len = strlen(delimiter);
+		delim_len = ft_strlen(delimiter);
 		while (1)
 		{
 			line = readline("> ");
@@ -203,7 +203,7 @@ int	handle_heredoc(const char *delimiter)
 				free(line);
 				break ;
 			}
-			write(pipefd[1], line, strlen(line));
+			write(pipefd[1], line, ft_strlen(line));
 			write(pipefd[1], "\n", 1);
 			free(line);
 		}
