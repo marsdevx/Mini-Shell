@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:01:28 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:14:01 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,7 +203,7 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 			var_name = malloc(equals - args[i] + 1);
 			if (!var_name)
 				return (1);
-			strncpy(var_name, args[i], equals - args[i]);
+			ft_strncpy(var_name, args[i], equals - args[i]);
 			var_name[equals - args[i]] = '\0';
 			setenv(var_name, equals + 1, 1);
 			free(var_name);

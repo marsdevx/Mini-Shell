@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:01:25 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:13:38 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,4 +118,22 @@ void	write_error_with_arg(const char *prefix, const char *arg, const char *suffi
 	write(STDERR_FILENO, prefix, ft_strlen(prefix));
 	write(STDERR_FILENO, arg, ft_strlen(arg));
 	write(STDERR_FILENO, suffix, ft_strlen(suffix));
+}
+
+char	*ft_strncpy(char *dest, const char *src, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < n && src[i] != '\0')
+	{
+		dest[i] = src[i];
+		i++;
+	}
+	while (i < n)
+	{
+		dest[i] = '\0';
+		i++;
+	}
+	return (dest);
 }
