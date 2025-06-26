@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   external.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 20:24:33 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/26 18:08:40 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,18 @@ int	execute_external(char **args, t_exec_ctx *ctx)
 	cmd_path = resolve_command_path(args[0]);
 	if (!cmd_path)
 	{
-		fprintf(stderr, "bash: %s: command not found\n", args[0]);
+		write_error_with_arg("bash: ", args[0], ": command not found\n");
 		return (127);
 	}
 	if (stat(cmd_path, &st) == 0 && S_ISDIR(st.st_mode))
 	{
-		fprintf(stderr, "bash: %s: Is a directory\n", args[0]);
+		write_error_with_arg("bash: ", args[0], ": Is a directory\n");
 		free(cmd_path);
 		return (126);
 	}
 	if (access(cmd_path, X_OK) != 0 && access(cmd_path, F_OK) == 0)
 	{
-		fprintf(stderr, "bash: %s: Permission denied\n", args[0]);
+		write_error_with_arg("bash: ", args[0], ": Permission denied\n");
 		free(cmd_path);
 		return (126);
 	}
