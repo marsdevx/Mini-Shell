@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 23:31:23 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/26 15:54:04 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ int	execute_commands(t_list *groups, char **envp, t_info *info)
 	close(ctx.stdout_backup);
 	info->last_exit_status = ctx.last_exit_status;
 	snprintf(exit_str, sizeof(exit_str), "%d", ctx.last_exit_status);
-	ft_setenv("?", exit_str, 1);
+	setenv("?", exit_str, 1);
 	return (ctx.last_exit_status);
 }
 

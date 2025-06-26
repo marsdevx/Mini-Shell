@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/25 22:15:25 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/26 15:54:00 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	process_input(char *line, t_info *info, char **envp)
 	tokens = lexer(line);
 	if (!tokens)
 	{
-		ft_setenv("?", "2", 1);
+		setenv("?", "2", 1);
 		info->last_exit_status = 2;
 		return ;
 	}
@@ -33,13 +33,13 @@ void	process_input(char *line, t_info *info, char **envp)
 	{
 		exit_status = execute_commands(groups, envp, info);
 		snprintf(exit_str, sizeof(exit_str), "%d", exit_status);
-		ft_setenv("?", exit_str, 1);
+		setenv("?", exit_str, 1);
 		info->last_exit_status = exit_status;
 		free_groups(&groups);
 	}
 	else
 	{
-		ft_setenv("?", "2", 1);
+		setenv("?", "2", 1);
 		info->last_exit_status = 2;
 	}
 	ft_free_tokens(&tokens);
@@ -57,17 +57,17 @@ int	main(int argc, char *argv[], char *envp[])
 	{
 		return (EXIT_FAILURE);
 	}
-	ft_setenv("?", "0", 1);
+	setenv("?", "0", 1);
 	if (!getenv("USER"))
 	{
 		user = getenv("LOGNAME");
 		if (user)
-			ft_setenv("USER", user, 1);
+			setenv("USER", user, 1);
 		else
-			ft_setenv("USER", "user", 1);
+			setenv("USER", "user", 1);
 	}
 	if (!getenv("HOME"))
-		ft_setenv("HOME", "/home/user", 1);
+		setenv("HOME", "/home/user", 1);
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_IGN);
 	while (info.exit_f)
