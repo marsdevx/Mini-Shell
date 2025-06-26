@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   path.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 20:17:23 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/26 18:16:59 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	is_path_command(const char *cmd)
 {
-	return (strchr(cmd, '/') != NULL);
+	return (ft_strchr(cmd, '/') != NULL);
 }
 
 static char	*try_path(const char *dir, const char *cmd)

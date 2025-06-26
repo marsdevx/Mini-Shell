@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:14:01 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:17:04 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,7 +188,7 @@ int	builtin_export(char **args, t_exec_ctx *ctx)
 	}
 	for (int i = 1; args[i]; i++)
 	{
-		equals = strchr(args[i], '=');
+		equals = ft_strchr(args[i], '=');
 		if (equals)
 		{
 			*equals = '\0';
