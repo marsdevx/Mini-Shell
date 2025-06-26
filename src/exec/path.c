@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:16:59 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/26 18:22:00 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,14 +47,14 @@ char	*resolve_command_path(const char *cmd)
 
 	if (is_path_command(cmd))
 	{
-		return (strdup(cmd));
+		return (ft_strdup(cmd));
 	}
 	path_env = getenv("PATH");
 	if (!path_env)
 	{
 		return (NULL);
 	}
-	path_copy = strdup(path_env);
+	path_copy = ft_strdup(path_env);
 	if (!path_copy)
 		return (NULL);
 	dir = strtok(path_copy, ":");

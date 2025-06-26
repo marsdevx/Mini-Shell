@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 20:24:28 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/26 18:21:57 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ char	**group_to_argv(t_group *grp)
 	while (current)
 	{
 		cmd = (t_command *)current->content;
-		argv[i] = strdup(cmd->arg);
+		argv[i] = ft_strdup(cmd->arg);
 		if (!argv[i])
 		{
 			while (--i >= 0)
