@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 21:09:03 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/26 16:52:55 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,21 @@ static int	is_text(t_e_type t)
 	return (t == WORD || t == FIELD || t == EXP_FIELD);
 }
 
+static int	is_valid_var_char(char c, int first)
+{
+	if (first)
+		return (ft_isalpha(c) || c == '_');
+	return (ft_isalnum(c) || c == '_');
+}
+
 t_command	*new_command(const char *arg)
 {
 	t_command	*c;
 
-	c = malloc(sizeof *c);
+	c = malloc(sizeof(*c));
 	if (!c)
 		return (NULL);
-	c->arg = strdup(arg);
+	c->arg = ft_strdup(arg);
 	if (!c->arg)
 	{
 		free(c);
@@ -43,7 +50,7 @@ t_group	*new_group(void)
 {
 	t_group	*g;
 
-	g = malloc(sizeof *g);
+	g = malloc(sizeof(*g));
 	if (!g)
 		return (NULL);
 	g->argv = NULL;
@@ -93,251 +100,298 @@ void	free_groups(t_list **groups)
 	}
 }
 
+static char	*expand_env_var(const char *var_name)
+{
+	const char	*val;
+
+	if (ft_strncmp(var_name, "?", 2) == 0)
+	{
+		val = getenv("?");
+		if (!val)
+			val = "0";
+	}
+	else
+	{
+		val = getenv(var_name);
+		if (!val)
+			val = "";
+	}
+	return (ft_strdup(val));
+}
+
+static char	*get_var_name(const char *str, int *len)
+{
+	char	*var_name;
+	int		i;
+
+	if (*str == '?')
+	{
+		*len = 1;
+		return (ft_strdup("?"));
+	}
+	i = 0;
+	while (str[i] && is_valid_var_char(str[i], i == 0))
+		i++;
+	*len = i;
+	if (i == 0)
+		return (NULL);
+	var_name = malloc(i + 1);
+	if (!var_name)
+		return (NULL);
+	ft_strlcpy(var_name, str, i + 1);
+	return (var_name);
+}
+
+static char	*join_strings(char *s1, char *s2)
+{
+	char	*result;
+	int		len1;
+	int		len2;
+	int		i;
+	int		j;
+
+	if (!s1 && !s2)
+		return (NULL);
+	len1 = s1 ? ft_strlen(s1) : 0;
+	len2 = s2 ? ft_strlen(s2) : 0;
+	result = malloc(len1 + len2 + 1);
+	if (!result)
+		return (NULL);
+	i = 0;
+	while (s1 && i < len1)
+	{
+		result[i] = s1[i];
+		i++;
+	}
+	j = 0;
+	while (s2 && j < len2)
+	{
+		result[i + j] = s2[j];
+		j++;
+	}
+	result[i + j] = '\0';
+	return (result);
+}
+
 static char	*expand_word_env(const char *src)
 {
-	const char *p = src;
-	size_t cap = strlen(src) + 256;
-	size_t len = 0;
-	char *out = malloc(cap);
-	if (!out)
-		return (NULL);
+	const char	*p;
+	char		*result;
+	char		*temp;
+	char		*var_name;
+	char		*var_value;
+	char		*new_result;
+	int			var_len;
 
+	p = src;
+	result = ft_strdup("");
+	if (!result)
+		return (NULL);
 	while (*p)
 	{
-		if (*p == '$' && (isalpha((unsigned char)p[1]) || p[1] == '_'
-				|| p[1] == '?'))
+		if (*p == '$' && (is_valid_var_char(p[1], 1) || p[1] == '?'))
 		{
-			const char *v = ++p;
-
-			if (*p == '?')
+			p++;
+			var_name = get_var_name(p, &var_len);
+			if (!var_name)
 			{
-				p++;
-				const char *val = getenv("?");
-				if (!val)
-					val = "0";
-
-				size_t need = len + strlen(val) + 1;
-				if (need > cap)
-				{
-					cap = need * 2;
-					char *new_out = realloc(out, cap);
-					if (!new_out)
-					{
-						free(out);
-						return (NULL);
-					}
-					out = new_out;
-				}
-				strcpy(out + len, val);
-				len += strlen(val);
+				free(result);
+				return (NULL);
 			}
-			else
+			var_value = expand_env_var(var_name);
+			free(var_name);
+			if (!var_value)
 			{
-				while (isalnum((unsigned char)*p) || *p == '_')
-					++p;
-				size_t vlen = p - v;
-				char var[256];
-				if (vlen >= sizeof var)
-					vlen = sizeof var - 1;
-				memcpy(var, v, vlen);
-				var[vlen] = '\0';
-
-				const char *val = getenv(var);
-				if (!val)
-					val = "";
-
-				size_t need = len + strlen(val) + 1;
-				if (need > cap)
-				{
-					cap = need * 2;
-					char *new_out = realloc(out, cap);
-					if (!new_out)
-					{
-						free(out);
-						return (NULL);
-					}
-					out = new_out;
-				}
-				strcpy(out + len, val);
-				len += strlen(val);
+				free(result);
+				return (NULL);
 			}
+			new_result = join_strings(result, var_value);
+			free(result);
+			free(var_value);
+			if (!new_result)
+				return (NULL);
+			result = new_result;
+			p += var_len;
 		}
-		else if (*p == '$' && !isalpha((unsigned char)p[1]) && p[1] != '_'
-			&& p[1] != '?')
+		else if (*p == '$' && !is_valid_var_char(p[1], 1) && p[1] != '?')
 		{
-			if (len + 2 > cap)
+			temp = malloc(2);
+			if (!temp)
 			{
-				cap *= 2;
-				char *new_out = realloc(out, cap);
-				if (!new_out)
-				{
-					free(out);
-					return (NULL);
-				}
-				out = new_out;
+				free(result);
+				return (NULL);
 			}
-			out[len++] = *p++;
-			out[len] = '\0';
+			temp[0] = *p;
+			temp[1] = '\0';
+			new_result = join_strings(result, temp);
+			free(result);
+			free(temp);
+			if (!new_result)
+				return (NULL);
+			result = new_result;
+			p++;
 		}
 		else
 		{
-			if (len + 2 > cap)
+			temp = malloc(2);
+			if (!temp)
 			{
-				cap *= 2;
-				char *new_out = realloc(out, cap);
-				if (!new_out)
-				{
-					free(out);
-					return (NULL);
-				}
-				out = new_out;
+				free(result);
+				return (NULL);
 			}
-			out[len++] = *p++;
-			out[len] = '\0';
+			temp[0] = *p;
+			temp[1] = '\0';
+			new_result = join_strings(result, temp);
+			free(result);
+			free(temp);
+			if (!new_result)
+				return (NULL);
+			result = new_result;
+			p++;
 		}
 	}
-	return (out);
+	return (result);
+}
+
+static int	handle_redirect(t_token *tk, t_list *tok_lst, t_group **cur, t_list **groups)
+{
+	t_list	*look;
+	t_list  *group_node;
+
+	look = tok_lst->next;
+	if (look && ((t_token *)look->content)->type == SEP)
+		look = look->next;
+	if (!look || !is_text(((t_token *)look->content)->type))
+	{
+		write(2, "syntax error: redirect \"", 24);
+		write(2, tk->value, ft_strlen(tk->value));
+		write(2, "\" needs a filename\n", 19);
+		return (0);
+	}
+	if (!*cur)
+	{
+		*cur = new_group();
+		if (!*cur)
+			return (0);
+		group_node = ft_lstnew(*cur);
+		if (!group_node)
+		{
+			free(*cur);
+			return (0);
+		}
+		ft_lstadd_back(groups, group_node);
+	}
+	return (add_argument(*cur, tk->value));
+}
+
+static char	*concatenate_text_tokens(t_list **scan)
+{
+	char	*arg;
+	char	*piece;
+	char	*new_arg;
+	t_token	*tk2;
+
+	arg = ft_strdup("");
+	if (!arg)
+		return (NULL);
+	while (*scan && is_text(((t_token *)(*scan)->content)->type))
+	{
+		tk2 = (*scan)->content;
+		if (tk2->type == EXP_FIELD || tk2->type == WORD)
+			piece = expand_word_env(tk2->value);
+		else
+			piece = ft_strdup(tk2->value);
+		if (!piece)
+		{
+			free(arg);
+			return (NULL);
+		}
+		new_arg = join_strings(arg, piece);
+		free(arg);
+		free(piece);
+		if (!new_arg)
+			return (NULL);
+		arg = new_arg;
+		*scan = (*scan)->next;
+	}
+	return (arg);
+}
+
+static int	handle_text(t_list **tok_lst, t_group **cur, t_list **groups)
+{
+	char	*arg;
+	t_list	*scan;
+	t_list  *group_node;
+
+	if (!*cur)
+	{
+		*cur = new_group();
+		if (!*cur)
+			return (0);
+		group_node = ft_lstnew(*cur);
+		if (!group_node)
+		{
+			free(*cur);
+			return (0);
+		}
+		ft_lstadd_back(groups, group_node);
+	}
+	scan = *tok_lst;
+	arg = concatenate_text_tokens(&scan);
+	if (!arg)
+		return (0);
+	if (ft_strlen(arg) > 0 || (*groups && ((t_group *)(*groups)->content)->argv == NULL))
+	{
+		if (!add_argument(*cur, arg))
+		{
+			free(arg);
+			return (0);
+		}
+	}
+	free(arg);
+	*tok_lst = scan;
+	return (1);
 }
 
 t_list	*tokens_to_groups(t_list *tok_lst)
 {
-	t_list *groups = NULL;
-	t_group *cur = NULL;
+	t_list	*groups;
+	t_group	*cur;
+	t_token	*tk;
 
+	groups = NULL;
+	cur = NULL;
 	while (tok_lst)
 	{
-		t_token *tk = tok_lst->content;
-
+		tk = tok_lst->content;
 		if (is_redirect(tk->type))
 		{
-			t_list *look = tok_lst->next;
-			if (look && ((t_token *)look->content)->type == SEP)
-				look = look->next;
-			if (!look || !is_text(((t_token *)look->content)->type))
-			{
-				fprintf(stderr,
-					"syntax error: redirect \"%s\" needs a filename\n",
-					tk->value);
-				free_groups(&groups);
-				return (NULL);
-			}
-
-			if (!cur)
-			{
-				cur = new_group();
-				if (!cur)
-				{
-					free_groups(&groups);
-					return (NULL);
-				}
-
-				t_list *group_node = ft_lstnew(cur);
-				if (!group_node)
-				{
-					free(cur);
-					free_groups(&groups);
-					return (NULL);
-				}
-				ft_lstadd_back(&groups, group_node);
-			}
-
-			if (!add_argument(cur, tk->value))
+			if (!handle_redirect(tk, tok_lst, &cur, &groups))
 			{
 				free_groups(&groups);
 				return (NULL);
 			}
-
 			tok_lst = tok_lst->next;
-			continue ;
 		}
-
-		if (tk->type == PIPE)
+		else if (tk->type == PIPE)
 		{
 			cur = NULL;
 			tok_lst = tok_lst->next;
-			continue ;
 		}
-
-		if (tk->type == SEP)
+		else if (tk->type == SEP)
 		{
 			tok_lst = tok_lst->next;
-			continue ;
 		}
-
-		if (is_text(tk->type))
+		else if (is_text(tk->type))
 		{
-			if (!cur)
+			if (!handle_text(&tok_lst, &cur, &groups))
 			{
-				cur = new_group();
-				if (!cur)
-				{
-					free_groups(&groups);
-					return (NULL);
-				}
-
-				t_list *group_node = ft_lstnew(cur);
-				if (!group_node)
-				{
-					free(cur);
-					free_groups(&groups);
-					return (NULL);
-				}
-				ft_lstadd_back(&groups, group_node);
+				free_groups(&groups);
+				return (NULL);
 			}
-
-			char *arg = NULL;
-			size_t len = 0;
-			t_list *scan = tok_lst;
-
-			while (scan && is_text(((t_token *)scan->content)->type))
-			{
-				t_token *tk2 = scan->content;
-				char *piece;
-
-				if (tk2->type == EXP_FIELD || tk2->type == WORD)
-					piece = expand_word_env(tk2->value);
-				else
-					piece = strdup(tk2->value);
-
-				if (!piece)
-				{
-					free_groups(&groups);
-					free(arg);
-					return (NULL);
-				}
-
-				size_t plen = strlen(piece);
-				char *tmp = realloc(arg, len + plen + 1);
-				if (!tmp)
-				{
-					free_groups(&groups);
-					free(arg);
-					free(piece);
-					return (NULL);
-				}
-				arg = tmp;
-				memcpy(arg + len, piece, plen);
-				len += plen;
-				arg[len] = '\0';
-				free(piece);
-				scan = scan->next;
-			}
-
-			if (strlen(arg) > 0 || ((t_group *)groups->content)->argv == NULL)
-			{
-				if (!add_argument(cur, arg))
-				{
-					free_groups(&groups);
-					free(arg);
-					return (NULL);
-				}
-			}
-			free(arg);
-			tok_lst = scan;
-			continue ;
 		}
-
-		tok_lst = tok_lst->next;
+		else
+			tok_lst = tok_lst->next;
 	}
 	return (groups);
 }
