@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 20:47:05 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/27 18:10:10 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int	execute_external(char **args, t_exec_ctx *ctx)
 		signal(SIGQUIT, SIG_DFL);
 		execve(cmd_path, args, ctx->info->env);
 		perror(args[0]);
-		exit(126);
+		exit(127);
 	}
 	else
 	{
