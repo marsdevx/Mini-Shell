@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/27 15:26:06 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/27 16:08:43 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,11 @@ void	process_input(char *line, t_info *info)
 		return ;
 	}
 	groups = parser(tokens, info->env);
+	ft_free_tokens(&tokens);
 	if (groups)
 	{
 		exit_status = execute_commands(groups, info);
+		free_groups(&groups);
 		exit_str = ft_itoa(exit_status);
 		if (exit_str)
 		{
@@ -39,14 +41,12 @@ void	process_input(char *line, t_info *info)
 			free(exit_str);
 		}
 		info->last_exit_status = exit_status;
-		free_groups(&groups);
 	}
 	else
 	{
 		info->env = set_env_var(info->env, "?", "2", 1);
 		info->last_exit_status = 2;
 	}
-	ft_free_tokens(&tokens);
 }
 
 int	main(int argc, char *argv[], char *envp[])
