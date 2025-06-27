@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:48:10 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/27 17:58:20 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int	setup_redirections(char ***argv_ptr)
 			}
 			if (handle_output_redirect(argv[i + 1]) < 0)
 			{
-				last_error = -1;
+				return (-1);
 			}
 			remove_argv_element(argv, i);
 			remove_argv_element(argv, i);
