@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   reader.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/24 19:27:40 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/06/27 15:13:35 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,11 @@ char	*ft_readline(const char *prompt)
 	return (line);
 }
 
-int	ft_init(t_info *info)
-{
-	info->exit_f = 1;
-	info->last_exit_status = 0;
-	return (0);
-}
+// int	ft_init(t_info *info)
+// {
+
+// 	return (0);
+// }
 
 void	handle_sigint(int sig)
 {

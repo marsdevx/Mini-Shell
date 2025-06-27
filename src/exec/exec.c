@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 20:46:43 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/27 15:42:32 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,15 @@ int	execute_commands(t_list *groups, t_info *info)
 	return (ctx.last_exit_status);
 }
 
+void cleanup(int stdin_temp, int stdout_temp, char **argv)
+{
+	dup2(stdin_temp, STDIN_FILENO);
+	dup2(stdout_temp, STDOUT_FILENO);
+	close(stdin_temp);
+	close(stdout_temp);
+	free_argv(argv);
+}
+
 int	execute_single_command(t_group *grp, t_exec_ctx *ctx)
 {
 	char	**argv;
@@ -141,27 +150,27 @@ int	execute_single_command(t_group *grp, t_exec_ctx *ctx)
 	if (setup_redirections(&argv) < 0)
 	{
 		status = 1;
-		goto cleanup;
+		cleanup(stdin_temp, stdout_temp, argv);
+		return (status);
+		
 	}
 	if (!argv[0])
 	{
 		status = 0;
-		goto cleanup;
+		cleanup(stdin_temp, stdout_temp, argv);
+		return (status);
 	}
 	if (ft_strlen(argv[0]) == 0)
 	{
 		status = 0;
-		goto cleanup;
+		cleanup(stdin_temp, stdout_temp, argv);
+		return (status);
 	}
 	if (is_builtin(argv[0]))
 		status = execute_builtin(argv, ctx);
 	else
 		status = execute_external(argv, ctx);
-cleanup:
-	dup2(stdin_temp, STDIN_FILENO);
-	dup2(stdout_temp, STDOUT_FILENO);
-	close(stdin_temp);
-	close(stdout_temp);
-	free_argv(argv);
+		
+	cleanup(stdin_temp, stdout_temp, argv);
 	return (status);
 }

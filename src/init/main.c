@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 20:47:54 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/27 15:26:06 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,8 @@ int	main(int argc, char *argv[], char *envp[])
 	(void)argc;
 	(void)argv;
 	
-	// Initialize info structure
-	if (ft_init(&info) != 0)
-		return (EXIT_FAILURE);
+	info.exit_f = 1;
+	info.last_exit_status = 0;
 	
 	// Initialize environment copy
 	info.env = init_env_copy(envp);
