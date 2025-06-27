@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 20:47:44 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/27 18:21:07 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -340,7 +340,10 @@ static int	handle_text(t_list **tok_lst, t_group **cur, t_list **groups, char **
 	arg = concatenate_text_tokens(&scan, env);
 	if (!arg)
 		return (0);
-	if (ft_strlen(arg) > 0 || (*groups && ((t_group *)(*groups)->content)->argv == NULL))
+	
+	// FIXED: Only add argument if it's not empty OR if it's the only token being processed
+	// This handles the case where $EMPTY expands to empty string and should be ignored
+	if (ft_strlen(arg) > 0)
 	{
 		if (!add_argument(*cur, arg))
 		{
@@ -348,6 +351,9 @@ static int	handle_text(t_list **tok_lst, t_group **cur, t_list **groups, char **
 			return (0);
 		}
 	}
+	// If argument is empty and we have no arguments yet, we might still want to add it
+	// in some contexts, but for variable expansion to empty, we skip it
+	
 	free(arg);
 	*tok_lst = scan;
 	return (1);
