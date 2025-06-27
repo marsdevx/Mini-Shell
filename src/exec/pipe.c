@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/27 16:15:40 by dkot             ###   ########.fr       */
+/*   Updated: 2025/06/27 16:39:31 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,15 +128,21 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 
 			if (!argv[0] || ft_strlen(argv[0]) == 0)
 			{
-				free_env_copy(ctx->envp);
+				free_env_copy(ctx->info->env);
 				free_groups(&tmp);
+				free_argv(argv);
+				free(pipes);
+				free(pids);
 				exit(0);
 			}
 
 			if (redir_status < 0)
 			{
-				free_env_copy(ctx->envp);
+				free_env_copy(ctx->info->env);
 				free_groups(&tmp);
+				free_argv(argv);
+				free(pipes);
+				free(pids);
 				exit(1);
 			}
 
@@ -148,8 +154,11 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 				child_ctx.info = &child_info;
 
 				int status = execute_builtin(argv, &child_ctx);
-				free_env_copy(ctx->envp);
+				free_env_copy(ctx->info->env);
 				free_groups(&tmp);
+				free_argv(argv);
+				free(pipes);
+				free(pids);
 				exit(status);
 			}
 			else
@@ -158,8 +167,11 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 				if (!cmd_path)
 				{
 					write_error_with_arg("bash: ", argv[0], ": command not found\n");
-					free_env_copy(ctx->envp);
+					free_env_copy(ctx->info->env);
 					free_groups(&tmp);
+					free_argv(argv);
+					free(pipes);
+					free(pids);
 					exit(127);
 				}
 
@@ -168,8 +180,11 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 				{
 					write_error_with_arg("bash: ", argv[0], ": Is a directory\n");
 					free(cmd_path);
-					free_env_copy(ctx->envp);
+					free_env_copy(ctx->info->env);
 					free_groups(&tmp);
+					free_argv(argv);
+					free(pipes);
+					free(pids);
 					exit(126);
 				}
 
@@ -177,15 +192,21 @@ int	execute_pipeline(t_list *groups, t_exec_ctx *ctx)
 				{
 					write_error_with_arg("bash: ", argv[0], ": Permission denied\n");
 					free(cmd_path);
-					free_env_copy(ctx->envp);
+					free_env_copy(ctx->info->env);
 					free_groups(&tmp);
+					free_argv(argv);
+					free(pipes);
+					free(pids);
 					exit(126);
 				}
 
 				execve(cmd_path, argv, ctx->info->env);
 				perror(argv[0]);
-				free_env_copy(ctx->envp);
+				free_env_copy(ctx->info->env);
 				free_groups(&tmp);
+				free_argv(argv);
+				free(pipes);
+				free(pids);
 				exit(126);
 			}
 		}
