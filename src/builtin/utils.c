@@ -1,0 +1,251 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
+/*   Updated: 2025/07/08 18:50:31 by marksylaiev      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../init/header.h"
+
+int	builtin_cd(char **args, t_exec_ctx *ctx)
+{
+	char	*path;
+	char	cwd[1024];
+
+	if (args[1] && args[2])
+	{
+		write_error("bash: cd: too many arguments\n");
+		return (1);
+	}
+	if (!args[1])
+	{
+		path = get_env_value(ctx->info->env, "HOME");
+		if (!path)
+		{
+			write_error("bash: cd: HOME not set\n");
+			return (1);
+		}
+	}
+	else if (ft_strcmp(args[1], "-") == 0)
+	{
+		path = get_env_value(ctx->info->env, "OLDPWD");
+		if (!path)
+		{
+			write_error("bash: cd: OLDPWD not set\n");
+			return (1);
+		}
+		printf("%s\n", path);
+	}
+	else
+	{
+		path = args[1];
+	}
+	if (getcwd(cwd, sizeof(cwd)) != NULL)
+		ctx->info->env = set_env_var(ctx->info->env, "OLDPWD", cwd, 1);
+	if (chdir(path) != 0)
+	{
+		write_error_with_arg("bash: cd: ", path, ": No such file or directory\n");
+		return (1);
+	}
+	if (getcwd(cwd, sizeof(cwd)) != NULL)
+		ctx->info->env = set_env_var(ctx->info->env, "PWD", cwd, 1);
+	return (0);
+}
+
+int	builtin_echo(char **args, t_exec_ctx *ctx)
+{
+	int	i;
+	int	newline;
+
+	(void)ctx;
+	i = 1;
+	newline = 1;
+	while (args[i] && ft_strcmp(args[i], "-n") == 0)
+	{
+		newline = 0;
+		i++;
+	}
+	while (args[i])
+	{
+		write(STDOUT_FILENO, args[i], ft_strlen(args[i]));
+		if (args[i + 1])
+			write(STDOUT_FILENO, " ", 1);
+		i++;
+	}
+	if (newline)
+		write(STDOUT_FILENO, "\n", 1);
+	return (0);
+}
+
+int	builtin_pwd(char **args, t_exec_ctx *ctx)
+{
+	char	cwd[1024];
+
+	(void)ctx;
+	if (args[1])
+	{
+	}
+	if (getcwd(cwd, sizeof(cwd)) != NULL)
+	{
+		printf("%s\n", cwd);
+		return (0);
+	}
+	else
+	{
+		perror("pwd");
+		return (1);
+	}
+}
+
+int	builtin_env(char **args, t_exec_ctx *ctx)
+{
+	int i;
+
+	(void)args;
+	i = 0;
+	while (ctx->info->env[i])
+	{
+		printf("%s\n", ctx->info->env[i]);
+		i++;
+	}
+	return (0);
+}
+
+int	builtin_export(char **args, t_exec_ctx *ctx)
+{
+	int			ret;
+	char		*equals;
+	char		*var_name;
+	char		*value;
+	int			i;
+
+	ret = 0;
+	if (!args[1])
+	{
+		i = 0;
+		while (ctx->info->env[i])
+		{
+			printf("declare -x %s\n", ctx->info->env[i]);
+			i++;
+		}
+		return (0);
+	}
+	for (i = 1; args[i]; i++)
+	{
+		equals = ft_strchr(args[i], '=');
+		if (equals)
+		{
+			*equals = '\0';
+			if (!is_valid_identifier(args[i]))
+			{
+				write_error_with_arg("bash: export: `", args[i], "': not a valid identifier\n");
+				*equals = '=';
+				ret = 1;
+				continue ;
+			}
+			*equals = '=';
+			var_name = malloc(equals - args[i] + 1);
+			if (!var_name)
+				return (1);
+			ft_strncpy(var_name, args[i], equals - args[i]);
+			var_name[equals - args[i]] = '\0';
+			ctx->info->env = set_env_var(ctx->info->env, var_name, equals + 1, 1);
+			free(var_name);
+		}
+		else
+		{
+			if (!is_valid_identifier(args[i]))
+			{
+				write_error_with_arg("bash: export: `", args[i], "': not a valid identifier\n");
+				ret = 1;
+				continue ;
+			}
+			value = get_env_value(ctx->info->env, args[i]);
+			if (value)
+				ctx->info->env = set_env_var(ctx->info->env, args[i], value, 1);
+		}
+	}
+	return (ret);
+}
+
+int builtin_unset(char **args, t_exec_ctx *ctx)
+{
+    if (!args[1])
+        return (0);
+    
+    // Process each variable to unset
+    for (int i = 1; args[i]; i++)
+    {
+        if (!is_valid_identifier(args[i]))
+            continue;
+            
+        ctx->info->env = unset_env_var(ctx->info->env, args[i]);
+    }
+    
+    return (0);
+}
+
+int is_valid_number(char *str)
+{
+    int i = 0;
+    
+    if (!str || !*str)
+        return (0);
+    
+    // Skip leading whitespace
+    while (str[i] == ' ' || str[i] == '\t')
+        i++;
+    
+    // Handle optional sign
+    if (str[i] == '+' || str[i] == '-')
+        i++;
+    
+    // Must have at least one digit
+    if (!str[i])
+        return (0);
+    
+    // Check all remaining characters are digits
+    while (str[i])
+    {
+        if (str[i] < '0' || str[i] > '9')
+        {
+            // Skip trailing whitespace
+            while (str[i] == ' ' || str[i] == '\t')
+                i++;
+            // If we're not at end of string, it's invalid
+            return (str[i] == '\0');
+        }
+        i++;
+    }
+    return (1);
+}
+
+int builtin_exit(char **args, t_exec_ctx *ctx)
+{
+    int exit_code = ctx->last_exit_status;
+    
+    printf("exit\n");
+    if (args[1] && args[2])
+        write_error("bash: exit: too many arguments\n");
+    if (args[1])
+    {
+        if (!is_valid_number(args[1]))
+        {
+            write_error_with_arg("bash: exit: ", args[1], ": numeric argument required\n");
+            exit_code = 2;
+        }
+        else
+        {
+            long val = ft_atoi(args[1]);
+            exit_code = ((val % 256) + 256) % 256;
+        }
+    }
+    ctx->info->exit_f = 0;
+    ctx->info->last_exit_status = exit_code;
+    return (exit_code);
+}

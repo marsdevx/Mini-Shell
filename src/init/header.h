@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   header.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 18:08:50 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/08 18:51:06 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ typedef struct s_builtin
 	t_builtin_func	func;
 }					t_builtin;
 
+int	is_valid_identifier(const char *str);
 int					is_builtin(const char *cmd);
 int					execute_builtin(char **args, t_exec_ctx *ctx);
 int					builtin_cd(char **args, t_exec_ctx *ctx);
