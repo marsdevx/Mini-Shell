@@ -10,9 +10,9 @@ SRC_BUILTIN = builtin/builtin.c
 SRC_EXEC = exec/exec.c exec/external.c exec/path.c exec/redirections.c exec/pipe.c exec/env_utils.c
 SRC_INIT = init/main.c
 SRC_LEXER = lexer/lexer.c 
-SRC_PARSER = parser/parser.c parser/parser_utils.c parser/parser_expand.c parser/parser_expand2.c parser/parser_handlers.c parser/parser_checker.c parser/parser_groups.c
+SRC_PARSER = parser/parser.c parser/utils.c parser/expand.c parser/expand_utils.c parser/handlers.c parser/checker.c parser/groups.c
 SRC_READER = reader/reader.c
-SRC_UTILS = utils/utils.c utils/str_utils.c
+SRC_UTILS = utils/utils.c utils/str.c
 SRC = $(SRC_BUILTIN) $(SRC_EXEC) $(SRC_INIT) $(SRC_LEXER) $(SRC_PARSER) $(SRC_READER) $(SRC_UTILS)
 
 OBJS = $(addprefix $(OBJDIR)/, $(SRC:.c=.o))
