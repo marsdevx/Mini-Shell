@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 19:11:36 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/08 22:19:59 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,7 @@ int					add_argument(t_group *grp, const char *arg);
 void				free_groups(t_list **groups);
 char				*join_strings(char *s1, char *s2);
 
+int find_env_var(char **env, const char *name);
 char				*expand_env_var(const char *var_name, char **env);
 char				*get_var_name(const char *str, int *len);
 char				*expand_word_env_process_var(const char **p, char **result,
