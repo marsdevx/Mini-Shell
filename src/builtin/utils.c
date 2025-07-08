@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 18:55:39 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/08 22:32:48 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ int builtin_unset(char **args, t_exec_ctx *ctx)
     if (!args[1])
         return (0);
     
-    // Process each variable to unset
     for (int i = 1; args[i]; i++)
     {
         if (!is_valid_identifier(args[i]))
