@@ -5,20 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/08 18:07:16 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 18:07:18 by dkot             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   parser_expand2.c                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/27 18:21:07 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/08 18:29:32 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +53,28 @@ char	*expand_word_env(const char *src, char **env)
 	return (result);
 }
 
+static char	*get_token_piece(t_token *tk, char **env)
+{
+	if (tk->type == EXP_FIELD || tk->type == WORD)
+		return (expand_word_env(tk->value, env));
+	else
+		return (ft_strdup(tk->value));
+}
+
+static char	*append_piece(char *arg, char *piece)
+{
+	char	*new_arg;
+
+	new_arg = join_strings(arg, piece);
+	free(arg);
+	free(piece);
+	return (new_arg);
+}
+
 char	*concatenate_text_tokens(t_list **scan, char **env)
 {
 	char	*arg;
 	char	*piece;
-	char	*new_arg;
 	t_token	*tk2;
 
 	arg = ft_strdup("");
@@ -78,21 +83,15 @@ char	*concatenate_text_tokens(t_list **scan, char **env)
 	while (*scan && is_text(((t_token *)(*scan)->content)->type))
 	{
 		tk2 = (*scan)->content;
-		if (tk2->type == EXP_FIELD || tk2->type == WORD)
-			piece = expand_word_env(tk2->value, env);
-		else
-			piece = ft_strdup(tk2->value);
+		piece = get_token_piece(tk2, env);
 		if (!piece)
 		{
 			free(arg);
 			return (NULL);
 		}
-		new_arg = join_strings(arg, piece);
-		free(arg);
-		free(piece);
-		if (!new_arg)
+		arg = append_piece(arg, piece);
+		if (!arg)
 			return (NULL);
-		arg = new_arg;
 		*scan = (*scan)->next;
 	}
 	return (arg);

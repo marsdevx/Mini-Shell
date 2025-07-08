@@ -5,20 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/08 18:06:33 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 18:12:00 by dkot             ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   parser_utils.c                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/27 18:21:07 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/08 18:31:52 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,17 +28,6 @@ t_command	*new_command(const char *arg)
 	return (c);
 }
 
-t_group	*new_group(void)
-{
-	t_group	*g;
-
-	g = malloc(sizeof(*g));
-	if (!g)
-		return (NULL);
-	g->argv = NULL;
-	return (g);
-}
-
 int	add_argument(t_group *grp, const char *arg)
 {
 	t_command	*cmd;
@@ -70,27 +47,16 @@ int	add_argument(t_group *grp, const char *arg)
 	return (1);
 }
 
-void	free_groups(t_list **groups)
+static void	copy_string(char *dest, char *src, int *index)
 {
-	t_list	*nextg;
-	t_group	*grp;
-	t_list	*nexta;
+	int	i;
 
-	while (*groups)
+	i = 0;
+	while (src && src[i])
 	{
-		nextg = (*groups)->next;
-		grp = (*groups)->content;
-		while (grp->argv)
-		{
-			nexta = grp->argv->next;
-			free(((t_command *)grp->argv->content)->arg);
-			free(grp->argv->content);
-			free(grp->argv);
-			grp->argv = nexta;
-		}
-		free(grp);
-		free(*groups);
-		*groups = nextg;
+		dest[*index] = src[i];
+		(*index)++;
+		i++;
 	}
 }
 
@@ -99,8 +65,7 @@ char	*join_strings(char *s1, char *s2)
 	char	*result;
 	int		len1;
 	int		len2;
-	int		i;
-	int		j;
+	int		index;
 
 	if (!s1 && !s2)
 		return (NULL);
@@ -113,18 +78,9 @@ char	*join_strings(char *s1, char *s2)
 	result = malloc(len1 + len2 + 1);
 	if (!result)
 		return (NULL);
-	i = 0;
-	while (s1 && i < len1)
-	{
-		result[i] = s1[i];
-		i++;
-	}
-	j = 0;
-	while (s2 && j < len2)
-	{
-		result[i + j] = s2[j];
-		j++;
-	}
-	result[i + j] = '\0';
+	index = 0;
+	copy_string(result, s1, &index);
+	copy_string(result, s2, &index);
+	result[index] = '\0';
 	return (result);
 }
