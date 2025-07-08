@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 17:53:51 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/08 22:11:15 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,18 +57,12 @@ int	main(int argc, char *argv[], char *envp[])
 
 	(void)argc;
 	(void)argv;
-	
 	info.exit_f = 1;
 	info.last_exit_status = 0;
-	
-	// Initialize environment copy
 	info.env = init_env_copy(envp);
 	if (!info.env)
 		return (EXIT_FAILURE);
-	
-	// Set initial environment variables
 	info.env = set_env_var(info.env, "?", "0", 1);
-	
 	if (!get_env_value(info.env, "USER"))
 	{
 		user = get_env_value(info.env, "LOGNAME");
@@ -77,13 +71,10 @@ int	main(int argc, char *argv[], char *envp[])
 		else
 			info.env = set_env_var(info.env, "USER", "user", 1);
 	}
-	
 	if (!get_env_value(info.env, "HOME"))
 		info.env = set_env_var(info.env, "HOME", "/home/user", 1);
-	
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_IGN);
-	
 	while (info.exit_f)
 	{
 		line = ft_readline("minishell> ");
@@ -98,9 +89,6 @@ int	main(int argc, char *argv[], char *envp[])
 		}
 		free(line);
 	}
-	
-	// Clean up environment
 	free_env_copy(info.env);
-	
 	return (info.last_exit_status);
 }
