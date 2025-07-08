@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 18:50:19 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/08 18:56:19 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,33 @@ int	is_valid_identifier(const char *str)
 			return (0);
 	}
 	return (1);
+}
+
+int is_valid_number(char *str)
+{
+    int i = 0;
+    
+    if (!str || !*str)
+        return (0);
+    
+    while (str[i] == ' ' || str[i] == '\t')
+        i++;
+    
+    if (str[i] == '+' || str[i] == '-')
+        i++;
+    
+    if (!str[i])
+        return (0);
+    
+    while (str[i])
+    {
+        if (str[i] < '0' || str[i] > '9')
+        {
+            while (str[i] == ' ' || str[i] == '\t')
+                i++;
+            return (str[i] == '\0');
+        }
+        i++;
+    }
+    return (1);
 }

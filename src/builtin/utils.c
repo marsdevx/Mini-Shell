@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 18:53:21 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/08 18:55:39 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,41 +86,6 @@ int builtin_unset(char **args, t_exec_ctx *ctx)
     }
     
     return (0);
-}
-
-int is_valid_number(char *str)
-{
-    int i = 0;
-    
-    if (!str || !*str)
-        return (0);
-    
-    // Skip leading whitespace
-    while (str[i] == ' ' || str[i] == '\t')
-        i++;
-    
-    // Handle optional sign
-    if (str[i] == '+' || str[i] == '-')
-        i++;
-    
-    // Must have at least one digit
-    if (!str[i])
-        return (0);
-    
-    // Check all remaining characters are digits
-    while (str[i])
-    {
-        if (str[i] < '0' || str[i] > '9')
-        {
-            // Skip trailing whitespace
-            while (str[i] == ' ' || str[i] == '\t')
-                i++;
-            // If we're not at end of string, it's invalid
-            return (str[i] == '\0');
-        }
-        i++;
-    }
-    return (1);
 }
 
 int builtin_exit(char **args, t_exec_ctx *ctx)
