@@ -6,21 +6,11 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 22:34:07 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/08 22:43:14 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
-
-static void	remove_argv_element(char **argv, int index)
-{
-	free(argv[index]);
-	while (argv[index])
-	{
-		argv[index] = argv[index + 1];
-		index++;
-	}
-}
 
 int	setup_redirections(char ***argv_ptr)
 {

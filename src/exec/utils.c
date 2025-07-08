@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 22:38:25 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/08 22:43:21 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,4 +41,14 @@ void cleanup(int stdin_temp, int stdout_temp, char **argv)
 	close(stdin_temp);
 	close(stdout_temp);
 	free_argv(argv);
+}
+
+void	remove_argv_element(char **argv, int index)
+{
+	free(argv[index]);
+	while (argv[index])
+	{
+		argv[index] = argv[index + 1];
+		index++;
+	}
 }
