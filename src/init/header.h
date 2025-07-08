@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 22:30:53 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/08 22:39:20 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,7 @@ int					handle_output_redirect(const char *filename);
 int					handle_append_redirect(const char *filename);
 int					handle_heredoc(const char *delimiter);
 int					count_args(t_list *args);
+void cleanup(int stdin_temp, int stdout_temp, char **argv);
 
 int					quotes_check(char *input);
 t_list				*lexer(char *input);
