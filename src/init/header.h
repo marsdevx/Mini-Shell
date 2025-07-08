@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 18:55:54 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/08 19:07:07 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ int					builtin_unset(char **args, t_exec_ctx *ctx);
 int					builtin_env(char **args, t_exec_ctx *ctx);
 int					builtin_exit(char **args, t_exec_ctx *ctx);
 
+int	process_token(char **ptr, t_token *token);
 int					execute_commands(t_list *groups, t_info *info);
 int					execute_single_command(t_group *grp, t_exec_ctx *ctx);
 int					execute_external(char **args, t_exec_ctx *ctx);
