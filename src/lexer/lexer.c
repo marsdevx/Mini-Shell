@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 17:52:46 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/08 18:38:37 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,11 +231,27 @@ static int	add_token_to_list(t_list **tokens, t_token *token)
 	return (1);
 }
 
+static int	process_single_token(char **ptr, t_list **tokens)
+{
+	t_token	*token;
+
+	token = create_token();
+	if (!token)
+		return (0);
+	if (!process_token(ptr, token))
+	{
+		free_token(token);
+		return (0);
+	}
+	if (!add_token_to_list(tokens, token))
+		return (0);
+	return (1);
+}
+
 t_list	*lexer(char *input)
 {
 	t_list	*tokens;
 	char	*ptr;
-	t_token	*token;
 
 	if (!quotes_check(input))
 		return (NULL);
@@ -243,19 +259,7 @@ t_list	*lexer(char *input)
 	ptr = input;
 	while (*ptr)
 	{
-		token = create_token();
-		if (!token)
-		{
-			cleanup_tokens(&tokens);
-			return (NULL);
-		}
-		if (!process_token(&ptr, token))
-		{
-			free_token(token);
-			cleanup_tokens(&tokens);
-			return (NULL);
-		}
-		if (!add_token_to_list(&tokens, token))
+		if (!process_single_token(&ptr, &tokens))
 		{
 			cleanup_tokens(&tokens);
 			return (NULL);
