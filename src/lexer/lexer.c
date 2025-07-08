@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 18:38:37 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/08 19:01:47 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void	cleanup_tokens(t_list **tokens)
 	}
 }
 
-static t_token	*create_token(void)
+t_token	*create_token(void)
 {
 	t_token	*token;
 
@@ -199,7 +199,7 @@ static int	handle_word(char **ptr, t_token *token)
 	return (1);
 }
 
-static int	process_token(char **ptr, t_token *token)
+int	process_token(char **ptr, t_token *token)
 {
 	if (**ptr == ' ' || **ptr == '\t')
 		return (handle_whitespace(ptr, token));
@@ -217,7 +217,7 @@ static int	process_token(char **ptr, t_token *token)
 		return (handle_word(ptr, token));
 }
 
-static int	add_token_to_list(t_list **tokens, t_token *token)
+int	add_token_to_list(t_list **tokens, t_token *token)
 {
 	t_list	*new_node;
 
@@ -231,7 +231,7 @@ static int	add_token_to_list(t_list **tokens, t_token *token)
 	return (1);
 }
 
-static int	process_single_token(char **ptr, t_list **tokens)
+int	process_single_token(char **ptr, t_list **tokens)
 {
 	t_token	*token;
 
