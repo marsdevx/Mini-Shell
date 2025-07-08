@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/06/26 18:28:49 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/08 17:57:26 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,106 +66,15 @@ void	ft_free_tokens(t_list **tokens)
 	*tokens = NULL;
 }
 
-char	*ft_strndup(const char *s, size_t n)
-{
-	char	*dup;
-	size_t	i;
-
-	if (!s)
-		return (NULL);
-	dup = malloc(n + 1);
-	if (!dup)
-		return (NULL);
-	i = 0;
-	while (i < n && s[i])
-	{
-		dup[i] = s[i];
-		i++;
-	}
-	dup[i] = '\0';
-	return (dup);
-}
-
-int ft_strcmp(const char *s1, const char *s2)
-{
-    // Memory safety checks
-    if (s1 == NULL && s2 == NULL)
-        return (0);     // Both NULL, considered equal
-    if (s1 == NULL)
-        return (INT_MIN); // s1 is NULL, s2 is not
-    if (s2 == NULL)
-        return (INT_MAX); // s2 is NULL, s1 is not
-    
-    // Compare characters until difference found or end reached
-    while (*s1 && (*s1 == *s2))
-    {
-        s1++;
-        s2++;
-    }
-    
-    // Return difference of characters (unsigned char cast prevents sign issues)
-    return ((unsigned char)*s1 - (unsigned char)*s2);
-}
-
 void	write_error(const char *msg)
 {
 	write(STDERR_FILENO, msg, ft_strlen(msg));
 }
 
-// Helper function to write error with variable part
-void	write_error_with_arg(const char *prefix, const char *arg, const char *suffix)
+void	write_error_with_arg(const char *prefix, const char *arg,
+		const char *suffix)
 {
 	write(STDERR_FILENO, prefix, ft_strlen(prefix));
 	write(STDERR_FILENO, arg, ft_strlen(arg));
 	write(STDERR_FILENO, suffix, ft_strlen(suffix));
-}
-
-char	*ft_strncpy(char *dest, const char *src, size_t n)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < n && src[i] != '\0')
-	{
-		dest[i] = src[i];
-		i++;
-	}
-	while (i < n)
-	{
-		dest[i] = '\0';
-		i++;
-	}
-	return (dest);
-}
-
-char	*ft_strcpy(char *dst, const char *src)
-{
-	int	i;
-
-	i = 0;
-	while (src[i] != '\0')
-	{
-		dst[i] = src[i];
-		i++;
-	}
-	dst[i] = '\0';
-	return (dst);
-}
-
-char	*ft_strcat(char *s1, const char *s2)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	j = 0;
-	while (s1[i] != '\0')
-		i++;
-	while (s2[j] != '\0')
-	{
-		s1[i + j] = s2[j];
-		j++;
-	}
-	s1[i + j] = '\0';
-	return (s1);
 }
