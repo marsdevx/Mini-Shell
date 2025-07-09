@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 18:56:19 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/09 11:51:23 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,14 @@ static const t_builtin	*get_builtin_table(void)
 int	is_builtin(const char *cmd)
 {
 	const t_builtin	*builtins = get_builtin_table();
+	int				i;
 
-	for (int i = 0; builtins[i].name; i++)
+	i = 0;
+	while (builtins[i].name)
 	{
 		if (ft_strcmp(cmd, builtins[i].name) == 0)
 			return (1);
+		i++;
 	}
 	return (0);
 }
@@ -38,8 +41,10 @@ int	execute_builtin(char **args, t_exec_ctx *ctx)
 {
 	const t_builtin	*builtins = get_builtin_table();
 	int				status;
+	int				i;
 
-	for (int i = 0; builtins[i].name; i++)
+	i = 0;
+	while (builtins[i].name)
 	{
 		if (ft_strcmp(args[0], builtins[i].name) == 0)
 		{
@@ -47,20 +52,25 @@ int	execute_builtin(char **args, t_exec_ctx *ctx)
 			ctx->last_exit_status = status;
 			return (status);
 		}
+		i++;
 	}
 	return (127);
 }
 
 int	is_valid_identifier(const char *str)
 {
+	const char *p;
+
 	if (!str || !*str)
 		return (0);
 	if (!ft_isalpha((unsigned char)*str) && *str != '_')
 		return (0);
-	for (const char *p = str + 1; *p; p++)
+	p = str + 1;
+	while (*p)
 	{
 		if (!ft_isalnum((unsigned char)*p) && *p != '_')
 			return (0);
+		p++;
 	}
 	return (1);
 }
