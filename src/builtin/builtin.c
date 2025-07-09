@@ -65,31 +65,28 @@ int	is_valid_identifier(const char *str)
 	return (1);
 }
 
-int is_valid_number(char *str)
+int	is_valid_number(char *str)
 {
-    int i = 0;
-    
-    if (!str || !*str)
-        return (0);
-    
-    while (str[i] == ' ' || str[i] == '\t')
-        i++;
-    
-    if (str[i] == '+' || str[i] == '-')
-        i++;
-    
-    if (!str[i])
-        return (0);
-    
-    while (str[i])
-    {
-        if (str[i] < '0' || str[i] > '9')
-        {
-            while (str[i] == ' ' || str[i] == '\t')
-                i++;
-            return (str[i] == '\0');
-        }
-        i++;
-    }
-    return (1);
+	int	i;
+
+	i = 0;
+	if (!str || !*str)
+		return (0);
+	while (str[i] == ' ' || str[i] == '\t')
+		i++;
+	if (str[i] == '+' || str[i] == '-')
+		i++;
+	if (!str[i])
+		return (0);
+	while (str[i])
+	{
+		if (str[i] < '0' || str[i] > '9')
+		{
+			while (str[i] == ' ' || str[i] == '\t')
+				i++;
+			return (str[i] == '\0');
+		}
+		i++;
+	}
+	return (1);
 }
