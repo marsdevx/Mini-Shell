@@ -8,7 +8,7 @@ LIBFTDIR = libs/libft
 
 SRC_BUILTIN = builtin/builtin.c builtin/utils.c builtin/cd.c builtin/export.c
 SRC_ENV = env/set_env.c env/utils.c
-SRC_EXEC = exec/exec.c exec/external.c exec/path.c exec/redir.c exec/redir_utils.c exec/pipe.c exec/utils.c exec/heredoc.c exec/pipe_child.c exec/pipe_exec.c exec/pipe_external.c exec/pipe_setup.c
+SRC_EXEC = exec/exec.c exec/external.c exec/path.c exec/redir.c exec/redir_utils.c exec/pipe.c exec/utils.c exec/heredoc.c exec/pipe_child.c exec/pipe_exec.c exec/pipe_external.c exec/pipe_setup.c exec/exec_utils.c
 SRC_INIT = init/main.c init/reader.c
 SRC_LEXER = lexer/lexer.c lexer/handle.c lexer/utils.c
 SRC_PARSER = parser/parser.c parser/utils.c parser/expand.c parser/expand_utils.c parser/handlers.c parser/checker.c parser/groups.c
