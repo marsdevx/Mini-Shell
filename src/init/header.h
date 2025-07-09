@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   header.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/09 19:22:08 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/09 21:54:11 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,10 @@ typedef struct s_pipe_data
 	t_list			*tmp;
 }					t_pipe_data;
 
+int	handle_whitespace(char **ptr, t_token *token);
+int	handle_pipe(char **ptr, t_token *token);
+int	handle_redirect_in(char **ptr, t_token *token);
+int	handle_redirect_out(char **ptr, t_token *token);
 int					is_valid_identifier(const char *str);
 int					is_valid_number(char *str);
 int					is_builtin(const char *cmd);
@@ -110,7 +114,6 @@ int					builtin_export(char **args, t_exec_ctx *ctx);
 int					builtin_unset(char **args, t_exec_ctx *ctx);
 int					builtin_env(char **args, t_exec_ctx *ctx);
 int					builtin_exit(char **args, t_exec_ctx *ctx);
-
 void				cleanup_tokens(t_list **tokens);
 void				free_token(t_token *token);
 int					process_token(char **ptr, t_token *token);
@@ -129,8 +132,6 @@ int					handle_heredoc(const char *delimiter);
 int					count_args(t_list *args);
 void				cleanup(int stdin_temp, int stdout_temp, char **argv);
 void				remove_argv_element(char **argv, int index);
-
-/* Pipeline functions */
 int					create_pipes(t_pipe_data *data);
 void				close_all_pipes(int (*pipes)[2], int count);
 void				setup_child_pipes(t_pipe_data *data);
@@ -141,19 +142,15 @@ void				execute_child_process(char **argv, t_exec_ctx *ctx,
 						t_pipe_data *data);
 void				execute_external_child(char **argv, t_exec_ctx *ctx,
 						t_pipe_data *data);
-
 int					quotes_check(char *input);
 t_list				*lexer(char *input);
-
 t_list				*parser(t_list *tokens, char **env);
 t_list				*tokens_to_groups(t_list *tok_lst, char **env);
-
 t_command			*new_command(const char *arg);
 t_group				*new_group(void);
 int					add_argument(t_group *grp, const char *arg);
 void				free_groups(t_list **groups);
 char				*join_strings(char *s1, char *s2);
-
 int					find_env_var(char **env, const char *name);
 char				*expand_env_var(const char *var_name, char **env);
 char				*get_var_name(const char *str, int *len);
@@ -161,10 +158,8 @@ char				*expand_word_env_process_var(const char **p, char **result,
 						char **env);
 char				*expand_word_env_process_char(const char **p, char **result,
 						char c);
-
 char				*expand_word_env(const char *src, char **env);
 char				*concatenate_text_tokens(t_list **scan, char **env);
-
 int					handle_redirect_create_group(t_group **cur,
 						t_list **groups);
 int					handle_redirect(t_token *tk, t_list *tok_lst, t_group **cur,
@@ -172,15 +167,12 @@ int					handle_redirect(t_token *tk, t_list *tok_lst, t_group **cur,
 int					handle_text_create_group(t_group **cur, t_list **groups);
 int					handle_text(t_list **tok_lst, t_group **cur,
 						t_list **groups, char **env);
-
 int					is_redirect(t_e_type t);
 int					is_text(t_e_type t);
 int					is_valid_var_char(char c, int first);
-
 int					ft_init(t_info *info);
 void				handle_sigint(int sig);
 char				*ft_readline(const char *prompt);
-
 t_list				*ft_lstnew(void *content);
 void				ft_lstadd_back(t_list **lst, t_list *new);
 void				ft_free_tokens(t_list **tokens);
