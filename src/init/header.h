@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   header.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/09 11:38:54 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/09 17:43:11 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,15 @@ typedef struct s_builtin
 	t_builtin_func	func;
 }					t_builtin;
 
+typedef struct s_pipe_data
+{
+	int				pipe_count;
+	int				(*pipes)[2];
+	pid_t			*pids;
+	int				cmd_index;
+	t_list			*tmp;
+}					t_pipe_data;
+
 int					is_valid_identifier(const char *str);
 int					is_valid_number(char *str);
 int					is_builtin(const char *cmd);
@@ -120,6 +129,18 @@ int					handle_heredoc(const char *delimiter);
 int					count_args(t_list *args);
 void				cleanup(int stdin_temp, int stdout_temp, char **argv);
 void				remove_argv_element(char **argv, int index);
+
+/* Pipeline functions */
+int					create_pipes(t_pipe_data *data);
+void				close_all_pipes(int (*pipes)[2], int count);
+void				setup_child_pipes(t_pipe_data *data);
+int					wait_for_children(t_pipe_data *data);
+int					execute_pipe_commands(t_list *groups, t_exec_ctx *ctx,
+						t_pipe_data *data);
+void				execute_child_process(char **argv, t_exec_ctx *ctx,
+						t_pipe_data *data);
+void				execute_external_child(char **argv, t_exec_ctx *ctx,
+						t_pipe_data *data);
 
 int					quotes_check(char *input);
 t_list				*lexer(char *input);
