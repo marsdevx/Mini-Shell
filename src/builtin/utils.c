@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 22:32:48 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/09 11:44:52 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,13 +73,20 @@ int	builtin_env(char **args, t_exec_ctx *ctx)
 
 int	builtin_unset(char **args, t_exec_ctx *ctx)
 {
+	int	i;
+
 	if (!args[1])
 		return (0);
-	for (int i = 1; args[i]; i++)
+	i = 1;
+	while (args[i])
 	{
 		if (!is_valid_identifier(args[i]))
+		{
+			i++;
 			continue ;
+		}
 		ctx->info->env = unset_env_var(ctx->info->env, args[i]);
+		i++;
 	}
 	return (0);
 }
