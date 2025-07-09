@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 22:43:36 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/09 11:38:54 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,8 +90,8 @@ typedef struct s_builtin
 	t_builtin_func	func;
 }					t_builtin;
 
-int	is_valid_identifier(const char *str);
-int is_valid_number(char *str);
+int					is_valid_identifier(const char *str);
+int					is_valid_number(char *str);
 int					is_builtin(const char *cmd);
 int					execute_builtin(char **args, t_exec_ctx *ctx);
 int					builtin_cd(char **args, t_exec_ctx *ctx);
@@ -102,9 +102,9 @@ int					builtin_unset(char **args, t_exec_ctx *ctx);
 int					builtin_env(char **args, t_exec_ctx *ctx);
 int					builtin_exit(char **args, t_exec_ctx *ctx);
 
-void	cleanup_tokens(t_list **tokens);
-void	free_token(t_token *token);
-int	process_token(char **ptr, t_token *token);
+void				cleanup_tokens(t_list **tokens);
+void				free_token(t_token *token);
+int					process_token(char **ptr, t_token *token);
 int					execute_commands(t_list *groups, t_info *info);
 int					execute_single_command(t_group *grp, t_exec_ctx *ctx);
 int					execute_external(char **args, t_exec_ctx *ctx);
@@ -118,8 +118,8 @@ int					handle_output_redirect(const char *filename);
 int					handle_append_redirect(const char *filename);
 int					handle_heredoc(const char *delimiter);
 int					count_args(t_list *args);
-void cleanup(int stdin_temp, int stdout_temp, char **argv);
-void	remove_argv_element(char **argv, int index);
+void				cleanup(int stdin_temp, int stdout_temp, char **argv);
+void				remove_argv_element(char **argv, int index);
 
 int					quotes_check(char *input);
 t_list				*lexer(char *input);
@@ -133,7 +133,7 @@ int					add_argument(t_group *grp, const char *arg);
 void				free_groups(t_list **groups);
 char				*join_strings(char *s1, char *s2);
 
-int find_env_var(char **env, const char *name);
+int					find_env_var(char **env, const char *name);
 char				*expand_env_var(const char *var_name, char **env);
 char				*get_var_name(const char *str, int *len);
 char				*expand_word_env_process_var(const char **p, char **result,
@@ -146,8 +146,8 @@ char				*concatenate_text_tokens(t_list **scan, char **env);
 
 int					handle_redirect_create_group(t_group **cur,
 						t_list **groups);
-int					handle_redirect(t_token *tk, t_list *tok_lst,
-						t_group **cur, t_list **groups);
+int					handle_redirect(t_token *tk, t_list *tok_lst, t_group **cur,
+						t_list **groups);
 int					handle_text_create_group(t_group **cur, t_list **groups);
 int					handle_text(t_list **tok_lst, t_group **cur,
 						t_list **groups, char **env);
