@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/09 11:51:23 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/09 21:09:39 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 static const t_builtin	*get_builtin_table(void)
 {
 	static const t_builtin	builtins[] = {{"cd", builtin_cd}, {"echo",
-			builtin_echo}, {"pwd", builtin_pwd}, {"export", builtin_export},
-			{"unset", builtin_unset}, {"env", builtin_env}, {"exit",
-			builtin_exit}, {NULL, NULL}};
+		builtin_echo}, {"pwd", builtin_pwd}, {"export", builtin_export},
+	{"unset", builtin_unset}, {"env", builtin_env}, {"exit",
+		builtin_exit}, {NULL, NULL}};
 
 	return (builtins);
 }
@@ -59,7 +59,7 @@ int	execute_builtin(char **args, t_exec_ctx *ctx)
 
 int	is_valid_identifier(const char *str)
 {
-	const char *p;
+	const char	*p;
 
 	if (!str || !*str)
 		return (0);
