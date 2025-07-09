@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/26 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/09 21:27:04 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/09 21:32:40 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,13 @@ char	**init_env_copy(char **envp)
 	char	**env_copy;
 
 	count = 0;
-	while (envp[count])
+	while (envp && envp[count])
 		count++;
 	env_copy = malloc(sizeof(char *) * (count + 1));
 	if (!env_copy)
 		return (NULL);
-	for (i = 0; i < count; i++)
+	i = 0;
+	while (i < count)
 	{
 		env_copy[i] = ft_strdup(envp[i]);
 		if (!env_copy[i])
@@ -34,6 +35,7 @@ char	**init_env_copy(char **envp)
 			free(env_copy);
 			return (NULL);
 		}
+		++i;
 	}
 	env_copy[count] = NULL;
 	return (env_copy);
