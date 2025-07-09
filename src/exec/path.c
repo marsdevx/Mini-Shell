@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/09 17:49:03 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/09 19:26:18 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,12 +67,29 @@ static char	*get_next_path_dir(char **path_ptr)
 	return (dir);
 }
 
+static char	*search_in_path(const char *cmd, char *path_copy)
+{
+	char	*path_ptr;
+	char	*dir;
+	char	*result;
+
+	path_ptr = path_copy;
+	result = NULL;
+	dir = get_next_path_dir(&path_ptr);
+	while (!result && dir != NULL)
+	{
+		result = try_path(dir, cmd);
+		free(dir);
+		if (!result)
+			dir = get_next_path_dir(&path_ptr);
+	}
+	return (result);
+}
+
 char	*resolve_command_path(const char *cmd, char **env)
 {
 	char	*path_env;
 	char	*path_copy;
-	char	*path_ptr;
-	char	*dir;
 	char	*result;
 
 	if (is_path_command(cmd))
@@ -83,13 +100,7 @@ char	*resolve_command_path(const char *cmd, char **env)
 	path_copy = ft_strdup(path_env);
 	if (!path_copy)
 		return (NULL);
-	path_ptr = path_copy;
-	result = NULL;
-	while (!result && (dir = get_next_path_dir(&path_ptr)) != NULL)
-	{
-		result = try_path(dir, cmd);
-		free(dir);
-	}
+	result = search_in_path(cmd, path_copy);
 	free(path_copy);
 	return (result);
 }
