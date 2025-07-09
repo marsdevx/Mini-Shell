@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/26 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/09 21:32:40 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/09 21:36:29 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,8 +87,12 @@ static char	**update_env(char **env, char *new_entry, int index, int overwrite)
 	new_env = malloc(sizeof(char *) * (count + 2));
 	if (!new_env)
 		return (NULL);
-	for (i = 0; i < count; ++i)
+	i = 0;
+	while (i < count)
+	{
 		new_env[i] = env[i];
+		++i;
+	}
 	new_env[count] = new_entry;
 	new_env[count + 1] = NULL;
 	free(env);
