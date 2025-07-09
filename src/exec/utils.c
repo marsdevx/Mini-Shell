@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 22:43:21 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/09 16:55:37 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,20 @@ int	count_args(t_list *args)
 
 void	free_argv(char **argv)
 {
+	int	i;
+
 	if (!argv)
 		return ;
-	for (int i = 0; argv[i]; i++)
+	i = 0;
+	while (argv[i])
+	{
 		free(argv[i]);
+		i++;
+	}
 	free(argv);
 }
 
-void cleanup(int stdin_temp, int stdout_temp, char **argv)
+void	cleanup(int stdin_temp, int stdout_temp, char **argv)
 {
 	dup2(stdin_temp, STDIN_FILENO);
 	dup2(stdout_temp, STDOUT_FILENO);
