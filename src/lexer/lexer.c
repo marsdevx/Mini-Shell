@@ -6,7 +6,7 @@
 /*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/08 19:10:35 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/10 16:24:20 by marksylaiev      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,11 @@ t_list	*lexer(char *input)
 	ptr = input;
 	while (*ptr)
 	{
+		if (*ptr == ';' || *ptr == '\\')
+		{
+			++ptr;
+			continue ;
+		}
 		if (!process_single_token(&ptr, &tokens))
 		{
 			cleanup_tokens(&tokens);
