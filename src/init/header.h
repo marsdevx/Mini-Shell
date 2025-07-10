@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/10 15:20:45 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/10 16:34:09 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,5 +190,8 @@ char		**set_env_var(char **env, const char *name, const char *value,
 char		**unset_env_var(char **env, const char *name);
 char		*get_env_value(char **env, const char *name);
 void		init_shell_env(t_info *info);
+int	is_command_token(t_e_type type);
+int	validate_pipe_syntax(t_list *tokens);
+int	validate_pipe_syntax_enhanced(t_list *tokens);
 
 #endif

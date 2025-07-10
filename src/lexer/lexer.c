@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/10 16:24:20 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/10 16:37:42 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,11 @@ t_list	*lexer(char *input)
 		}
 		if (*ptr == '\0')
 			break ;
+	}
+	if (!validate_pipe_syntax_enhanced(tokens))
+	{
+		cleanup_tokens(&tokens);
+		return (NULL);
 	}
 	return (tokens);
 }
