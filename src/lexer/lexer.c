@@ -6,7 +6,7 @@
 /*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:10 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/10 16:37:42 by dkot             ###   ########.fr       */
+/*   Updated: 2025/07/10 17:44:43 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,13 +55,11 @@ int	process_single_token(char **ptr, t_list **tokens)
 	return (1);
 }
 
-t_list	*lexer(char *input)
+t_list	*tokenize_input(char *input)
 {
 	t_list	*tokens;
 	char	*ptr;
 
-	if (!quotes_check(input))
-		return (NULL);
 	tokens = NULL;
 	ptr = input;
 	while (*ptr)
@@ -79,6 +77,18 @@ t_list	*lexer(char *input)
 		if (*ptr == '\0')
 			break ;
 	}
+	return (tokens);
+}
+
+t_list	*lexer(char *input)
+{
+	t_list	*tokens;
+
+	if (!quotes_check(input))
+		return (NULL);
+	tokens = tokenize_input(input);
+	if (!tokens)
+		return (NULL);
 	if (!validate_pipe_syntax_enhanced(tokens))
 	{
 		cleanup_tokens(&tokens);
