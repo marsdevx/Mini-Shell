@@ -3,39 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marksylaiev <marksylaiev@student.42.fr>    +#+  +:+       +#+        */
+/*   By: dkot <dkot@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/23 13:14:05 by dkot              #+#    #+#             */
-/*   Updated: 2025/07/09 11:44:52 by marksylaiev      ###   ########.fr       */
+/*   Updated: 2025/07/10 16:10:11 by dkot             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../init/header.h"
-
-int	builtin_echo(char **args, t_exec_ctx *ctx)
-{
-	int	i;
-	int	newline;
-
-	(void)ctx;
-	i = 1;
-	newline = 1;
-	while (args[i] && ft_strcmp(args[i], "-n") == 0)
-	{
-		newline = 0;
-		i++;
-	}
-	while (args[i])
-	{
-		write(STDOUT_FILENO, args[i], ft_strlen(args[i]));
-		if (args[i + 1])
-			write(STDOUT_FILENO, " ", 1);
-		i++;
-	}
-	if (newline)
-		write(STDOUT_FILENO, "\n", 1);
-	return (0);
-}
 
 int	builtin_pwd(char **args, t_exec_ctx *ctx)
 {

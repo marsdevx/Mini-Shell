@@ -6,7 +6,7 @@ SRCDIR = src
 OBJDIR = obj
 LIBFTDIR = libs/libft
 
-SRC_BUILTIN = builtin/builtin.c builtin/utils.c builtin/cd.c builtin/export.c
+SRC_BUILTIN = builtin/builtin.c builtin/utils.c builtin/cd.c builtin/export.c builtin/echo.c
 SRC_ENV = env/env.c env/utils.c env/init.c
 SRC_EXEC = exec/exec.c exec/external.c exec/path.c exec/redir.c exec/redir_utils.c exec/utils.c exec/heredoc.c exec/exec_utils.c
 SRC_INIT = init/main.c init/reader.c init/init_shell_env.c
